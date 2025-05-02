@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_jornadakids/app/ui/pages/home/home_page.dart';
 import 'package:flutter_jornadakids/app/ui/pages/user_register/register_page_child.dart';
 import 'package:flutter_jornadakids/app/ui/pages/user_register/register_page_responsible.dart';
 import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
@@ -36,6 +37,21 @@ class _LoginPageState extends State<LoginPage> {
       _isFormValid = _usernameController.text.isNotEmpty && 
                     _passwordController.text.isNotEmpty;
     });
+  }
+
+  void _handleLogin() {
+    // Aqui você implementaria a lógica real de autenticação
+    // Por enquanto, vamos apenas navegar para a tela inicial
+    
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HomePage(
+          userType: widget.userType,
+          username: _usernameController.text,
+        ),
+      ),
+    );
   }
 
   @override
@@ -113,11 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
-                      onPressed: _isFormValid 
-                          ? () {
-                              // Lógica de login aqui quando válido
-                            } 
-                          : null,
+                      onPressed: _isFormValid ? _handleLogin : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _isFormValid 
                             ? const Color(0xFF000957) 

@@ -131,7 +131,7 @@ class _RegisterPageChildState extends State<RegisterPageChild> {
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _isFormValid 
-                            ? AppColors.activeButton 
+                            ? AppColors.darkBlue 
                             : AppColors.primary,
                         foregroundColor: Colors.white,
                         disabledBackgroundColor: AppColors.primary,
