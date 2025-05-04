@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_jornadakids/app/ui/pages/home/home_page.dart';
-import 'package:flutter_jornadakids/app/ui/pages/user_register/register_page_child.dart';
-import 'package:flutter_jornadakids/app/ui/pages/user_register/register_page_responsible.dart';
+import 'package:flutter_jornadakids/app/ui/pages/auth/user_register/register_page_child.dart';
+import 'package:flutter_jornadakids/app/ui/pages/auth/user_register/register_page_responsible.dart';
 import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
 
 class LoginPage extends StatefulWidget {

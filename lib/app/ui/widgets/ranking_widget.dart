@@ -6,60 +6,255 @@ class RankingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.5),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Text(
-              'Ranking',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.darkText,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView(
-                children: const [
-                  RankingItem(
-                    position: 1,
-                    name: '{nomecrianca}',
-                    points: 323232,
-                  ),
-                  SizedBox(height: 8),
-                  RankingItem(
-                    position: 2,
-                    name: '{nomecrianca}',
-                    points: 23232,
-                  ),
-                  SizedBox(height: 8),
-                  RankingItem(
-                    position: 3,
-                    name: '{nomecrianca}',
-                    points: 12114,
-                  ),
-                ],
-              ),
-            ),
-          ],
+    return Container(
+      height: 450,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: AppColors.grey,
+          width: 1.0,
         ),
       ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Ranking',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.darkText,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.people_alt_outlined, color: AppColors.primary, size: 16),
+                    SizedBox(width: 4),
+                    Text(
+                      'Top 10',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),// Top 3 cards
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // 2º Lugar
+              _buildTopThreeCard(context, 2, '{nomecrianca}', 23232, Colors.grey.shade400),
+              
+              // 1º Lugar - Maior e destacado
+              _buildTopThreeCard(context, 1, '{nomecrianca}', 323232, Colors.amber.shade600, isFirst: true),
+              
+              // 3º Lugar
+              _buildTopThreeCard(context, 3, '{nomecrianca}', 12114, Colors.brown.shade300),
+            ],
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // Linha divisória
+          Container(
+            height: 1,
+            color: Colors.grey.withOpacity(0.2),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Lista de outros competidores
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: const [
+                RankingItem(
+                  position: 4,
+                  name: '{nomecrianca}',
+                  points: 10000,
+                ),
+                SizedBox(height: 12),
+                RankingItem(
+                  position: 5,
+                  name: '{nomecrianca}',
+                  points: 9850,
+                ),
+                SizedBox(height: 12),
+                RankingItem(
+                  position: 6,
+                  name: '{nomecrianca}',
+                  points: 8720,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
+  }
+  
+  Widget _buildTopThreeCard(
+    BuildContext context,
+    int position,
+    String name,
+    int points,
+    Color medalColor, {
+    bool isFirst = false,
+  }) {
+    final size = isFirst ? 100.0 : 85.0;
+    final fontSize = isFirst ? 16.0 : 14.0;
+    final iconSize = isFirst ? 26.0 : 22.0;
+    
+    return Column(
+      children: [
+        // Medal
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: medalColor.withOpacity(0.2),
+                border: Border.all(color: medalColor, width: 2),
+              ),
+              child: Center(
+                child: Container(
+                  width: size * 0.8,
+                  height: size * 0.8,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/default_avatar.png',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.person, size: size * 0.5);
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // Posição
+            Positioned(
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: medalColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 2,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  '#$position',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            // Troféu para o primeiro lugar
+            if (isFirst)
+              Positioned(
+                top: 0,
+                right: 5,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                  ),
+                  child: Icon(
+                    Icons.emoji_events,
+                    color: Colors.amber.shade700,
+                    size: 20,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          name,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w600,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.star,
+              color: Colors.amber,
+              size: iconSize,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              _formatPoints(points),
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+  
+  String _formatPoints(int points) {
+    if (points >= 1000000) {
+      return '${(points / 1000000).toStringAsFixed(1)}M';
+    } else if (points >= 1000) {
+      return '${(points / 1000).toStringAsFixed(1)}K';
+    }
+    return points.toString();
   }
 }
 
@@ -77,69 +272,120 @@ class RankingItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(
-          '$position',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(width: 22),
-        Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.grey.shade300,
-          ),
-          child: ClipOval(
-            child: Image.asset(
-              'assets/images/default_avatar.png',
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.person);
-              },
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.grey.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          // Posição
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.secondary.withOpacity(0.1),
             ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              name,
-              style: const TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(
-                  Icons.star,
-                  color: Colors.amber,
-                  size: 25,
+            child: Center(
+              child: Text(
+                '$position',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.secondary,
                 ),
-                const SizedBox(width: 4),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          
+          // Avatar
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.grey.withOpacity(0.3),
+                width: 2,
+              ),
+            ),
+            child: ClipOval(
+              child: Image.asset(
+                'assets/images/default_avatar.png',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(Icons.person);
+                },
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          
+          // Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(
-                  '$points',
-                  style: const TextStyle(fontSize: 15),
+                  name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$points pontos',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.darkText.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-        const Spacer(),
-        if (position == 1)
-          Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: Icon(
-              Icons.emoji_events,
-              color: Colors.amber.shade700,
-              size: 25,
+          ),
+          
+          // Pontuação destacada
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              _formatPoints(points),
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
+              ),
             ),
           ),
-      ],
+        ],
+      ),
     );
+  }
+  
+  String _formatPoints(int points) {
+    if (points >= 1000000) {
+      return '${(points / 1000000).toStringAsFixed(1)}M';
+    } else if (points >= 1000) {
+      return '${(points / 1000).toStringAsFixed(1)}K';
+    }
+    return points.toString();
   }
 }

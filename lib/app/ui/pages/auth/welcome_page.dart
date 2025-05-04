@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_jornadakids/app/ui/pages/login/login_type_page.dart';
+import 'package:flutter_jornadakids/app/ui/pages/auth/login/login_type_page.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});

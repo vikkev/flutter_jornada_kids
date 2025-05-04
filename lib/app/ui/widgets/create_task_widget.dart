@@ -11,14 +11,11 @@ class CreateTaskWidget extends StatelessWidget {
       padding: const EdgeInsets.all(36),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.5),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.grey,
+          width: 1.0,        
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,

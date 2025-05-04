@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_jornadakids/app/ui/pages/achievments/achievments_page.dart';
+import 'package:flutter_jornadakids/app/ui/pages/settings/settings_page.dart';
+import 'package:flutter_jornadakids/app/ui/pages/tasks/tasks_page.dart';
 import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
 import 'package:flutter_jornadakids/app/ui/widgets/app_navbar.dart';
 import 'package:flutter_jornadakids/app/ui/widgets/create_task_widget.dart';
@@ -6,7 +9,7 @@ import 'package:flutter_jornadakids/app/ui/widgets/ranking_widget.dart';
 import 'package:flutter_jornadakids/app/ui/widgets/score_widget.dart';
 
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   final UserType userType;
   final String username;
   
@@ -17,35 +20,72 @@ class HomePage extends StatelessWidget {
   });
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final PageController _pageController = PageController();
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primary,
-      bottomNavigationBar: const AppBottomNavbar(),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
+      body: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          _buildMainPage(),
+          TasksPage(userType: widget.userType,),
+          AchievementsPage(), 
+          SettingsPage(),
+        ],
+      ),
+      bottomNavigationBar: AppBottomNavbar(
+        onPageChanged: (index) {
+          _pageController.jumpToPage(index);
+        },
+      ),
+    );
+  }
+
+  Widget _buildMainPage() {
+    return SafeArea(
+      child: Column(
+        children: [
+          Expanded(
+            child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              // color: AppColors.secondary,
-              child: Text(
-                'Olá $username',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
                 ),
               ),
-            ),
-            Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Center(
+                      child: Text(
+                        'Olá ${widget.username}',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                     const SizedBox(height: 16),
-                    // Conditional widget based on user type
-                    if (userType == UserType.responsible)
+                    if (widget.userType == UserType.responsible)
                       const CreateTaskWidget()
                     else
                       const ScoreWidget(),
@@ -55,9 +95,8 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
-            // Bottom Navigation Bar
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

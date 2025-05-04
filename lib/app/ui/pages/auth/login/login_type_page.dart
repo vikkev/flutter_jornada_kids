@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
-import '../../utils/constants.dart';
+import '../../../utils/constants.dart';
 
 class LoginTypePage extends StatelessWidget {
   const LoginTypePage({super.key});

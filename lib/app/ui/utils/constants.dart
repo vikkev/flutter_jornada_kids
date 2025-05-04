@@ -6,6 +6,7 @@ class AppColors {
   static const Color darkText = Color(0xFF001858);
   static const Color lightGray = Color(0xFFF5F5F5);
   static const Color darkBlue = Color(0xFF000957);
+  static const Color grey = Color(0xFFCBCBCB);
 }
 
 enum UserType { responsible, child }

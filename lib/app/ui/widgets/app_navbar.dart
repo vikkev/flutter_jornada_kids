@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
 
 class AppBottomNavbar extends StatefulWidget {
-  const AppBottomNavbar({super.key});
+  final Function(int) onPageChanged;
+  
+  const AppBottomNavbar({
+    super.key,
+    required this.onPageChanged,
+  });
 
   @override
   State<AppBottomNavbar> createState() => _AppBottomNavbarState();
@@ -15,8 +20,7 @@ class _AppBottomNavbarState extends State<AppBottomNavbar> {
     setState(() {
       _selectedIndex = index;
     });
-    
-    // TODO: Add navigation logic here
+    widget.onPageChanged(index);
   }
 
   @override
