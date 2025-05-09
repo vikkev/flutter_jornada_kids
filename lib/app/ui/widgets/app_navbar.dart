@@ -30,7 +30,7 @@ class _AppBottomNavbarState extends State<AppBottomNavbar> {
         color: AppColors.darkBlue,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withAlpha(128),
             blurRadius: 10,
             offset: const Offset(0, -1),
           ),
@@ -59,7 +59,7 @@ class _AppBottomNavbarState extends State<AppBottomNavbar> {
         child: Icon(
           icon,
           size: 28,
-          color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
+          color: isSelected ? Colors.white : Colors.white.withAlpha(179),
         ),
       ),
     );

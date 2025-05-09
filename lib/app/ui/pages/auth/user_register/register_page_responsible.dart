@@ -148,7 +148,7 @@ class _RegisterPageResponsibleState extends State<RegisterPageResponsible> {
                       : AppColors.primary,
                   foregroundColor: Colors.white,
                   disabledBackgroundColor: AppColors.primary,
-                  disabledForegroundColor: Colors.white.withOpacity(0.8),
+                  disabledForegroundColor: Colors.white.withAlpha(204),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

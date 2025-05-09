@@ -19,7 +19,7 @@ class ScoreWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(13),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -60,7 +60,7 @@ class ScoreWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withAlpha(26),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Row(
@@ -87,7 +87,7 @@ class ScoreWidget extends StatelessWidget {
               Container(
                 height: 22,
                 decoration: BoxDecoration(
-                  color: AppColors.secondary.withOpacity(0.2),
+                  color: AppColors.secondary.withAlpha(51),
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -106,7 +106,7 @@ class ScoreWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withOpacity(0.3),
+                        color: AppColors.primary.withAlpha(77),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -150,7 +150,7 @@ class ScoreWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.darkText.withOpacity(0.7),
+                  color: AppColors.darkText.withAlpha(179),
                 ),
               ),
               Text(
@@ -158,7 +158,7 @@ class ScoreWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.darkText.withOpacity(0.7),
+                  color: AppColors.darkText.withAlpha(179),
                 ),
               ),
             ],

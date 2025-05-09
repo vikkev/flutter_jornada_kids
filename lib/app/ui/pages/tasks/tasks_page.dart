@@ -22,17 +22,14 @@ class TasksPage extends StatelessWidget {
         backgroundColor: Colors.grey.shade200,
         elevation: 0,
         centerTitle: true,
+        automaticallyImplyLeading: false,  // Impede a exibição do botão de voltar
         title: const Text(
           'Tarefas',
           style: TextStyle(
             color: AppColors.darkText,
             fontWeight: FontWeight.bold,
-            fontSize: 18,
+            fontSize: 24,
           ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.darkText),
-          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: Column(
@@ -156,7 +153,7 @@ class TaskCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(13),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

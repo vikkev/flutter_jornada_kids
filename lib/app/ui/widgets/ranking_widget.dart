@@ -15,7 +15,7 @@ class RankingWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(13),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -42,7 +42,7 @@ class RankingWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withAlpha(26),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Row(
@@ -82,7 +82,7 @@ class RankingWidget extends StatelessWidget {
           // Linha divisória
           Container(
             height: 1,
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withAlpha(51),
           ),
           
           const SizedBox(height: 16),
@@ -140,7 +140,7 @@ class RankingWidget extends StatelessWidget {
               height: size,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: medalColor.withOpacity(0.2),
+                color: medalColor.withAlpha(51),
                 border: Border.all(color: medalColor, width: 2),
               ),
               child: Center(
@@ -152,7 +152,7 @@ class RankingWidget extends StatelessWidget {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withAlpha(26),
                         blurRadius: 5,
                         offset: const Offset(0, 2),
                       ),
@@ -180,7 +180,7 @@ class RankingWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withAlpha(26),
                       blurRadius: 2,
                       offset: const Offset(0, 1),
                     ),
@@ -275,7 +275,7 @@ class RankingItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.05),
+        color: Colors.grey.withAlpha(13),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -286,7 +286,7 @@ class RankingItem extends StatelessWidget {
             height: 30,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.secondary.withOpacity(0.1),
+              color: AppColors.secondary.withAlpha(26),
             ),
             child: Center(
               child: Text(
@@ -308,7 +308,7 @@ class RankingItem extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: AppColors.grey.withOpacity(0.3),
+                color: AppColors.grey.withAlpha(77),
                 width: 2,
               ),
             ),
@@ -350,7 +350,7 @@ class RankingItem extends StatelessWidget {
                       '$points pontos',
                       style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.darkText.withOpacity(0.7),
+                        color: AppColors.darkText.withAlpha(179),
                       ),
                     ),
                   ],
@@ -363,7 +363,7 @@ class RankingItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withAlpha(26),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(

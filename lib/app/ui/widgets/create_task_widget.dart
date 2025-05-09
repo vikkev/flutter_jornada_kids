@@ -40,7 +40,7 @@ class CreateTaskWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               elevation: 4,
-              shadowColor: Colors.black.withOpacity(1), 
+              shadowColor: Colors.black.withAlpha(255), 
             ),
             child: const Text(
               'Criar',
