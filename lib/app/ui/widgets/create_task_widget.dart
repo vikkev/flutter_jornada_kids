@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_jornadakids/app/ui/pages/task_assigment/task_assigment.dart';
 import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
 
 class CreateTaskWidget extends StatelessWidget {
@@ -12,10 +13,7 @@ class CreateTaskWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.grey,
-          width: 1.0,        
-        ),
+        border: Border.all(color: AppColors.grey, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -31,7 +29,12 @@ class CreateTaskWidget extends StatelessWidget {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              // TODO: Navigate to task creation screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TaskAssignmentScreen(),
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.darkBlue,
@@ -40,7 +43,7 @@ class CreateTaskWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               elevation: 4,
-              shadowColor: Colors.black.withAlpha(255), 
+              shadowColor: Colors.black.withAlpha(255),
             ),
             child: const Text(
               'Criar',

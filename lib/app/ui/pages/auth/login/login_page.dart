@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_jornadakids/app/ui/pages/home/home_page.dart';
 import 'package:flutter_jornadakids/app/ui/pages/auth/user_register/register_page_child.dart';
 import 'package:flutter_jornadakids/app/ui/pages/auth/user_register/register_page_responsible.dart';
-import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
+import 'package:flutter_jornadakids/app/ui/utils/constants.dart' as constants;
 
 class LoginPage extends StatefulWidget {
-  final UserType userType;
-  
+  final constants.UserType userType;
   const LoginPage({super.key, required this.userType});
 
   @override
@@ -34,22 +33,21 @@ class _LoginPageState extends State<LoginPage> {
 
   void _validateForm() {
     setState(() {
-      _isFormValid = _usernameController.text.isNotEmpty && 
-                    _passwordController.text.isNotEmpty;
+      _isFormValid =
+          _usernameController.text.isNotEmpty &&
+          _passwordController.text.isNotEmpty;
     });
   }
 
   void _handleLogin() {
-    // Aqui você implementaria a lógica real de autenticação
-    // Por enquanto, vamos apenas navegar para a tela inicial
-    
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => HomePage(
-          userType: widget.userType,
-          username: _usernameController.text,
-        ),
+        builder:
+            (context) => HomePage(
+              userType: widget.userType,
+              username: _usernameController.text,
+            ),
       ),
     );
   }
@@ -57,18 +55,15 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: constants.AppColors.primary,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
+        backgroundColor: constants.AppColors.primary,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Fazer Login',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('Fazer Login', style: TextStyle(color: Colors.white)),
       ),
       body: Column(
         children: [
@@ -94,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
                       style: TextStyle(
                         fontSize: 25,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.darkText,
+                        color: constants.AppColors.darkText,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -108,8 +103,11 @@ class _LoginPageState extends State<LoginPage> {
                           borderSide: BorderSide.none,
                         ),
                         filled: true,
-                        fillColor: AppColors.lightGray,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        fillColor: constants.AppColors.lightGray,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -123,19 +121,23 @@ class _LoginPageState extends State<LoginPage> {
                           borderSide: BorderSide.none,
                         ),
                         filled: true,
-                        fillColor: AppColors.lightGray,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        fillColor: constants.AppColors.lightGray,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: _isFormValid ? _handleLogin : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _isFormValid 
-                            ? const Color(0xFF000957) 
-                            : AppColors.primary,
+                        backgroundColor:
+                            _isFormValid
+                                ? const Color(0xFF000957)
+                                : constants.AppColors.primary,
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: AppColors.primary,
+                        disabledBackgroundColor: constants.AppColors.primary,
                         disabledForegroundColor: Colors.white.withAlpha(204),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -151,19 +153,22 @@ class _LoginPageState extends State<LoginPage> {
                         const Text('Não possui uma conta?'),
                         TextButton(
                           onPressed: () {
-                            // Navega para a página correta baseado no tipo de usuário
-                            if (widget.userType == UserType.responsible) {
+                            if (widget.userType ==
+                                constants.UserType.responsible) {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const RegisterPageResponsible(),
+                                  builder:
+                                      (context) =>
+                                          const RegisterPageResponsible(),
                                 ),
                               );
                             } else {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const RegisterPageChild(),
+                                  builder:
+                                      (context) => const RegisterPageChild(),
                                 ),
                               );
                             }

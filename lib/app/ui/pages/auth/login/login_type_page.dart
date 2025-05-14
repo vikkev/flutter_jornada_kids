@@ -48,7 +48,9 @@ class LoginTypePage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const LoginPage(userType: UserType.responsible),
+                        builder:
+                            (context) =>
+                                const LoginPage(userType: UserType.responsible),
                       ),
                     );
                   },
@@ -69,7 +71,9 @@ class LoginTypePage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const LoginPage(userType: UserType.child),
+                        builder:
+                            (context) =>
+                                const LoginPage(userType: UserType.child),
                       ),
                     );
                   },
