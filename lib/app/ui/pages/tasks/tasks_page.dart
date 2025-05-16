@@ -1,18 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
 
-// enum UserType {
-//   responsible,
-//   child,
-// }
-
-class TasksPage extends StatelessWidget {
+class TasksPage extends StatefulWidget {
   final UserType userType;
-  
-  const TasksPage({
-    super.key,
-    required this.userType,
-  });
+
+  const TasksPage({super.key, required this.userType});
+
+  @override
+  State<TasksPage> createState() => _TasksPageState();
+}
+
+class _TasksPageState extends State<TasksPage> {
+  String? selectedChild;
+  DateTime? selectedDate;
+
+  // Lista fictícia de crianças - substitua pela sua lista real
+  final List<String> children = [
+    'João Silva',
+    'Maria Santos',
+    'Pedro Oliveira',
+    'Ana Costa',
+  ];
+
+  Future<void> _selectDate(BuildContext context) async {
+    FocusScope.of(context).unfocus(); // Remove o foco de qualquer campo
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: Colors.white,
+              onSurface: AppColors.darkText,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
+
+  String get formattedDate {
+    if (selectedDate == null) return 'Selecione a data';
+    final day = selectedDate!.day.toString().padLeft(2, '0');
+    final month = selectedDate!.month.toString().padLeft(2, '0');
+    final year = selectedDate!.year;
+    return '$day/$month/$year';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +69,7 @@ class TasksPage extends StatelessWidget {
         backgroundColor: Colors.grey.shade200,
         elevation: 0,
         centerTitle: true,
-        automaticallyImplyLeading: false,  // Impede a exibição do botão de voltar
+        automaticallyImplyLeading: false,
         title: const Text(
           'Tarefas',
           style: TextStyle(
@@ -34,89 +81,106 @@ class TasksPage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Filtros - apenas visíveis para responsáveis
-          if (userType == UserType.responsible)
+          if (widget.userType == UserType.responsible)
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  // Filtro de criança
                   Container(
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(25),
                       border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: Row(
-                      children: [
-                        const Expanded(
-                          child: Text(
-                            'Selecione a criança/adolescente',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
-                            ),
-                          ),
+                    child: DropdownButtonFormField<String>(
+                      value: selectedChild,
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
                         ),
-                        Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade600),
-                      ],
+                        border: InputBorder.none,
+                        hintText: 'Selecione a criança/adolescente',
+                        hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                      ),
+                      icon: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Colors.grey.shade600,
+                      ),
+                      dropdownColor: Colors.white,
+                      items:
+                          children.map((String child) {
+                            return DropdownMenuItem<String>(
+                              value: child,
+                              child: Text(
+                                child,
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            );
+                          }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedChild = newValue;
+                        });
+                      },
                     ),
                   ),
-                  
                   const SizedBox(height: 12),
-                  
-                  // Filtro de data
-                  Container(
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(25),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: Row(
-                      children: [
-                        const Expanded(
-                          child: Text(
-                            'Selecione a data',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
+                  InkWell(
+                    onTap: () => _selectDate(context),
+                    child: Container(
+                      height: 50,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              formattedDate,
+                              style: TextStyle(
+                                color:
+                                    selectedDate == null
+                                        ? Colors.grey
+                                        : Colors.black87,
+                                fontSize: 14,
+                              ),
                             ),
                           ),
-                        ),
-                        Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade600),
-                      ],
+                          Icon(
+                            Icons.calendar_today,
+                            color: Colors.grey.shade600,
+                            size: 20,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  
                   const SizedBox(height: 12),
-                  
-                  // Linha divisória
                   Divider(color: Colors.grey.shade300),
                 ],
               ),
             ),
-          
-          // Lista de tarefas - visível para ambos
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: 5, // Número de tarefas de exemplo
-              itemBuilder: (context, index) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: TaskCard(
-                  title: 'Escovar os dentes',
-                  description: 'Todas as manhãs e de noite com cuidado',
-                  points: 323232,
-                  status: 'pendente',
-                  deadline: '02/20/2025 14:50',
-                  showDetails: userType == UserType.responsible,
-                  isCompleted: index == 2, // Apenas para exemplo: terceira tarefa completada
-                ),
-              ),
+              itemCount: 1,
+              itemBuilder:
+                  (context, index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: TaskCard(
+                      title: 'Escovar os dentes',
+                      description: 'Todas as manhãs e de noite com cuidado',
+                      points: 23,
+                      status: 'pendente',
+                      deadline: '02/20/2025 14:50',
+                      showDetails: widget.userType == UserType.responsible,
+                      isCompleted: index == 2, // Apenas para exemplo
+                    ),
+                  ),
             ),
           ),
         ],
@@ -125,7 +189,7 @@ class TasksPage extends StatelessWidget {
   }
 }
 
-class TaskCard extends StatelessWidget {
+class TaskCard extends StatefulWidget {
   final String title;
   final String description;
   final int points;
@@ -146,6 +210,19 @@ class TaskCard extends StatelessWidget {
   });
 
   @override
+  _TaskCardState createState() => _TaskCardState();
+}
+
+class _TaskCardState extends State<TaskCard> {
+  late bool isCompleted;
+
+  @override
+  void initState() {
+    super.initState();
+    isCompleted = widget.isCompleted;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -164,13 +241,16 @@ class TaskCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Cabeçalho da tarefa
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Checkbox para crianças
-                if (!showDetails)
-                  Padding(
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isCompleted = !isCompleted;
+                    });
+                  },
+                  child: Padding(
                     padding: const EdgeInsets.only(right: 12.0, top: 2.0),
                     child: Container(
                       width: 24,
@@ -179,41 +259,50 @@ class TaskCard extends StatelessWidget {
                         shape: BoxShape.circle,
                         color: isCompleted ? AppColors.primary : Colors.white,
                         border: Border.all(
-                          color: isCompleted ? AppColors.primary : Colors.grey.shade400,
+                          color:
+                              isCompleted
+                                  ? AppColors.primary
+                                  : Colors.grey.shade400,
                           width: 2,
                         ),
                       ),
-                      child: isCompleted
-                          ? const Icon(Icons.check, size: 16, color: Colors.white)
-                          : null,
+                      child:
+                          isCompleted
+                              ? const Icon(
+                                Icons.check,
+                                size: 16,
+                                color: Colors.white,
+                              )
+                              : null,
                     ),
                   ),
-                
-                // Título e descrição
+                ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        title,
+                        widget.title,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: AppColors.darkText,
-                          decoration: isCompleted && !showDetails
-                              ? TextDecoration.lineThrough
-                              : null,
+                          decoration:
+                              isCompleted && !widget.showDetails
+                                  ? TextDecoration.lineThrough
+                                  : null,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        description,
+                        widget.description,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,
-                          decoration: isCompleted && !showDetails
-                              ? TextDecoration.lineThrough
-                              : null,
+                          decoration:
+                              isCompleted && !widget.showDetails
+                                  ? TextDecoration.lineThrough
+                                  : null,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -221,18 +310,12 @@ class TaskCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                
-                // Pontos com estrela
                 Row(
                   children: [
-                    const Icon(
-                      Icons.star,
-                      color: Colors.amber,
-                      size: 18,
-                    ),
+                    const Icon(Icons.star, color: Colors.amber, size: 18),
                     const SizedBox(width: 4),
                     Text(
-                      _formatPoints(points),
+                      _formatPoints(widget.points),
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -243,9 +326,7 @@ class TaskCard extends StatelessWidget {
                 ),
               ],
             ),
-            
-            // Status e prazo - apenas para responsáveis
-            if (showDetails) ...[
+            if (widget.showDetails) ...[
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -260,13 +341,14 @@ class TaskCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        status,
+                        widget.status,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: status.toLowerCase() == 'pendente'
-                              ? Colors.orange
-                              : AppColors.primary,
+                          color:
+                              widget.status.toLowerCase() == 'pendente'
+                                  ? Colors.orange
+                                  : AppColors.primary,
                         ),
                       ),
                     ],
@@ -281,7 +363,7 @@ class TaskCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        deadline,
+                        widget.deadline,
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -292,14 +374,14 @@ class TaskCard extends StatelessWidget {
                   ),
                 ],
               ),
-              
               const SizedBox(height: 16),
-              
-              // Botão de detalhes - apenas para responsáveis
               Align(
                 alignment: Alignment.centerRight,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.amber,
                     borderRadius: BorderRadius.circular(20),
@@ -315,38 +397,34 @@ class TaskCard extends StatelessWidget {
                 ),
               ),
             ],
-            
-            // Para crianças, mostrar apenas uma barra de progresso de tempo
-            if (!showDetails && !isCompleted) ...[
+            if (!widget.showDetails && !isCompleted) ...[
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
+                  Icon(
+                    Icons.access_time,
+                    size: 16,
+                    color: Colors.grey.shade600,
+                  ),
                   const SizedBox(width: 4),
                   Text(
-                    'Prazo: $deadline',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
+                    'Prazo: ${widget.deadline}',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              // Barra de progresso de tempo - só um exemplo visual
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: LinearProgressIndicator(
-                  value: 0.7, // Exemplo: 70% do tempo já passou
-                  backgroundColor: Colors.grey.shade200,
+                  value: 0.7,
+                  backgroundColor: Colors.grey,
                   color: Colors.orange,
                   minHeight: 6,
                 ),
               ),
             ],
-            
-            // Para tarefas completas (para crianças), mostrar mensagem motivacional
-            if (!showDetails && isCompleted) ...[
+            if (!widget.showDetails && isCompleted) ...[
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -368,7 +446,7 @@ class TaskCard extends StatelessWidget {
       ),
     );
   }
-  
+
   String _formatPoints(int points) {
     if (points >= 1000000) {
       return '${(points / 1000000).toStringAsFixed(1)}M';
@@ -378,11 +456,3 @@ class TaskCard extends StatelessWidget {
     return points.toString();
   }
 }
-
-// Como usar:
-// 
-// Para versão dos responsáveis:
-// TasksPage(userType: UserType.responsible)
-//
-// Para versão das crianças:
-// TasksPage(userType: UserType.child)

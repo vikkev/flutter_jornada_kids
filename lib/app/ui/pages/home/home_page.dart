@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_jornadakids/app/ui/pages/achievments/achievments_page.dart';
 import 'package:flutter_jornadakids/app/ui/pages/settings/settings_page.dart';
-import 'package:flutter_jornadakids/app/ui/pages/tasks/tasks_page.dart';
-import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
+import 'package:flutter_jornadakids/app/ui/utils/constants.dart' as constants;
 import 'package:flutter_jornadakids/app/ui/widgets/app_navbar.dart';
 import 'package:flutter_jornadakids/app/ui/widgets/create_task_widget.dart';
 import 'package:flutter_jornadakids/app/ui/widgets/ranking_widget.dart';
 import 'package:flutter_jornadakids/app/ui/widgets/score_widget.dart';
-
+import 'package:flutter_jornadakids/app/ui/pages/tasks/tasks_page.dart';
 
 class HomePage extends StatefulWidget {
-  final UserType userType;
+  final constants.UserType userType;
   final String username;
-  
-  const HomePage({
-    super.key, 
-    required this.userType,
-    required this.username,
-  });
+
+  const HomePage({super.key, required this.userType, required this.username});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -35,14 +30,14 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: constants.AppColors.primary,
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: [
           _buildMainPage(),
-          TasksPage(userType: widget.userType,),
-          AchievementsPage(), 
+          TasksPage(userType: widget.userType),
+          AchievementsPage(),
           SettingsPage(),
         ],
       ),
@@ -69,7 +64,10 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 14,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -84,12 +82,12 @@ class _HomePageState extends State<HomePage> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    if (widget.userType == UserType.responsible)
+                    const SizedBox(height: 1),
+                    if (widget.userType == constants.UserType.responsible)
                       const CreateTaskWidget()
                     else
                       const ScoreWidget(),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 6),
                     const RankingWidget(),
                   ],
                 ),
