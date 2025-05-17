@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_jornadakids/app/ui/pages/task_assigment/task_assigment.dart';
+import 'package:flutter_jornadakids/app/ui/pages/tasks/task_assigment/task_assigment.dart';
 import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
 
 class CreateTaskWidget extends StatelessWidget {

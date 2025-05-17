@@ -244,39 +244,40 @@ class _TaskCardState extends State<TaskCard> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isCompleted = !isCompleted;
-                    });
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 12.0, top: 2.0),
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: isCompleted ? AppColors.primary : Colors.white,
-                        border: Border.all(
-                          color:
-                              isCompleted
-                                  ? AppColors.primary
-                                  : Colors.grey.shade400,
-                          width: 2,
+                if (!widget.showDetails)
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isCompleted = !isCompleted;
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 12.0, top: 2.0),
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isCompleted ? AppColors.primary : Colors.white,
+                          border: Border.all(
+                            color: isCompleted
+                                ? AppColors.primary
+                                : Colors.grey.shade400,
+                            width: 2,
+                          ),
                         ),
-                      ),
-                      child:
-                          isCompleted
-                              ? const Icon(
+                        child: isCompleted
+                            ? const Icon(
                                 Icons.check,
                                 size: 16,
                                 color: Colors.white,
                               )
-                              : null,
+                            : null,
+                      ),
                     ),
-                  ),
-                ),
+                  )
+                else
+                  const SizedBox(width: 24),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
