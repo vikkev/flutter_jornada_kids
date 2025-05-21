@@ -152,7 +152,7 @@ class _TasksPageState extends State<TasksPage> {
                           ),
                           Icon(
                             Icons.calendar_today,
-                            color: Colors.grey.shade600,
+                            color: Colors.grey,
                             size: 20,
                           ),
                         ],

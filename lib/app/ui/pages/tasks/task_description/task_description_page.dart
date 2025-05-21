@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
+import 'package:flutter_jornadakids/app/ui/widgets/data_picker_field.dart';
+import 'package:flutter_jornadakids/app/ui/widgets/select_field.dart';
+import 'package:flutter_jornadakids/app/ui/widgets/success_message_page.dart';
 
 class TaskDescriptionPage extends StatefulWidget {
   const TaskDescriptionPage({super.key, required String assignedUser});
@@ -15,6 +18,45 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
   final TextEditingController scoreController = TextEditingController();
 
   bool requiresPhoto = false;
+  bool _isFormValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    responsibleController.addListener(_validateForm);
+    taskNameController.addListener(_validateForm);
+    deadlineController.addListener(_validateForm);
+    scoreController.addListener(_validateForm);
+  }
+
+  @override
+  void dispose() {
+    responsibleController.removeListener(_validateForm);
+    taskNameController.removeListener(_validateForm);
+    deadlineController.removeListener(_validateForm);
+    scoreController.removeListener(_validateForm);
+
+    responsibleController.dispose();
+    taskNameController.dispose();
+    deadlineController.dispose();
+    scoreController.dispose();
+
+    super.dispose();
+  }
+
+  void _validateForm() {
+    final isValid = responsibleController.text.isNotEmpty &&
+        taskNameController.text.isNotEmpty &&
+        deadlineController.text.isNotEmpty &&
+        scoreController.text.isNotEmpty;
+
+    if (isValid != _isFormValid) {
+      setState(() {
+        _isFormValid = isValid;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,11 +89,28 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
               const SizedBox(height: 24),
 
               // Campos de texto
-              _buildTextField(responsibleController, 'Responsável'),
+              Select<String>(
+                selectedValue: responsibleController.text.isEmpty ? null : responsibleController.text,
+                options: ['Maria', 'João', 'Ana', 'Carlos'], // Substitua pelos nomes reais
+                onChanged: (newValue) {
+                  setState(() {
+                    responsibleController.text = newValue ?? '';
+                    _validateForm();
+                  });
+                },
+                getLabel: (value) => value,
+                hintText: 'Selecione o responsável',
+              ),
               const SizedBox(height: 12),
               _buildTextField(taskNameController, 'Nome da Tarefa'),
               const SizedBox(height: 12),
-              _buildTextField(deadlineController, 'Data e Hora Limite'),
+              DatePickerField(
+                initialDate: null,
+                onDateSelected: (date) {
+                  deadlineController.text =
+                      '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+                },
+              ),
               const SizedBox(height: 12),
               _buildTextField(scoreController, 'Pontuação da Tarefa'),
               const SizedBox(height: 24),
@@ -80,11 +139,12 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
 
               // Botão Criar
               ElevatedButton(
-                onPressed: () {
-                  // TODO: Lógica de criação da tarefa
-                },
+                onPressed: _isFormValid ? _onCreatePressed : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.darkBlue,
+                  backgroundColor: _isFormValid ? AppColors.darkBlue : AppColors.primary,
+                  disabledBackgroundColor: AppColors.gray300,
+                  foregroundColor: Colors.white,
+                  disabledForegroundColor: Colors.white.withAlpha(204),
                   minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -107,21 +167,54 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        hintText: hint,
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.grey.withOpacity(0.4)),
+  void _onCreatePressed() {
+    if (responsibleController.text.isEmpty ||
+        taskNameController.text.isEmpty ||
+        deadlineController.text.isEmpty ||
+        scoreController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, preencha todos os campos.'),
+          backgroundColor: Colors.red,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.grey.withOpacity(0.4)),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SuccessMessagePage(
+          message: 'Tarefa criada com sucesso!',
+          buttonText: 'Voltar para lista',
+          onButtonPressed: () {
+            Navigator.popUntil(context, (route) => route.isFirst);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String hint) {
+    return Container(
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade400),
+      ),
+      child: Center(
+        child: TextField(
+          controller: controller,
+          style: const TextStyle(fontSize: 14, color: Colors.black87),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: Colors.grey.shade600),
+            border: InputBorder.none,
+            isDense: true,
+            contentPadding: EdgeInsets.zero,
+          ),
         ),
       ),
     );

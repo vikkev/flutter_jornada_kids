@@ -52,7 +52,7 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: AppColors.grey.withOpacity(0.2),
+                      color: AppColors.grey.withOpacity(1),
                       width: 1,
                     ),
                   ),
@@ -75,7 +75,7 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
                   : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.darkBlue,
-                  disabledBackgroundColor: AppColors.grey.withOpacity(0.3),
+                  disabledBackgroundColor: AppColors.grey.withOpacity(1),
                   minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -109,7 +109,7 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color:
-              isSelected ? AppColors.primary : AppColors.grey.withOpacity(0.2),
+              isSelected ? AppColors.primary : AppColors.grey.withOpacity(1),
           width: isSelected ? 2 : 1,
         ),
       ),
@@ -142,7 +142,7 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
                 ),
                 Text(
                   user.type,
-                  style: TextStyle(fontSize: 14, color: AppColors.grey),
+                  style: TextStyle(fontSize: 14, color: AppColors.gray400),
                 ),
               ],
             ),

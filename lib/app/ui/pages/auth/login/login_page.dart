@@ -94,40 +94,67 @@ class _LoginPageState extends State<LoginPage> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
-                    TextField(
-                      controller: _usernameController,
-                      decoration: InputDecoration(
-                        hintText: 'Nome do usuário',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                        fillColor: constants.AppColors.lightGray,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: constants.AppColors.lightGray,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2), 
+                            blurRadius: 3, 
+                            offset: Offset(0, 3), 
+                          ),
+                        ],
+                      ),
+                      child: TextField(
+                        controller: _usernameController,
+                        decoration: InputDecoration(
+                          hintText: 'Nome do usuário',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.transparent, 
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 16),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        hintText: 'Senha',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                        fillColor: constants.AppColors.lightGray,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: constants.AppColors.lightGray,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2), 
+                            blurRadius: 3, 
+                            offset: Offset(0, 3), 
+                          ),
+                        ],
+                      ),
+                      child: TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          hintText: 'Senha',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.transparent, // Transparente para mostrar o fundo do Container
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                         ),
                       ),
-                    ),
+                    ),      
+
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: _isFormValid ? _handleLogin : null,
@@ -137,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ? const Color(0xFF000957)
                                 : constants.AppColors.primary,
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: constants.AppColors.primary,
+                        disabledBackgroundColor: constants.AppColors.gray200,
                         disabledForegroundColor: Colors.white.withAlpha(204),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),

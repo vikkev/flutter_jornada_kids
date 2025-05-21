@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
 
 class ScoreWidget extends StatelessWidget {
@@ -10,7 +11,8 @@ class ScoreWidget extends StatelessWidget {
     const int currentPoints = 323232;
     const int targetPoints = 400000;
     final double progressPercent = currentPoints / targetPoints;
-    
+    final double progressWidth = MediaQuery.of(context).size.width * progressPercent;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -32,6 +34,7 @@ class ScoreWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Título e pontuação
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -56,7 +59,8 @@ class ScoreWidget extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
+              ).animate().fadeIn().slideX(begin: -0.2, duration: 500.ms),
+
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
@@ -77,13 +81,15 @@ class ScoreWidget extends StatelessWidget {
                     ),
                   ],
                 ),
-              ),
+              ).animate().fadeIn(delay: 200.ms).slideX(begin: 0.2, duration: 500.ms),
             ],
           ),
           const SizedBox(height: 20),
+
+          // Barra de progresso animada
           Stack(
             children: [
-              // Barra de progresso background
+              // Background da barra
               Container(
                 height: 22,
                 decoration: BoxDecoration(
@@ -91,32 +97,38 @@ class ScoreWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              // Barra de progresso preenchida
-              FractionallySizedBox(
-                widthFactor: progressPercent,
-                child: Container(
-                  height: 22,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.secondary,
-                        AppColors.primary,
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withAlpha(77),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+              // Barra preenchida animada
+              Container(
+                height: 22,
+                width: 0, // inicia zerada
+              )
+                  .animate()
+                  .custom(
+                    duration: 800.ms,
+                    builder: (_, value, __) {
+                      return Container(
+                        width: progressWidth * value,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [AppColors.secondary, AppColors.primary],
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withAlpha(77),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                ),
-              ),
-              // Ícone na barra de progresso
+
+              // Ícone de estrela se movendo junto
               Positioned(
-                left: (progressPercent * MediaQuery.of(context).size.width) - 70, // Ajuste conforme necessário
+                left: 0,
                 top: -4,
                 child: Container(
                   width: 20,
@@ -132,16 +144,21 @@ class ScoreWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.star,
-                    color: Colors.white,
-                    size: 16,
-                  ),
-                ),
+                  child: const Icon(Icons.star, color: Colors.white, size: 16),
+                )
+                    .animate()
+                    .moveX(
+                      begin: 0,
+                      end: progressWidth - 70,
+                      duration: 800.ms,
+                      curve: Curves.easeOut,
+                    ),
               ),
             ],
           ),
           const SizedBox(height: 8),
+
+          // Valores laterais
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -152,7 +169,8 @@ class ScoreWidget extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color: AppColors.darkText.withAlpha(179),
                 ),
-              ),
+              ).animate().fadeIn(delay: 400.ms),
+
               Text(
                 '${(targetPoints / 1000).toStringAsFixed(0)}K',
                 style: TextStyle(
@@ -160,7 +178,7 @@ class ScoreWidget extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color: AppColors.darkText.withAlpha(179),
                 ),
-              ),
+              ).animate().fadeIn(delay: 400.ms),
             ],
           ),
         ],
