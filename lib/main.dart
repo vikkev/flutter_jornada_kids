@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       supportedLocales: const [
-        Locale('pt', 'BR'), // Localidade suportada
+        Locale('pt', 'BR'), 
       ],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

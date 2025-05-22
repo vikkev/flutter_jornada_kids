@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_jornadakids/app/ui/pages/auth/login/login_page.dart';
+import 'package:flutter_jornadakids/app/ui/pages/auth/login/login_type_page.dart';
 import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
+import 'package:flutter_jornadakids/app/ui/utils/constants.dart' as constants;
+import 'package:flutter_jornadakids/app/ui/widgets/data_picker_field.dart';
+import 'package:flutter_jornadakids/app/ui/widgets/success_message_page.dart';
 
 class RegisterPageResponsible extends StatefulWidget {
   const RegisterPageResponsible({super.key});
@@ -13,7 +18,7 @@ class _RegisterPageResponsibleState extends State<RegisterPageResponsible> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _birthDateController = TextEditingController();
+  DateTime? _birthDate;
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   
@@ -23,12 +28,10 @@ class _RegisterPageResponsibleState extends State<RegisterPageResponsible> {
   @override
   void initState() {
     super.initState();
-    // Adicionar listeners para validação do formulário
     _nameController.addListener(_validateForm);
     _usernameController.addListener(_validateForm);
     _emailController.addListener(_validateForm);
     _phoneController.addListener(_validateForm);
-    _birthDateController.addListener(_validateForm);
     _passwordController.addListener(_validateForm);
     _confirmPasswordController.addListener(_validateForm);
   }
@@ -39,7 +42,6 @@ class _RegisterPageResponsibleState extends State<RegisterPageResponsible> {
     _usernameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    _birthDateController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -51,7 +53,7 @@ class _RegisterPageResponsibleState extends State<RegisterPageResponsible> {
           _usernameController.text.isNotEmpty &&
           _emailController.text.isNotEmpty &&
           _phoneController.text.isNotEmpty &&
-          _birthDateController.text.isNotEmpty &&
+          _birthDate != null &&
           _passwordController.text.isNotEmpty &&
           _confirmPasswordController.text.isNotEmpty &&
           _passwordController.text == _confirmPasswordController.text &&
@@ -106,7 +108,15 @@ class _RegisterPageResponsibleState extends State<RegisterPageResponsible> {
               const SizedBox(height: 12),
               _buildDropdownField('Responsável'),
               const SizedBox(height: 12),
-              _buildTextField(_birthDateController, 'Data de nascimento'),
+              DatePickerField(
+                initialDate: _birthDate,
+                onDateSelected: (date) {
+                  setState(() {
+                    _birthDate = date;
+                  });
+                  _validateForm();
+                },
+              ),
               const SizedBox(height: 12),
               _buildTextField(_passwordController, 'Senha', isPassword: true),
               const SizedBox(height: 12),
@@ -136,18 +146,37 @@ class _RegisterPageResponsibleState extends State<RegisterPageResponsible> {
                 ],
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _isFormValid 
-                    ? () {
-                        // Lógica para criar conta
-                      } 
-                    : null,
+            ElevatedButton(
+              onPressed: _isFormValid
+                ? () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SuccessMessagePage(
+                          message: 'Cadastro efetuado com sucesso!',
+                          buttonText: 'Ir para login',
+                          onButtonPressed: () {
+                            // Navigate to login page
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginPage(
+                                  userType: constants.UserType.responsible,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  }
+                : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isFormValid 
                       ? AppColors.darkBlue 
                       : AppColors.primary,
                   foregroundColor: Colors.white,
-                  disabledBackgroundColor: AppColors.primary,
+                  disabledBackgroundColor: AppColors.gray200,
                   disabledForegroundColor: Colors.white.withAlpha(204),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -164,45 +193,59 @@ class _RegisterPageResponsibleState extends State<RegisterPageResponsible> {
   }
 
   Widget _buildTextField(TextEditingController controller, String hint, {bool isPassword = false}) {
-    return TextField(
-      controller: controller,
-      obscureText: isPassword,
-      decoration: InputDecoration(
-        hintText: hint,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
+    return Container(
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade400),
+      ),
+      child: Center(
+        child: TextField(
+          controller: controller,
+          obscureText: isPassword,
+          style: const TextStyle(fontSize: 14, color: Colors.black87),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: Colors.grey.shade600),
+            border: InputBorder.none,
+          ),
         ),
-        filled: true,
-        fillColor: AppColors.lightGray,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
   }
 
+
+
   Widget _buildDropdownField(String hint) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColors.lightGray,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          hint: Text(hint),
-          isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down),
-          items: const [
-            DropdownMenuItem(value: 'pai', child: Text('Pai')),
-            DropdownMenuItem(value: 'mae', child: Text('Mãe')),
-            DropdownMenuItem(value: 'outro', child: Text('Outro')),
-          ],
-          onChanged: (value) {
-            // Atualizar valor selecionado
-            _validateForm();
-          },
+  return Container(
+    height: 50,
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: Colors.grey.shade400),
+    ),
+    child: DropdownButtonHideUnderline(
+      child: DropdownButton<String>(
+        hint: Text(
+          hint,
+          style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
         ),
+        isExpanded: true,
+        icon: const Icon(Icons.keyboard_arrow_down),
+        items: const [
+          DropdownMenuItem(value: 'pai', child: Text('Pai')),
+          DropdownMenuItem(value: 'mae', child: Text('Mãe')),
+          DropdownMenuItem(value: 'outro', child: Text('Outro')),
+        ],
+        onChanged: (value) {
+          // Atualizar valor selecionado
+          _validateForm();
+        },
       ),
-    );
+    ),
+  );
   }
 }

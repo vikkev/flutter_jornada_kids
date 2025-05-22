@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_jornadakids/app/ui/pages/home/home_page.dart';
 import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
+import 'package:flutter_jornadakids/app/ui/utils/constants.dart' as constants;
 import 'package:flutter_jornadakids/app/ui/widgets/data_picker_field.dart';
 import 'package:flutter_jornadakids/app/ui/widgets/select_field.dart';
 import 'package:flutter_jornadakids/app/ui/widgets/success_message_page.dart';
@@ -182,17 +184,27 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
     }
 
     Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SuccessMessagePage(
-          message: 'Tarefa criada com sucesso!',
-          buttonText: 'Voltar para lista',
-          onButtonPressed: () {
-            Navigator.popUntil(context, (route) => route.isFirst);
-          },
-        ),
+    context,
+    MaterialPageRoute(
+      builder: (context) => SuccessMessagePage(
+        message: 'Tarefa criada com sucesso!',
+        buttonText: 'Voltar para lista',
+        onButtonPressed: () {
+          // Navigate to HomePage and remove all previous routes
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(
+                userType: constants.UserType.responsible,
+                username: 'Nome do Usuário', // You should pass the actual username here
+              ),
+            ),
+            (route) => false, // This removes all previous routes
+          );
+        },
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildTextField(TextEditingController controller, String hint) {

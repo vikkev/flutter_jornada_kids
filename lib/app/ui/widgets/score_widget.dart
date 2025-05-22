@@ -5,13 +5,14 @@ import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
 class ScoreWidget extends StatelessWidget {
   const ScoreWidget({super.key});
 
-  @override
+    @override
   Widget build(BuildContext context) {
     // Definindo valores
-    const int currentPoints = 323232;
-    const int targetPoints = 400000;
-    final double progressPercent = currentPoints / targetPoints;
-    final double progressWidth = MediaQuery.of(context).size.width * progressPercent;
+    const int currentPoints = 2000;
+    const int targetPoints = 10000;
+    final double progressPercent = currentPoints / targetPoints; 
+    final double availableWidth = MediaQuery.of(context).size.width - 40;
+    final double progressWidth = availableWidth * progressPercent;
 
     return Container(
       width: double.infinity,
@@ -87,7 +88,7 @@ class ScoreWidget extends StatelessWidget {
           const SizedBox(height: 20),
 
           // Barra de progresso animada
-          Stack(
+ Stack(
             children: [
               // Background da barra
               Container(
@@ -97,41 +98,40 @@ class ScoreWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
+              
               // Barra preenchida animada
               Container(
                 height: 22,
                 width: 0, // inicia zerada
-              )
-                  .animate()
-                  .custom(
-                    duration: 800.ms,
-                    builder: (_, value, __) {
-                      return Container(
-                        width: progressWidth * value,
-                        height: 22,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [AppColors.secondary, AppColors.primary],
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primary.withAlpha(77),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+              ).animate().custom(
+                duration: 800.ms,
+                builder: (_, value, __) {
+                  return Container(
+                    width: progressWidth * value,
+                    height: 22,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppColors.secondary, AppColors.primary],
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withAlpha(77),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
-                      );
-                    },
-                  ),
+                      ],
+                    ),
+                  );
+                },
+              ),
 
               // Ícone de estrela se movendo junto
-              Positioned(
+               Positioned(
                 left: 0,
                 top: -4,
                 child: Container(
-                  width: 20,
+                  width: 30,
                   height: 30,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
@@ -145,14 +145,30 @@ class ScoreWidget extends StatelessWidget {
                     ],
                   ),
                   child: const Icon(Icons.star, color: Colors.white, size: 16),
-                )
-                    .animate()
-                    .moveX(
-                      begin: 0,
-                      end: progressWidth - 70,
-                      duration: 800.ms,
-                      curve: Curves.easeOut,
-                    ),
+                ).animate().custom(
+                  duration: 800.ms,
+                  builder: (_, value, __) {
+                    return Transform.translate(
+                      offset: Offset(progressWidth * value - 15, 0),
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.amber,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.star, color: Colors.white, size: 16),
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
           ),

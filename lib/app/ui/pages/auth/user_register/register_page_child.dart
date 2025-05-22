@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_jornadakids/app/ui/pages/auth/login/login_page.dart';
+import 'package:flutter_jornadakids/app/ui/pages/auth/login/login_type_page.dart';
 import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
+import 'package:flutter_jornadakids/app/ui/utils/constants.dart' as constants;
+import 'package:flutter_jornadakids/app/ui/widgets/success_message_page.dart';
 
 class RegisterPageChild extends StatefulWidget {
   const RegisterPageChild({super.key});
@@ -123,18 +127,34 @@ class _RegisterPageChildState extends State<RegisterPageChild> {
                       ),
                     ),
                     const SizedBox(height: 40),
-                    ElevatedButton(
-                      onPressed: _isFormValid 
-                          ? () {
-                              // Lógica para confirmar código
-                            } 
-                          : null,
+                   ElevatedButton(
+                  onPressed: _isFormValid
+                    ? () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SuccessMessagePage(
+                              message: 'Cadastro efetuado com sucesso!',
+                              buttonText: 'Ir para login',
+                              onButtonPressed: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const LoginPage(
+                                      userType: constants.UserType.child,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      }
+                    : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _isFormValid 
-                            ? AppColors.darkBlue 
-                            : AppColors.primary,
+                        backgroundColor: _isFormValid ? AppColors.darkBlue : AppColors.primary,
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: AppColors.primary,
+                        disabledBackgroundColor: AppColors.gray200,
                         disabledForegroundColor: Colors.white.withAlpha(204),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
