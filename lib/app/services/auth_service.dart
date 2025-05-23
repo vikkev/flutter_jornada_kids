@@ -1,111 +1,86 @@
 import 'dart:async';
-import 'package:flutter_jornadakids/app/ui/utils/constants.dart';
+import 'package:flutter_jornadakids/app/models/usuario.dart';
+import 'package:flutter_jornadakids/app/models/enums.dart';
 
-// This class simulates an authentication service with mock data
+// Serviço de autenticação mockado
 class AuthService {
   // Singleton pattern
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
   AuthService._internal();
 
-  // Mock user data
-  final Map<String, MockUser> _mockUsers = {
-    // Responsible users
-    'maria': MockUser(
-      username: 'maria',
-      password: '123456',
-      name: 'Maria Silva',
+  // Mock de usuários reais
+  final Map<String, Usuario> _mockUsers = {
+    // Responsáveis
+    'maria': Usuario(
+      id: 1,
+      nomeCompleto: 'Maria Silva',
+      nomeUsuario: 'maria',
       email: 'maria@example.com',
-      userType: UserType.responsible,
+      telefone: '99999-9999',
+      senha: '123',
+      tipoUsuario: TipoUsuario.responsavel,
+      criadoEm: DateTime.now(),
+      atualizadoEm: DateTime.now(),
     ),
-    'joao': MockUser(
-      username: 'joao',
-      password: '123456',
-      name: 'João Santos',
+    'joao': Usuario(
+      id: 2,
+      nomeCompleto: 'João Santos',
+      nomeUsuario: 'joao',
       email: 'joao@example.com',
-      userType: UserType.responsible,
+      telefone: '88888-8888',
+      senha: '123',
+      tipoUsuario: TipoUsuario.responsavel,
+      criadoEm: DateTime.now(),
+      atualizadoEm: DateTime.now(),
     ),
-    
-    // Child users
-    'lucas': MockUser(
-      username: 'lucas',
-      password: '123456',
-      name: 'Lucas Silva',
-      age: 10,
-      userType: UserType.child,
+    // Crianças
+    'lucas': Usuario(
+      id: 3,
+      nomeCompleto: 'Lucas Silva',
+      nomeUsuario: 'lucas',
+      email: 'lucas@example.com',
+      telefone: '',
+      senha: '123',
+      tipoUsuario: TipoUsuario.crianca,
+      criadoEm: DateTime.now(),
+      atualizadoEm: DateTime.now(),
     ),
-    'ana': MockUser(
-      username: 'ana',
-      password: '123456',
-      name: 'Ana Santos',
-      age: 8,
-      userType: UserType.child,
+    'ana': Usuario(
+      id: 4,
+      nomeCompleto: 'Ana Santos',
+      nomeUsuario: 'ana',
+      email: 'ana@example.com',
+      telefone: '',
+      senha: '123',
+      tipoUsuario: TipoUsuario.crianca,
+      criadoEm: DateTime.now(),
+      atualizadoEm: DateTime.now(),
     ),
   };
 
-  // Simulate an API login call
-  Future<AuthResult> login(String username, String password, UserType userType) async {
-    // Simulate network delay
+  // Simula uma chamada de login
+  Future<AuthResult> login(String username, String password, TipoUsuario tipoUsuario) async {
     await Future.delayed(const Duration(seconds: 1));
-    
-    // Check if user exists and has matching password and type
-    if (_mockUsers.containsKey(username.toLowerCase())) {
-      final user = _mockUsers[username.toLowerCase()]!;
-      
-      if (user.password == password && user.userType == userType) {
-        // Successful login
-        return AuthResult(
-          success: true, 
-          user: user,
-          message: 'Login realizado com sucesso!',
-        );
-      } else if (user.userType != userType) {
-        // Wrong user type
-        return AuthResult(
-          success: false,
-          message: 'Tipo de usuário incorreto. Verifique se está no login correto.',
-        );
-      }
+    final user = _mockUsers[username.toLowerCase()];
+    if (user != null && user.senha == password && user.tipoUsuario == tipoUsuario) {
+      return AuthResult(success: true, user: user, message: 'Login realizado com sucesso!');
+    } else if (user != null && user.tipoUsuario != tipoUsuario) {
+      return AuthResult(success: false, message: 'Tipo de usuário incorreto. Verifique se está no login correto.');
     }
-    
-    // Failed login
-    return AuthResult(
-      success: false,
-      message: 'Usuário ou senha incorretos. Tente novamente.',
-    );
+    return AuthResult(success: false, message: 'Usuário ou senha incorretos. Tente novamente.');
   }
 
-  // Get the current user (would be used after login)
-  MockUser? getCurrentUser() {
-    // In a real app, this would retrieve from secure storage
+  // Mock: não implementado
+  Usuario? getCurrentUser() {
     return null;
   }
 }
 
-// Mock user model
-class MockUser {
-  final String username;
-  final String password;
-  final String name;
-  final String? email;
-  final int? age;
-  final UserType userType;
-
-  MockUser({
-    required this.username,
-    required this.password,
-    required this.name,
-    this.email,
-    this.age,
-    required this.userType,
-  });
-}
-
-// Auth result model to simulate API response
 class AuthResult {
   final bool success;
   final String message;
-  final MockUser? user;
+  final Usuario? user;
 
   AuthResult({
     required this.success,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'app/ui/pages/auth/welcome_page.dart';
+import 'app/presentation/pages/auth/welcome_page.dart';
 
 void main() {
   runApp(const MyApp());

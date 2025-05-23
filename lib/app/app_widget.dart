@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_jornadakids/app/ui/pages/auth/welcome_page.dart';
+import 'package:flutter_jornadakids/app/presentation/pages/auth/welcome_page.dart';
 
 class AppWidget extends StatelessWidget {
   const AppWidget({super.key});
