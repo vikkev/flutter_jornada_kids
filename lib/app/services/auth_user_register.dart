@@ -24,7 +24,7 @@ class AuthUserRegisterService {
         "tipo": tipoUsuario
       }
     };
-    final url = '${ApiConfig.api}/responsaveis/';
+    final url = '${ApiConfig.api}/responsaveis';
     return await _dio.post(url, data: data);
   }
 }
