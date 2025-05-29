@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_jornadakids/app/core/utils/constants.dart';
 
+
 class DatePickerField extends StatefulWidget {
   final DateTime? initialDate;
   final void Function(DateTime) onDateSelected;
+  final String? hintText;
 
   const DatePickerField({
     super.key,
     required this.initialDate,
     required this.onDateSelected,
+    this.hintText,
   });
 
   @override
@@ -30,8 +33,8 @@ class _DatePickerFieldState extends State<DatePickerField> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
       locale: const Locale('pt', 'BR'), // Idioma definido para português
       builder: (context, child) {
         return Theme(
@@ -59,7 +62,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
   }
 
   String get formattedDate {
-    if (selectedDate == null) return 'Selecione a data';
+    if (selectedDate == null) return widget.hintText ?? 'Selecione a data';
     final day = selectedDate!.day.toString().padLeft(2, '0');
     final month = selectedDate!.month.toString().padLeft(2, '0');
     final year = selectedDate!.year;

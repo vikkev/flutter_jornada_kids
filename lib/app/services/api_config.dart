@@ -1,3 +1,4 @@
 class ApiConfig {
-  static const String baseUrl = 'https://localhost:3000';
+  static const String api = 'https://jornada-kids-api.onrender.com/v1';
 }
+

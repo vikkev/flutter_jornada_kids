@@ -6,6 +6,7 @@ import 'package:flutter_jornadakids/app/core/utils/constants.dart';
 import 'package:flutter_jornadakids/app/core/utils/constants.dart' as constants;
 import 'package:flutter_jornadakids/app/presentation/widgets/data_picker_field.dart';
 import 'package:flutter_jornadakids/app/presentation/widgets/success_message_page.dart';
+import 'package:flutter_jornadakids/app/services/auth_user_register.dart';
 
 class RegisterPageResponsible extends StatefulWidget {
   const RegisterPageResponsible({super.key});
@@ -121,6 +122,7 @@ class _RegisterPageResponsibleState extends State<RegisterPageResponsible> {
                   });
                   _validateForm();
                 },
+                hintText: 'Selecione a data de nascimento',
               ),
               const SizedBox(height: 12),
               _buildTextField(_passwordController, 'Senha', isPassword: true),
@@ -153,27 +155,50 @@ class _RegisterPageResponsibleState extends State<RegisterPageResponsible> {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _isFormValid
-                  ? () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SuccessMessagePage(
-                            message: 'Cadastro efetuado com sucesso!',
-                            buttonText: 'Ir para login',
-                            onButtonPressed: () {
-                              // Navigate to login page
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const LoginPage(
-                                    userType: TipoUsuario.responsavel,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                  ? () async {
+                      try {
+                        final service = AuthUserRegisterService();
+                        final response = await service.registerResponsible(
+                          tipoResponsavel: _selectedTipoResponsavel!,
+                          nomeCompleto: _nameController.text,
+                          nomeUsuario: _usernameController.text,
+                          email: _emailController.text,
+                          telefone: _phoneController.text,
+                          senha: _passwordController.text,
+                          tipoUsuario: 'R',
+                        );
+                        if (response.statusCode == 201 || response.statusCode == 200) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SuccessMessagePage(
+                                message: 'Cadastro efetuado com sucesso!',
+                                buttonText: 'Ir para login',
+                                onButtonPressed: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const LoginPage(
+                                        userType: TipoUsuario.responsavel,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          );
+                        } else {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Erro ao cadastrar: ${response.data.toString()}')),
+                        );
+                      }
+                    } catch (e) {
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Erro ao cadastrar: ${e.toString()}')),
                       );
+                      }
                     }
                   : null,
                 style: ElevatedButton.styleFrom(
@@ -240,9 +265,12 @@ class _RegisterPageResponsibleState extends State<RegisterPageResponsible> {
           isExpanded: true,
           icon: const Icon(Icons.keyboard_arrow_down),
           items: const [
-            DropdownMenuItem(value: 'pai', child: Text('Pai')),
-            DropdownMenuItem(value: 'mae', child: Text('Mãe')),
-            DropdownMenuItem(value: 'outro', child: Text('Outro')),
+            DropdownMenuItem(value: 'AM', child: Text('Avô')),
+            DropdownMenuItem(value: 'AF', child: Text('Avó')),
+            DropdownMenuItem(value: 'P', child: Text('Pai')),
+            DropdownMenuItem(value: 'M', child: Text('Mãe')),
+            DropdownMenuItem(value: 'TM', child: Text('Tio')),
+            DropdownMenuItem(value: 'TF', child: Text('Tia')),
           ],
           onChanged: (value) {
             setState(() {
