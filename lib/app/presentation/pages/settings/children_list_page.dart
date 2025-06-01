@@ -4,58 +4,26 @@ import 'package:flutter_jornadakids/app/models/enums.dart';
 import 'package:flutter_jornadakids/app/models/usuario.dart';
 import 'package:flutter_jornadakids/app/models/crianca.dart';
 import 'package:flutter_jornadakids/app/core/utils/constants.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_jornadakids/app/services/api_config.dart';
+import 'package:flutter_jornadakids/app/services/responsible_service.dart';
 
-class ChildrenListPage extends StatelessWidget {
+class ChildrenListPage extends StatefulWidget {
   final Usuario responsavel;
   const ChildrenListPage({super.key, required this.responsavel});
 
-  // Mock de crianças vinculadas ao responsável (pronto para API)
-  List<Crianca> get _mockCriancas => [
-    Crianca(
-      id: 1,
-      idUsuario: 3,
-      dataNascimento: DateTime(2015, 5, 10),
-      nivel: 2,
-      xp: 120,
-      xpTotal: 300,
-      ponto: 80,
-    ),
-    Crianca(
-      id: 2,
-      idUsuario: 4,
-      dataNascimento: DateTime(2012, 8, 22),
-      nivel: 4,
-      xp: 350,
-      xpTotal: 800,
-      ponto: 210,
-    ),
-  ];
+  @override
+  State<ChildrenListPage> createState() => _ChildrenListPageState();
+}
 
-  // Mock de usuários das crianças (pronto para API)
-  List<Usuario> get _mockUsuariosCriancas => [
-    Usuario(
-      id: 3,
-      nomeCompleto: 'Lucas Souza',
-      nomeUsuario: 'lucas',
-      email: 'lucas@email.com',
-      telefone: '99999-3333',
-      senha: '123456',
-      tipoUsuario: TipoUsuario.crianca,
-      criadoEm: DateTime(2015, 5, 10),
-      atualizadoEm: DateTime.now(),
-    ),
-    Usuario(
-      id: 4,
-      nomeCompleto: 'Ana Lima',
-      nomeUsuario: 'ana',
-      email: 'ana@email.com',
-      telefone: '99999-4444',
-      senha: '123456',
-      tipoUsuario: TipoUsuario.crianca,
-      criadoEm: DateTime(2012, 8, 22),
-      atualizadoEm: DateTime.now(),
-    ),
-  ];
+class _ChildrenListPageState extends State<ChildrenListPage> {
+  late Future<List<ChildInfo>> _childrenFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _childrenFuture = ResponsibleService().fetchChildren(widget.responsavel.id);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,53 +43,83 @@ class ChildrenListPage extends StatelessWidget {
         ),
         iconTheme: const IconThemeData(color: AppColors.darkBlue),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(20),
-        itemCount: _mockCriancas.length,
-        itemBuilder: (context, index) {
-          final crianca = _mockCriancas[index];
-          final usuario = _mockUsuariosCriancas.firstWhere((u) => u.id == crianca.idUsuario);
-          return Container(
-            margin: const EdgeInsets.only(bottom: 18),
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.07),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
+      body: FutureBuilder<List<ChildInfo>>(
+        future: _childrenFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erro: \\${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('Nenhuma criança encontrada.'));
+          }
+          final children = snapshot.data!;
+          return ListView.builder(
+            padding: const EdgeInsets.all(20),
+            itemCount: children.length,
+            itemBuilder: (context, index) {
+              final crianca = children[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 18),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.07),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: AppColors.primary.withOpacity(0.13),
-                  child: Icon(Icons.child_care, color: AppColors.primary, size: 28),
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        usuario.nomeCompleto,
-                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.darkText),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundColor: AppColors.primary.withOpacity(0.13),
+                      child: Icon(Icons.child_care, color: AppColors.primary, size: 28),
+                    ),
+                    const SizedBox(width: 18),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            crianca.nome,
+                            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.darkText),
+                          ),
+                          const SizedBox(height: 4),
+                          Text('Nível: ${crianca.nivel}  •  Idade: ${crianca.idade}',
+                            style: const TextStyle(fontSize: 14, color: AppColors.gray400)),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text('Nível: ${crianca.nivel}  •  Pontos: ${crianca.ponto}',
-                        style: const TextStyle(fontSize: 14, color: AppColors.gray400)),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ).animate().fadeIn(duration: 600.ms, delay: (index * 120).ms).slideY(begin: 0.08);
+              ).animate().fadeIn(duration: 600.ms, delay: (index * 120).ms).slideY(begin: 0.08);
+            },
+          );
         },
       ),
+    );
+  }
+}
+
+class _ChildInfo {
+  final int id;
+  final int idade;
+  final int nivel;
+  final String nome;
+
+  _ChildInfo({required this.id, required this.idade, required this.nivel, required this.nome});
+
+  factory _ChildInfo.fromJson(Map<String, dynamic> json) {
+    return _ChildInfo(
+      id: json['id'] ?? 0,
+      idade: json['idade'] ?? 0,
+      nivel: json['nivel'] ?? 0,
+      nome: json['usuario']?['nomeCompleto'] ?? '',
     );
   }
 } 

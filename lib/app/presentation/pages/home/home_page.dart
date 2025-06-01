@@ -175,7 +175,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  widget.usuario.nomeCompleto,
+                                  _getFirstAndLastName(widget.usuario.nomeCompleto),
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     fontSize: 17,
@@ -228,5 +228,11 @@ class _HomePageState extends State<HomePage> {
     } else {
       return 'Boa noite,';
     }
+  }
+
+  String _getFirstAndLastName(String nomeCompleto) {
+    final parts = nomeCompleto.trim().split(RegExp(r'\s+'));
+    if (parts.length == 1) return parts[0];
+    return parts.first + ' ' + parts.last;
   }
 }

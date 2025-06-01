@@ -8,13 +8,13 @@ class Select<T> extends StatelessWidget {
   final String Function(T) getLabel;
 
   const Select({
-    Key? key,
+    super.key,
     required this.selectedValue,
     required this.options,
     required this.onChanged,
     required this.getLabel,
     this.hintText = 'Selecione uma opção',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

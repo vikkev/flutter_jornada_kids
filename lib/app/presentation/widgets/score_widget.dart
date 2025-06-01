@@ -112,7 +112,7 @@ class ScoreWidget extends StatelessWidget {
                 ),
               ),
               // Barra preenchida animada
-              Container(
+              SizedBox(
                 height: 22,
                 width: 0, // inicia zerada
               ).animate().custom(

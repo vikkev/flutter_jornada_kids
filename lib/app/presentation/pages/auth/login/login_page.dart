@@ -3,7 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_jornadakids/app/services/auth_service.dart';
 import 'package:flutter_jornadakids/app/presentation/pages/home/home_page.dart';
 import 'package:flutter_jornadakids/app/presentation/pages/auth/user_register/register_page_child.dart';
-import 'package:flutter_jornadakids/app/presentation/pages/auth/user_register/register_page_responsible.dart';
+import 'package:flutter_jornadakids/app/presentation/pages/auth/user_register/register_page.dart';
 import 'package:flutter_jornadakids/app/models/enums.dart';
 import 'package:flutter_jornadakids/app/core/utils/constants.dart' as constants;
 
@@ -55,18 +55,14 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    // Call the mock authentication service
     final result = await _authService.login(
       _usernameController.text, 
       _passwordController.text,
       widget.userType
     );
 
-    // Check authentication result
     if (result.success) {
-      // Navigate to Home page
       if (mounted) {
-        // Show success feedback
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(result.message),
@@ -74,8 +70,6 @@ class _LoginPageState extends State<LoginPage> {
             behavior: SnackBarBehavior.floating,
           ),
         );
-        
-        // Navigate to home
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -86,7 +80,22 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } else {
-      // Show error message
+      // Se for erro de tipo de usuário, mostrar dialog especial
+      if (result.message != null && result.message!.contains('Tipo de usuário incorreto')) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Tipo de usuário incorreto'),
+            content: Text(result.message ?? 'Você está tentando acessar a área errada. Verifique se está na tela correta para seu tipo de conta.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
       setState(() {
         _errorMessage = result.message;
         _isLoading = false;
@@ -339,8 +348,7 @@ class _LoginPageState extends State<LoginPage> {
                                 context,
                                 MaterialPageRoute(
                                   builder:
-                                      (context) =>
-                                          const RegisterPageResponsible(),
+                                      (context) => RegisterPage(isResponsible: true),
                                 ),
                               );
                             } else {
@@ -365,38 +373,6 @@ class _LoginPageState extends State<LoginPage> {
                     )
                     .animate()
                     .fadeIn(delay: 700.ms, duration: 500.ms),
-                    
-                    const SizedBox(height: 20),
-                    // Mock users information for testing
-                    Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Usuários para teste:',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          if (widget.userType == TipoUsuario.responsavel)
-                            Text(
-                              'Responsáveis: maria / 123, joao / 123',
-                              style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                            ),
-                          if (widget.userType == TipoUsuario.crianca)
-                            Text(
-                              'Crianças: lucas / 123, ana / 123',
-                              style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                            ),
-                        ],
-                      ),
-                    )
-                    .animate()
-                    .fadeIn(delay: 800.ms, duration: 500.ms),
                   ],
                 ),
               ),

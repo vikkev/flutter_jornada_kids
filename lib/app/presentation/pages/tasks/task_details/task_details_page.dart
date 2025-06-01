@@ -130,7 +130,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                           dataLimite = picked;
                         }
                       },
-                      child: Text('${_formatDate(dataLimite)}'),
+                      child: Text(_formatDate(dataLimite)),
                     ),
                   ],
                 ),
