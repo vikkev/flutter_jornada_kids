@@ -33,7 +33,7 @@ class TaskService {
         return TaskResponse(
           id: 0,
           responsavel: '',
-          crianca: '',
+          crianca: {},
           titulo: '',
           pontuacaoTotal: 0,
           pontuacaoConquistada: 0,
@@ -61,12 +61,29 @@ class TaskService {
       throw Exception('Erro ao buscar todas as tarefas');
     }
   }
+
+  Future<List<TaskResponse>> fetchTarefasDoResponsavel({
+    required int responsavelId,
+    int? criancaId,
+    String? status,
+  }) async {
+    final url = '${ApiConfig.api}/responsaveis/$responsavelId/tarefas';
+    final queryParams = <String, dynamic>{};
+    if (criancaId != null) queryParams['criancaId'] = criancaId;
+    if (status != null) queryParams['status'] = status;
+    final response = await _dio.get(url, queryParameters: queryParams);
+    if (response.statusCode == 200 && response.data is List) {
+      return (response.data as List).map((item) => TaskResponse.fromJson(item)).toList();
+    } else {
+      throw Exception('Erro ao buscar tarefas do responsável');
+    }
+  }
 }
 
 class TaskResponse {
   final int id;
   final String responsavel;
-  final String crianca;
+  final Map<String, dynamic> crianca;
   final String titulo;
   final int pontuacaoTotal;
   final int pontuacaoConquistada;
@@ -98,7 +115,7 @@ class TaskResponse {
     return TaskResponse(
       id: json['id'] ?? 0,
       responsavel: json['responsavel'] ?? '',
-      crianca: json['crianca'] ?? '',
+      crianca: json['crianca'] ?? {},
       titulo: json['titulo'] ?? '',
       pontuacaoTotal: json['pontuacaoTotal'] ?? 0,
       pontuacaoConquistada: json['pontuacaoConquistada'] ?? 0,

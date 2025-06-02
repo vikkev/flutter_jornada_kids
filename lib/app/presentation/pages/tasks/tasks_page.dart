@@ -5,11 +5,14 @@ import 'package:flutter_jornadakids/app/core/utils/constants.dart';
 import 'package:flutter_jornadakids/app/models/enums.dart';
 import 'package:flutter_jornadakids/app/models/tarefa.dart';
 import 'package:flutter_jornadakids/app/models/usuario.dart';
+import 'package:flutter_jornadakids/app/services/responsible_service.dart';
+import 'package:flutter_jornadakids/app/services/task_service.dart';
 
 class TasksPage extends StatefulWidget {
   final TipoUsuario userType;
+  final Usuario usuario;
 
-  const TasksPage({super.key, required this.userType});
+  const TasksPage({super.key, required this.userType, required this.usuario});
 
   @override
   State<TasksPage> createState() => _TasksPageState();
@@ -18,127 +21,98 @@ class TasksPage extends StatefulWidget {
 class _TasksPageState extends State<TasksPage> {
   String? selectedChild;
   DateTime? selectedDate;
-  SituacaoTarefa? selectedStatus;
   String? selectedCategory;
   List<Tarefa> tasks = [];
+  List<ChildInfo> children = [];
   bool isLoading = true;
-
-  // Mock de usuários/crianças
-  final List<Usuario> usuarios = [
-    Usuario(
-      id: 1,
-      nomeCompleto: 'João Silva',
-      nomeUsuario: 'joao',
-      email: 'joao@email.com',
-      telefone: '99999-1111',
-      senha: '123456',
-      tipoUsuario: TipoUsuario.crianca,
-      criadoEm: DateTime.now(),
-      atualizadoEm: DateTime.now(),
-    ),
-    Usuario(
-      id: 2,
-      nomeCompleto: 'Maria Santos',
-      nomeUsuario: 'maria',
-      email: 'maria@email.com',
-      telefone: '99999-2222',
-      senha: '123456',
-      tipoUsuario: TipoUsuario.crianca,
-      criadoEm: DateTime.now(),
-      atualizadoEm: DateTime.now(),
-    ),
-  ];
-
-  // Mock de tarefas
-  final List<Tarefa> mockTarefas = [
-    Tarefa(
-      id: 1,
-      responsavelId: 1,
-      titulo: 'Escovar os dentes',
-      descricao: 'Todas as manhãs e de noite com cuidado',
-      ponto: 25,
-      prioridade: PrioridadeTarefa.alta,
-      foto: null,
-      situacao: SituacaoTarefa.P,
-      dataLimite: DateTime.now().add(Duration(days: 1)),
-      criadoEm: DateTime.now(),
-      atualizadoEm: DateTime.now(),
-    ),
-    Tarefa(
-      id: 2,
-      responsavelId: 1,
-      titulo: 'Arrumar a cama',
-      descricao: 'Deixar o quarto sempre organizado',
-      ponto: 15,
-      prioridade: PrioridadeTarefa.media,
-      foto: null,
-      situacao: SituacaoTarefa.C,
-      dataLimite: DateTime.now().subtract(Duration(days: 1)),
-      criadoEm: DateTime.now(),
-      atualizadoEm: DateTime.now(),
-    ),
-    Tarefa(
-      id: 3,
-      responsavelId: 2,
-      titulo: 'Fazer o dever de casa',
-      descricao: 'Completar todas as atividades escolares',
-      ponto: 50,
-      prioridade: PrioridadeTarefa.alta,
-      foto: null,
-      situacao: SituacaoTarefa.P,
-      dataLimite: DateTime.now().add(Duration(hours: 6)),
-      criadoEm: DateTime.now(),
-      atualizadoEm: DateTime.now(),
-    ),
-    Tarefa(
-      id: 4,
-      responsavelId: 2,
-      titulo: 'Organizar os brinquedos',
-      descricao: 'Guardar tudo no lugar certo',
-      ponto: 30,
-      prioridade: PrioridadeTarefa.baixa,
-      foto: null,
-      situacao: SituacaoTarefa.E,
-      dataLimite: DateTime.now().subtract(Duration(days: 2)),
-      criadoEm: DateTime.now(),
-      atualizadoEm: DateTime.now(),
-    ),
-  ];
+  bool isLoadingChildren = true;
+  bool _showInitialAnimation = true;
 
   @override
   void initState() {
     super.initState();
-    _loadTasks();
+    if (widget.userType == TipoUsuario.responsavel) {
+      _loadChildren();
+    } else {
+      _loadTasks();
+    }
+  }
+
+  Future<void> _loadChildren() async {
+    setState(() {
+      isLoadingChildren = true;
+    });
+    try {
+      final fetchedChildren = await ResponsibleService().fetchChildren(widget.usuario.id);
+      setState(() {
+        children = fetchedChildren;
+        isLoadingChildren = false;
+      });
+      _loadTasks();
+    } catch (e) {
+      setState(() {
+        isLoadingChildren = false;
+      });
+      // Tratar erro se necessário
+    }
   }
 
   Future<void> _loadTasks() async {
     setState(() {
       isLoading = true;
     });
-    // Simula delay de API
-    await Future.delayed(const Duration(milliseconds: 500));
-    // Filtro por criança
-    List<Tarefa> filtered = List.from(mockTarefas);
-    if (selectedChild != null && selectedChild!.isNotEmpty) {
-      filtered = filtered.where((t) => usuarios.firstWhere((u) => u.id == t.responsavelId).nomeCompleto == selectedChild).toList();
+    try {
+      final taskService = TaskService();
+      List<TaskResponse> responses = [];
+      if (widget.userType == TipoUsuario.responsavel) {
+        int? criancaId;
+        if (selectedChild != null && selectedChild!.isNotEmpty) {
+          final child = children.firstWhere((c) => c.nome == selectedChild, orElse: () => children.first);
+          criancaId = child.id;
+        }
+        responses = await taskService.fetchTarefasDoResponsavel(
+          responsavelId: widget.usuario.id,
+          criancaId: criancaId,
+          status: null,
+        );
+      } else {
+        // Para criança/adolescente, buscar tarefas dela (ajustar se necessário)
+        responses = await taskService.fetchAllTasks();
+        // Filtrar por usuário se necessário
+      }
+      setState(() {
+        tasks = responses.map(_taskResponseToTarefa).where((t) {
+          if (selectedDate != null) {
+            return t.dataLimite.day == selectedDate!.day &&
+                   t.dataLimite.month == selectedDate!.month &&
+                   t.dataLimite.year == selectedDate!.year;
+          }
+          return true;
+        }).toList();
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      // Tratar erro se necessário
     }
-    // Filtro por status
-    if (selectedStatus != null) {
-      filtered = filtered.where((t) => t.situacao == selectedStatus).toList();
-    }
-    // Filtro por data
-    if (selectedDate != null) {
-      filtered = filtered.where((t) =>
-        t.dataLimite.day == selectedDate!.day &&
-        t.dataLimite.month == selectedDate!.month &&
-        t.dataLimite.year == selectedDate!.year
-      ).toList();
-    }
-    if (!mounted) return;
-    setState(() {
-      tasks = filtered;
-      isLoading = false;
-    });
+  }
+
+  Tarefa _taskResponseToTarefa(TaskResponse response) {
+    return Tarefa(
+      id: response.id,
+      responsavelId: int.tryParse(response.responsavel) ?? 0,
+      titulo: response.titulo,
+      descricao: '', // Ajustar se vier descrição na API
+      ponto: response.pontuacaoTotal,
+      prioridade: PrioridadeTarefaExtension.fromCode(response.prioridade),
+      foto: null, // Ajustar se vier foto
+      situacao: SituacaoTarefaExtension.fromCode(response.situacao),
+      dataLimite: DateTime.tryParse(response.dataHoraLimite) ?? DateTime.now(),
+      criadoEm: DateTime.tryParse(response.criadoEm) ?? DateTime.now(),
+      atualizadoEm: DateTime.tryParse(response.atualizadoEm) ?? DateTime.now(),
+    );
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -178,19 +152,11 @@ class _TasksPageState extends State<TasksPage> {
     setState(() {
       selectedChild = null;
       selectedDate = null;
-      selectedStatus = null;
       selectedCategory = null;
     });
     _loadTasks();
   }
 
-  String get formattedDate {
-    if (selectedDate == null) return 'Selecione a data';
-    final day = selectedDate!.day.toString().padLeft(2, '0');
-    final month = selectedDate!.month.toString().padLeft(2, '0');
-    final year = selectedDate!.year;
-    return '$day/$month/$year';
-  }
 
   String _getStatusText(SituacaoTarefa status) {
     switch (status) {
@@ -263,6 +229,9 @@ class _TasksPageState extends State<TasksPage> {
   }
 
   Widget _buildFilters() {
+    if (isLoadingChildren) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -284,10 +253,10 @@ class _TasksPageState extends State<TasksPage> {
               ),
               icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade600),
               dropdownColor: Colors.white,
-              items: usuarios.map((u) {
+              items: children.map((c) {
                 return DropdownMenuItem<String>(
-                  value: u.nomeCompleto,
-                  child: Text(u.nomeCompleto, style: const TextStyle(fontSize: 14)),
+                  value: c.nome,
+                  child: Text(c.nome, style: const TextStyle(fontSize: 14)),
                 );
               }).toList(),
               onChanged: (String? newValue) {
@@ -298,46 +267,6 @@ class _TasksPageState extends State<TasksPage> {
               },
             ),
           ).animate().fadeIn(duration: 600.ms, delay: 200.ms).slideX(begin: -0.4, curve: Curves.easeOutBack),
-
-          const SizedBox(height: 12),
-
-          // Filtro de status
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(25),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: DropdownButtonFormField<SituacaoTarefa>(
-                    value: selectedStatus,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      border: InputBorder.none,
-                      hintText: 'Status da tarefa',
-                      hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                    ),
-                    icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade600),
-                    dropdownColor: Colors.white,
-                    items: SituacaoTarefa.values.map((SituacaoTarefa status) {
-                      return DropdownMenuItem<SituacaoTarefa>(
-                        value: status,
-                        child: Text(_getStatusText(status), style: const TextStyle(fontSize: 14)),
-                      );
-                    }).toList(),
-                    onChanged: (SituacaoTarefa? newValue) {
-                      setState(() {
-                        selectedStatus = newValue;
-                      });
-                      _loadTasks();
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ).animate().fadeIn(duration: 600.ms, delay: 600.ms).slideX(begin: -0.4, curve: Curves.easeOutBack),
 
           const SizedBox(height: 12),
 
@@ -380,6 +309,9 @@ class _TasksPageState extends State<TasksPage> {
   }
 
   Widget _buildTasksList() {
+    // Só mostra animação na primeira renderização
+    final showAnimation = _showInitialAnimation;
+    _showInitialAnimation = false;
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       itemCount: tasks.length,
@@ -387,9 +319,9 @@ class _TasksPageState extends State<TasksPage> {
         padding: const EdgeInsets.only(bottom: 12),
         child: TaskCard(
           tarefa: tasks[index],
-          responsavel: usuarios.firstWhere((u) => u.id == tasks[index].responsavelId),
+          responsavel: _childInfoToUsuario(children.firstWhere((c) => c.id == tasks[index].responsavelId, orElse: () => ChildInfo(id: 0, idade: 0, nivel: 0, nome: ''))),
           showDetails: widget.userType == TipoUsuario.responsavel,
-          animationDelay: index * 150,
+          animationDelay: showAnimation ? index * 150 : 0,
           onStatusChanged: (taskId, newStatus) async {
             setState(() {
               final idx = tasks.indexWhere((t) => t.id == taskId);
@@ -406,8 +338,21 @@ class _TasksPageState extends State<TasksPage> {
   bool _hasActiveFilters() {
     return selectedChild != null ||
            selectedDate != null ||
-           selectedStatus != null ||
            selectedCategory != null;
+  }
+
+  Usuario _childInfoToUsuario(ChildInfo child) {
+    return Usuario(
+      id: child.id,
+      nomeCompleto: child.nome,
+      nomeUsuario: child.nome,
+      email: '',
+      telefone: '',
+      senha: '',
+      tipoUsuario: TipoUsuario.crianca,
+      criadoEm: DateTime.now(),
+      atualizadoEm: DateTime.now(),
+    );
   }
 }
 

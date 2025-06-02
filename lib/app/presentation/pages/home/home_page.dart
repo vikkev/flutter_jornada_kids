@@ -46,6 +46,7 @@ class _HomePageState extends State<HomePage> {
           _buildMainPage(),
           TasksPage(
             userType: widget.usuario.tipoUsuario,
+            usuario: widget.usuario,
           ),
           AchievementsPage(userType: widget.usuario.tipoUsuario),
           SettingsPage(usuario: widget.usuario),
@@ -68,7 +69,6 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Column(
         children: [
-          // Header azul decorativo (opcional, pode ser removido ou deixado só como topo)
           Container(
             width: double.infinity,
             height: 40,

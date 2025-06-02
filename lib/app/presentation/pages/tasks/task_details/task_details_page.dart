@@ -209,32 +209,8 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Dropdown simulado (apenas visual)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(25),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      '${tarefa.titulo} (Nome das tarefas)',
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                  ),
-                  Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade600),
-                ],
-              ),
-            )
-                .animate()
-                .fadeIn(duration: 600.ms, delay: 200.ms)
-                .slideX(begin: -0.3),
-
-            const SizedBox(height: 16),
+            // Removido filtro/dropdown do topo
+            const SizedBox(height: 8),
 
             // Botão Editar
             Center(

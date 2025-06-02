@@ -7,6 +7,7 @@ import 'package:flutter_jornadakids/app/presentation/pages/settings/profile_page
 import 'package:flutter_jornadakids/app/presentation/pages/settings/children_list_page.dart';
 import 'package:flutter_jornadakids/app/presentation/pages/settings/pin_code_page.dart';
 import 'package:flutter_jornadakids/app/presentation/pages/auth/welcome_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatelessWidget {
   final Usuario usuario;
@@ -173,7 +174,9 @@ class SettingsPage extends StatelessWidget {
                     icon: Icons.logout,
                     title: 'Sair',
                     subtitle: 'Sair da conta',
-                    onTap: () {
+                    onTap: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.clear();
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (context) => const WelcomePage()),
                         (route) => false,
