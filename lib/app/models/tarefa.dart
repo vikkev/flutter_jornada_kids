@@ -6,9 +6,7 @@ class Tarefa {
   int responsavelId;
   String titulo;
   String descricao;
-  int pontoMax;
   int ponto;
-  int estrela;
   PrioridadeTarefa prioridade;
   Uint8List? foto;
   SituacaoTarefa situacao;
@@ -21,9 +19,7 @@ class Tarefa {
     required this.responsavelId,
     required this.titulo,
     required this.descricao,
-    required this.pontoMax,
     required this.ponto,
-    required this.estrela,
     required this.prioridade,
     this.foto,
     required this.situacao,
@@ -37,9 +33,7 @@ class Tarefa {
     int? responsavelId,
     String? titulo,
     String? descricao,
-    int? pontoMax,
     int? ponto,
-    int? estrela,
     PrioridadeTarefa? prioridade,
     Uint8List? foto,
     SituacaoTarefa? situacao,
@@ -52,9 +46,7 @@ class Tarefa {
       responsavelId: responsavelId ?? this.responsavelId,
       titulo: titulo ?? this.titulo,
       descricao: descricao ?? this.descricao,
-      pontoMax: pontoMax ?? this.pontoMax,
       ponto: ponto ?? this.ponto,
-      estrela: estrela ?? this.estrela,
       prioridade: prioridade ?? this.prioridade,
       foto: foto ?? this.foto,
       situacao: situacao ?? this.situacao,

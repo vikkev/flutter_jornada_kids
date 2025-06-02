@@ -56,9 +56,7 @@ class _TasksPageState extends State<TasksPage> {
       responsavelId: 1,
       titulo: 'Escovar os dentes',
       descricao: 'Todas as manhãs e de noite com cuidado',
-      pontoMax: 25,
       ponto: 25,
-      estrela: 1,
       prioridade: PrioridadeTarefa.alta,
       foto: null,
       situacao: SituacaoTarefa.P,
@@ -71,9 +69,7 @@ class _TasksPageState extends State<TasksPage> {
       responsavelId: 1,
       titulo: 'Arrumar a cama',
       descricao: 'Deixar o quarto sempre organizado',
-      pontoMax: 15,
       ponto: 15,
-      estrela: 1,
       prioridade: PrioridadeTarefa.media,
       foto: null,
       situacao: SituacaoTarefa.C,
@@ -86,9 +82,7 @@ class _TasksPageState extends State<TasksPage> {
       responsavelId: 2,
       titulo: 'Fazer o dever de casa',
       descricao: 'Completar todas as atividades escolares',
-      pontoMax: 50,
       ponto: 50,
-      estrela: 2,
       prioridade: PrioridadeTarefa.alta,
       foto: null,
       situacao: SituacaoTarefa.P,
@@ -101,9 +95,7 @@ class _TasksPageState extends State<TasksPage> {
       responsavelId: 2,
       titulo: 'Organizar os brinquedos',
       descricao: 'Guardar tudo no lugar certo',
-      pontoMax: 30,
       ponto: 30,
-      estrela: 1,
       prioridade: PrioridadeTarefa.baixa,
       foto: null,
       situacao: SituacaoTarefa.E,
@@ -218,7 +210,7 @@ class _TasksPageState extends State<TasksPage> {
       case SituacaoTarefa.P:
         return Colors.orange;
       case SituacaoTarefa.C:
-        return AppColors.primary;
+        return Colors.green;
       case SituacaoTarefa.E:
         return Colors.red;
       case SituacaoTarefa.A:
@@ -306,77 +298,6 @@ class _TasksPageState extends State<TasksPage> {
               },
             ),
           ).animate().fadeIn(duration: 600.ms, delay: 200.ms).slideX(begin: -0.4, curve: Curves.easeOutBack),
-
-          const SizedBox(height: 12),
-
-          // Row com data e categoria
-          Row(
-            children: [
-              // Seletor de data
-              Expanded(
-                child: InkWell(
-                  onTap: () => _selectDate(context),
-                  child: Container(
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(25),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            formattedDate,
-                            style: TextStyle(
-                              color: selectedDate == null ? Colors.grey : Colors.black87,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                        Icon(Icons.calendar_today, color: Colors.grey, size: 20),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              // Filtro de categoria
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(25),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: DropdownButtonFormField<String>(
-                    value: selectedCategory,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      border: InputBorder.none,
-                      hintText: 'Categoria',
-                      hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                    ),
-                    icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade600),
-                    dropdownColor: Colors.white,
-                    items: ['higiene', 'casa', 'estudos', 'lazer'].map((String category) {
-                      return DropdownMenuItem<String>(
-                        value: category,
-                        child: Text(category.toUpperCase(), style: const TextStyle(fontSize: 14)),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedCategory = newValue;
-                      });
-                      _loadTasks();
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ).animate().fadeIn(duration: 600.ms, delay: 400.ms).slideX(begin: 0.4, curve: Curves.easeOutBack),
 
           const SizedBox(height: 12),
 
@@ -646,18 +567,42 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ).animate().fadeIn(duration: 500.ms, delay: (widget.animationDelay + 200).ms).slideX(begin: 0.3),
+                        const SizedBox(height: 6),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text('Status: ', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                                Text(
+                                  _getStatusText(widget.tarefa.situacao),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: _getStatusColor(widget.tarefa.situacao),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            Row(
+                              children: [
+                                Text('Prazo: ', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                                Text(
+                                  _formatDate(widget.tarefa.dataLimite),
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.darkText),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
                   Row(
                     children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 18)
-                          .animate()
-                          .fadeIn(duration: 400.ms, delay: (widget.animationDelay + 300).ms)
-                          .scale(begin: const Offset(0, 0), curve: Curves.elasticOut),
-                      const SizedBox(width: 4),
                       Text(
-                        _formatPoints(widget.tarefa.ponto),
+                        '${_formatPoints(widget.tarefa.ponto)} pontos',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -670,36 +615,8 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
               ),
               if (widget.showDetails) ...[
                 const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Text('Status: ', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-                        Text(
-                          _getStatusText(widget.tarefa.situacao),
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: _getStatusColor(widget.tarefa.situacao),
-                          ),
-                        ),
-                      ],
-                    ).animate().fadeIn(duration: 400.ms, delay: (widget.animationDelay + 500).ms).slideX(begin: -0.3),
-                    Row(
-                      children: [
-                        Text('Prazo: ', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-                        Text(
-                          _formatDate(widget.tarefa.dataLimite),
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.darkText),
-                        ),
-                      ],
-                    ).animate().fadeIn(duration: 400.ms, delay: (widget.animationDelay + 600).ms).slideX(begin: 0.3),
-                  ],
-                ),
-                const SizedBox(height: 16),
                 Align(
-                  alignment: Alignment.centerRight,
+                  alignment: Alignment.center,
                   child: GestureDetector(
                     onTap: () {
                       Navigator.of(context).push(
@@ -712,14 +629,16 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      width: 200,
+                      padding: const EdgeInsets.symmetric(vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.amber,
-                        borderRadius: BorderRadius.circular(20),
+                        color: AppColors.secondary,
+                        borderRadius: BorderRadius.circular(24),
                       ),
+                      alignment: Alignment.center,
                       child: const Text(
                         'Detalhes',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                       ),
                     ),
                   ),
