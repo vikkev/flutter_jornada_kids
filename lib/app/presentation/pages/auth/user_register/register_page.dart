@@ -97,7 +97,7 @@ class _RegisterPageState extends State<RegisterPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Selecionar responsável',
+          'Cadastro',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,

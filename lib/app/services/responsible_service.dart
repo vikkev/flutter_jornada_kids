@@ -23,6 +23,16 @@ class ResponsibleService {
       throw Exception('Erro ao buscar responsável');
     }
   }
+
+  Future<List<ChildInfo>> fetchChildrenOfResponsible(int responsavelId) async {
+    final url = '${ApiConfig.api}/responsaveis/$responsavelId/criancas';
+    final response = await _dio.get(url);
+    if (response.statusCode == 200 && response.data is List) {
+      return (response.data as List).map((item) => ChildInfo.fromJson(item)).toList();
+    } else {
+      throw Exception('Erro ao buscar crianças do responsável');
+    }
+  }
 }
 
 class ChildInfo {

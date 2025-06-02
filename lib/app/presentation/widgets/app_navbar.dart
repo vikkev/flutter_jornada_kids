@@ -3,10 +3,12 @@ import 'package:flutter_jornadakids/app/core/utils/constants.dart';
 
 class AppBottomNavbar extends StatefulWidget {
   final Function(int) onPageChanged;
-  
+  final int currentIndex;
+
   const AppBottomNavbar({
     super.key,
     required this.onPageChanged,
+    required this.currentIndex,
   });
 
   @override
@@ -48,10 +50,10 @@ class _AppBottomNavbarState extends State<AppBottomNavbar> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildNavItem(0, Icons.home, _selectedIndex == 0),
-            _buildNavItem(1, Icons.book, _selectedIndex == 1),
-            _buildNavItem(2, Icons.star, _selectedIndex == 2),
-            _buildNavItem(3, Icons.settings, _selectedIndex == 3),
+            _buildNavItem(0, Icons.home, widget.currentIndex == 0),
+            _buildNavItem(1, Icons.book, widget.currentIndex == 1),
+            _buildNavItem(2, Icons.star, widget.currentIndex == 2),
+            _buildNavItem(3, Icons.settings, widget.currentIndex == 3),
           ],
         ),
       ),

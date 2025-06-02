@@ -6,12 +6,16 @@ class DatePickerField extends StatefulWidget {
   final DateTime? initialDate;
   final void Function(DateTime) onDateSelected;
   final String? hintText;
+  final DateTime? firstDate;
+  final DateTime? lastDate;
 
   const DatePickerField({
     super.key,
     required this.initialDate,
     required this.onDateSelected,
     this.hintText,
+    this.firstDate,
+    this.lastDate,
   });
 
   @override
@@ -30,11 +34,17 @@ class _DatePickerFieldState extends State<DatePickerField> {
   Future<void> _selectDate(BuildContext context) async {
     FocusScope.of(context).unfocus();
 
+    final firstDate = widget.firstDate ?? DateTime(1900);
+    final lastDate = widget.lastDate ?? DateTime(2100);
+    DateTime initialDate = selectedDate ?? DateTime.now();
+    if (initialDate.isBefore(firstDate)) {
+      initialDate = firstDate;
+    }
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedDate ?? DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
       locale: const Locale('pt', 'BR'), // Idioma definido para português
       builder: (context, child) {
         return Theme(

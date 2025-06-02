@@ -317,7 +317,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
 
                     // Status
                     _buildDetailRow('Status', tarefa.situacao.name, 
-                        color: tarefa.situacao == SituacaoTarefa.pendente 
+                        color: tarefa.situacao == SituacaoTarefa.P 
                             ? Colors.orange 
                             : AppColors.primary),
 

@@ -61,7 +61,7 @@ class _TasksPageState extends State<TasksPage> {
       estrela: 1,
       prioridade: PrioridadeTarefa.alta,
       foto: null,
-      situacao: SituacaoTarefa.pendente,
+      situacao: SituacaoTarefa.P,
       dataLimite: DateTime.now().add(Duration(days: 1)),
       criadoEm: DateTime.now(),
       atualizadoEm: DateTime.now(),
@@ -76,7 +76,7 @@ class _TasksPageState extends State<TasksPage> {
       estrela: 1,
       prioridade: PrioridadeTarefa.media,
       foto: null,
-      situacao: SituacaoTarefa.concluida,
+      situacao: SituacaoTarefa.C,
       dataLimite: DateTime.now().subtract(Duration(days: 1)),
       criadoEm: DateTime.now(),
       atualizadoEm: DateTime.now(),
@@ -91,7 +91,7 @@ class _TasksPageState extends State<TasksPage> {
       estrela: 2,
       prioridade: PrioridadeTarefa.alta,
       foto: null,
-      situacao: SituacaoTarefa.pendente,
+      situacao: SituacaoTarefa.P,
       dataLimite: DateTime.now().add(Duration(hours: 6)),
       criadoEm: DateTime.now(),
       atualizadoEm: DateTime.now(),
@@ -106,7 +106,7 @@ class _TasksPageState extends State<TasksPage> {
       estrela: 1,
       prioridade: PrioridadeTarefa.baixa,
       foto: null,
-      situacao: SituacaoTarefa.expirada,
+      situacao: SituacaoTarefa.E,
       dataLimite: DateTime.now().subtract(Duration(days: 2)),
       criadoEm: DateTime.now(),
       atualizadoEm: DateTime.now(),
@@ -202,25 +202,27 @@ class _TasksPageState extends State<TasksPage> {
 
   String _getStatusText(SituacaoTarefa status) {
     switch (status) {
-      case SituacaoTarefa.pendente:
+      case SituacaoTarefa.P:
         return 'Pendente';
-      case SituacaoTarefa.concluida:
+      case SituacaoTarefa.C:
         return 'Concluída';
-      case SituacaoTarefa.expirada:
+      case SituacaoTarefa.E:
         return 'Vencida';
-      case SituacaoTarefa.concluida:
-        return 'Concluída';
+      case SituacaoTarefa.A:
+        return 'Aguardando';
     }
   }
 
   Color _getStatusColor(SituacaoTarefa status) {
     switch (status) {
-      case SituacaoTarefa.pendente:
+      case SituacaoTarefa.P:
         return Colors.orange;
-      case SituacaoTarefa.concluida:
+      case SituacaoTarefa.C:
         return AppColors.primary;
-      case SituacaoTarefa.expirada:
+      case SituacaoTarefa.E:
         return Colors.red;
+      case SituacaoTarefa.A:
+        return Colors.blueGrey;
     }
   }
 
@@ -527,7 +529,7 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
   }
 
   void _toggleCompleted() async {
-    if (widget.tarefa.situacao == SituacaoTarefa.concluida) return;
+    if (widget.tarefa.situacao == SituacaoTarefa.C) return;
 
     final shouldComplete = await showDialog<bool>(
       context: context,
@@ -550,13 +552,13 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
 
     if (shouldComplete == true) {
       _checkboxController.forward();
-      widget.onStatusChanged?.call(widget.tarefa.id, SituacaoTarefa.concluida);
+      widget.onStatusChanged?.call(widget.tarefa.id, SituacaoTarefa.C);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isCompleted = widget.tarefa.situacao == SituacaoTarefa.concluida;
+    final isCompleted = widget.tarefa.situacao == SituacaoTarefa.C;
     return GestureDetector(
       onTap: widget.showDetails
           ? () {
@@ -574,7 +576,7 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: widget.tarefa.situacao == SituacaoTarefa.expirada
+          border: widget.tarefa.situacao == SituacaoTarefa.E
               ? Border.all(color: Colors.red, width: 2)
               : null,
           boxShadow: [
@@ -769,7 +771,7 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
                   ],
                 ),
               ],
-              if (!widget.showDetails && widget.tarefa.situacao == SituacaoTarefa.expirada) ...[
+              if (!widget.showDetails && widget.tarefa.situacao == SituacaoTarefa.E) ...[
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -831,25 +833,27 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
 
   String _getStatusText(SituacaoTarefa status) {
     switch (status) {
-      case SituacaoTarefa.pendente:
+      case SituacaoTarefa.P:
         return 'Pendente';
-      case SituacaoTarefa.concluida:
+      case SituacaoTarefa.C:
         return 'Concluída';
-      case SituacaoTarefa.expirada:
+      case SituacaoTarefa.E:
         return 'Vencida';
-      case SituacaoTarefa.concluida:
-        return 'Concluída';
+      case SituacaoTarefa.A:
+        return 'Avaliada';
     }
   }
 
   Color _getStatusColor(SituacaoTarefa status) {
     switch (status) {
-      case SituacaoTarefa.pendente:
+      case SituacaoTarefa.P:
         return Colors.orange;
-      case SituacaoTarefa.concluida:
+      case SituacaoTarefa.C:
         return AppColors.primary;
-      case SituacaoTarefa.expirada:
+      case SituacaoTarefa.E:
         return Colors.red;
+      case SituacaoTarefa.A:
+        return Colors.green;
     }
   }
 

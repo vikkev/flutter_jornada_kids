@@ -247,7 +247,7 @@ class _RegisterPageChildState extends State<RegisterPageChild> with TickerProvid
          .slideX(begin: -0.3)
          .scale(begin: const Offset(0.8, 0.8)),
         title: const Text(
-          'Fazer Login',
+          'Código de autenticação',
           style: TextStyle(
             color: Colors.white, 
             fontSize: 20, 

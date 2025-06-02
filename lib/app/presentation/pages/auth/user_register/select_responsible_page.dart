@@ -33,7 +33,7 @@ class _SelectResponsiblePageState extends State<SelectResponsiblePage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Código',
+          'Selecionar Responsável',
           style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700,letterSpacing: 0.5,),
           
         ),

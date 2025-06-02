@@ -3,42 +3,26 @@ import 'package:flutter_jornadakids/app/models/usuario.dart';
 import 'package:flutter_jornadakids/app/models/enums.dart';
 import 'package:flutter_jornadakids/app/presentation/pages/tasks/task_description/task_description_page.dart';
 import 'package:flutter_jornadakids/app/core/utils/constants.dart';
+import 'package:flutter_jornadakids/app/services/responsible_service.dart';
 
 class TaskAssignmentScreen extends StatefulWidget {
-  const TaskAssignmentScreen({super.key});
+  final int responsavelId;
+  final Usuario usuarioResponsavel;
+  const TaskAssignmentScreen({super.key, required this.responsavelId, required this.usuarioResponsavel});
 
   @override
   State<TaskAssignmentScreen> createState() => _TaskAssignmentScreenState();
 }
 
 class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
-  Usuario? selectedUser;
+  ChildInfo? selectedUser;
+  late Future<List<ChildInfo>> _childrenFuture;
 
-  // Mock de usuários reais (criança e responsável)
-  final List<Usuario> users = [
-    Usuario(
-      id: 1,
-      nomeCompleto: 'Lucas Silva',
-      nomeUsuario: 'lucas',
-      email: 'lucas@teste.com',
-      telefone: '99999-1111',
-      senha: '123456',
-      tipoUsuario: TipoUsuario.crianca,
-      criadoEm: DateTime.now(),
-      atualizadoEm: DateTime.now(),
-    ),
-    Usuario(
-      id: 2,
-      nomeCompleto: 'Maria Souza',
-      nomeUsuario: 'maria',
-      email: 'maria@teste.com',
-      telefone: '99999-2222',
-      senha: '123456',
-      tipoUsuario: TipoUsuario.responsavel,
-      criadoEm: DateTime.now(),
-      atualizadoEm: DateTime.now(),
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _childrenFuture = ResponsibleService().fetchChildren(widget.responsavelId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +62,21 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
                       width: 1,
                     ),
                   ),
-                  child: ListView(
-                    children: users.map((user) => _buildUserTile(user)).toList(),
+                  child: FutureBuilder<List<ChildInfo>>(
+                    future: _childrenFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Erro: \\${snapshot.error}'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(child: Text('Nenhuma criança encontrada.'));
+                      }
+                      final users = snapshot.data!;
+                      return ListView(
+                        children: users.map((user) => _buildUserTile(user)).toList(),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -90,7 +87,11 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => TaskDescriptionPage(assignedUser: selectedUser!.nomeCompleto),
+                            builder: (context) => TaskDescriptionPage(
+                              idResponsavel: widget.responsavelId,
+                              idCrianca: selectedUser!.id,
+                              usuarioResponsavel: widget.usuarioResponsavel,
+                            ),
                           ),
                         );
                       }
@@ -120,7 +121,7 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
     );
   }
 
-  Widget _buildUserTile(Usuario user) {
+  Widget _buildUserTile(ChildInfo user) {
     final isSelected = selectedUser?.id == user.id;
 
     return Container(
@@ -133,7 +134,7 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
           width: isSelected ? 2 : 1,
         ),
       ),
-      child: RadioListTile<Usuario>(
+      child: RadioListTile<ChildInfo>(
         value: user,
         groupValue: selectedUser,
         onChanged: (value) {
@@ -153,15 +154,15 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  user.nomeCompleto,
+                  user.nome,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: AppColors.darkText,
                   ),
                 ),
-                Text(
-                  user.tipoUsuario == TipoUsuario.crianca ? 'Criança' : 'Responsável',
+                const Text(
+                  'Criança',
                   style: TextStyle(fontSize: 14, color: AppColors.gray400),
                 ),
               ],

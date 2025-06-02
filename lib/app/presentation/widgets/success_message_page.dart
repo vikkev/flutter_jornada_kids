@@ -6,12 +6,16 @@ class SuccessMessagePage extends StatelessWidget {
   final String message;
   final String buttonText;
   final VoidCallback onButtonPressed;
+  final String? secondaryButtonText;
+  final VoidCallback? onSecondaryButtonPressed;
 
   const SuccessMessagePage({
     super.key,
     required this.message,
     required this.buttonText,
     required this.onButtonPressed,
+    this.secondaryButtonText,
+    this.onSecondaryButtonPressed,
   });
 
   @override
@@ -97,6 +101,28 @@ class SuccessMessagePage extends StatelessWidget {
                           .animate()
                           .fadeIn(duration: 600.ms)
                           .slideY(begin: 0.3, curve: Curves.easeOut),
+
+                      if (secondaryButtonText != null && onSecondaryButtonPressed != null) ...[
+                        const SizedBox(height: 16),
+                        OutlinedButton(
+                          onPressed: onSecondaryButtonPressed,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.darkBlue,
+                            minimumSize: const Size(double.infinity, 48),
+                            side: const BorderSide(color: AppColors.darkBlue),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            secondaryButtonText!,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

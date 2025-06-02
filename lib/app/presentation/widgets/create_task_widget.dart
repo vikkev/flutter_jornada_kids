@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_jornadakids/app/models/usuario.dart';
 import 'package:flutter_jornadakids/app/presentation/pages/tasks/task_assigment/task_assigment.dart';
 import 'package:flutter_jornadakids/app/core/utils/constants.dart';
 
 class CreateTaskWidget extends StatelessWidget {
-  const CreateTaskWidget({super.key});
+  final int responsavelId;
+  final Usuario usuarioResponsavel;
+  const CreateTaskWidget({super.key, required this.responsavelId, required this.usuarioResponsavel});
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +90,10 @@ class CreateTaskWidget extends StatelessWidget {
                   context,
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) => 
-                        const TaskAssignmentScreen(),
+                        TaskAssignmentScreen(
+                          responsavelId: responsavelId,
+                          usuarioResponsavel: usuarioResponsavel,
+                        ),
                     transitionDuration: const Duration(milliseconds: 300),
                     transitionsBuilder: (context, animation, secondaryAnimation, child) {
                       return SlideTransition(

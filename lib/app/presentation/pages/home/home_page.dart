@@ -44,12 +44,15 @@ class _HomePageState extends State<HomePage> {
         },
         children: [
           _buildMainPage(),
-          TasksPage(userType: widget.usuario.tipoUsuario),
+          TasksPage(
+            userType: widget.usuario.tipoUsuario,
+          ),
           AchievementsPage(userType: widget.usuario.tipoUsuario),
           SettingsPage(usuario: widget.usuario),
         ],
       ),
       bottomNavigationBar: AppBottomNavbar(
+        currentIndex: _currentIndex,
         onPageChanged: (index) {
           _pageController.animateToPage(
             index,
@@ -190,7 +193,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       // Widget principal (CreateTask ou Score)
                       if (widget.usuario.tipoUsuario == TipoUsuario.responsavel)
-                        const CreateTaskWidget()
+                        CreateTaskWidget(responsavelId: widget.usuario.id, usuarioResponsavel: widget.usuario,)
                             .animate()
                             .fadeIn(delay: 700.ms, duration: 600.ms)
                             .slideY(begin: 0.3, end: 0)
@@ -203,7 +206,7 @@ class _HomePageState extends State<HomePage> {
                       // Ranking
                       SizedBox(
                         height: 600,
-                        child: const RankingWidget()
+                        child: RankingWidget()
                             .animate()
                             .fadeIn(delay: 900.ms, duration: 600.ms)
                             .slideY(begin: 0.3, end: 0),
