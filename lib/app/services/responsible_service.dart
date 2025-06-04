@@ -40,8 +40,15 @@ class ChildInfo {
   final int idade;
   final int nivel;
   final String nome;
+  final int ponto; // <-- Adicionado campo ponto
 
-  ChildInfo({required this.id, required this.idade, required this.nivel, required this.nome});
+  ChildInfo({
+    required this.id,
+    required this.idade,
+    required this.nivel,
+    required this.nome,
+    required this.ponto, // <-- Adicionado no construtor
+  });
 
   factory ChildInfo.fromJson(Map<String, dynamic> json) {
     return ChildInfo(
@@ -49,6 +56,7 @@ class ChildInfo {
       idade: json['idade'] ?? 0,
       nivel: json['nivel'] ?? 0,
       nome: json['usuario']?['nomeCompleto'] ?? '',
+      ponto: json['ponto'] ?? 0, // <-- Adicionado no fromJson
     );
   }
 }
@@ -104,4 +112,4 @@ class ResponsibleUser {
       atualizadoEm: json['atualizadoEm'] ?? '',
     );
   }
-} 
+}

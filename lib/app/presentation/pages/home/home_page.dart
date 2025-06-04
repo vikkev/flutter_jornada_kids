@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_jornadakids/app/presentation/pages/achievments/achievments_page.dart';
+import 'package:flutter_jornadakids/app/presentation/pages/achievements/achievments_page.dart';
 import 'package:flutter_jornadakids/app/presentation/pages/settings/settings_page.dart';
 import 'package:flutter_jornadakids/app/models/enums.dart';
 import 'package:flutter_jornadakids/app/models/usuario.dart';
@@ -240,7 +240,7 @@ class _HomePageState extends State<HomePage> {
                       // Ranking
                       SizedBox(
                         height: 600,
-                        child: RankingWidget()
+                        child: RankingWidget(usuario: widget.usuario)
                             .animate()
                             .fadeIn(delay: 900.ms, duration: 600.ms)
                             .slideY(begin: 0.3, end: 0),

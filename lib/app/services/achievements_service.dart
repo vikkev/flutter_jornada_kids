@@ -4,9 +4,28 @@ import 'api_config.dart';
 class AchievementsService {
   final Dio _dio = Dio();
 
-  Future<List<RecompensaResponse>> fetchRecompensas(int responsavelId) async {
+  Future<List<RecompensaResponse>> fetchRecompensas({
+    required int? responsavelId,
+    int? criancaId,
+  }) async {
     try {
-      final url = '${ApiConfig.api}/responsaveis/$responsavelId/recompensas';
+      int? idParaBuscar = responsavelId;
+      // Se for criança, buscar o id do responsável via API se necessário
+      if ((responsavelId == null || responsavelId == 0) && criancaId != null && criancaId > 0) {
+        final dio = Dio();
+        final url = '${ApiConfig.api}/criancas/$criancaId';
+        final response = await dio.get(url);
+        if (response.statusCode == 200 && response.data != null) {
+          final responsavel = response.data['responsavel'];
+          if (responsavel != null && responsavel['id'] != null) {
+            idParaBuscar = responsavel['id'];
+          }
+        }
+      }
+      if (idParaBuscar == null || idParaBuscar == 0) {
+        throw Exception('Responsável não encontrado para buscar recompensas');
+      }
+      final url = '${ApiConfig.api}/responsaveis/$idParaBuscar/recompensas';
       final response = await _dio.get(url);
       if (response.statusCode == 200 && response.data is List) {
         return (response.data as List)

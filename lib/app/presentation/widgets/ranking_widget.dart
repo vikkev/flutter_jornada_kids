@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_jornadakids/app/core/utils/constants.dart';
-import 'package:flutter_jornadakids/app/models/crianca.dart';
-import 'package:flutter_jornadakids/app/models/usuario.dart';
-import 'package:flutter_jornadakids/app/models/enums.dart';
 import 'dart:math' as math;
 import 'package:confetti/confetti.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_jornadakids/app/services/api_config.dart';
+import 'package:flutter_jornadakids/app/services/responsible_service.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_jornadakids/app/models/usuario.dart';
+import 'package:flutter_jornadakids/app/models/enums.dart';
 
 class RankingWidget extends StatefulWidget {
-  const RankingWidget({super.key});
+  final Usuario? usuario;
+
+  const RankingWidget({super.key, this.usuario});
 
   @override
   State<RankingWidget> createState() => _RankingWidgetState();
@@ -18,92 +22,9 @@ class _RankingWidgetState extends State<RankingWidget> with SingleTickerProvider
   late AnimationController _shimmerController;
   late ConfettiController _confettiController;
 
-  // Mock de ranking de crianças (poderia ser Usuario também)
-  final List<Crianca> ranking = [
-    Crianca(id: 1, idUsuario: 1, dataNascimento: DateTime(2014, 5, 10), nivel: 5, xp: 1200, xpTotal: 5000, ponto: 323232),
-    Crianca(id: 2, idUsuario: 2, dataNascimento: DateTime(2013, 8, 22), nivel: 4, xp: 900, xpTotal: 4000, ponto: 23232),
-    Crianca(id: 3, idUsuario: 3, dataNascimento: DateTime(2015, 2, 3), nivel: 3, xp: 700, xpTotal: 3000, ponto: 12114),
-    Crianca(id: 4, idUsuario: 4, dataNascimento: DateTime(2012, 11, 15), nivel: 6, xp: 1500, xpTotal: 6000, ponto: 10000),
-    Crianca(id: 5, idUsuario: 5, dataNascimento: DateTime(2016, 1, 20), nivel: 2, xp: 400, xpTotal: 2000, ponto: 9850),
-    Crianca(id: 6, idUsuario: 6, dataNascimento: DateTime(2014, 7, 8), nivel: 2, xp: 350, xpTotal: 1800, ponto: 8720),
-  ];
-
-  // Mock de usuários das crianças (pronto para API)
-  final List<Usuario> usuariosCrianca = [
-    Usuario(
-      id: 1,
-      nomeCompleto: 'Lucas Souza',
-      nomeUsuario: 'lucas',
-      email: 'lucas@email.com',
-      telefone: '99999-3333',
-      senha: '123456',
-      tipoUsuario: TipoUsuario.crianca,
-      criadoEm: DateTime(2014, 5, 10),
-      atualizadoEm: DateTime.now(),
-    ),
-    Usuario(
-      id: 2,
-      nomeCompleto: 'Ana Lima',
-      nomeUsuario: 'ana',
-      email: 'ana@email.com',
-      telefone: '99999-4444',
-      senha: '123456',
-      tipoUsuario: TipoUsuario.crianca,
-      criadoEm: DateTime(2013, 8, 22),
-      atualizadoEm: DateTime.now(),
-    ),
-    Usuario(
-      id: 3,
-      nomeCompleto: 'Pedro Martins',
-      nomeUsuario: 'pedro',
-      email: 'pedro@email.com',
-      telefone: '99999-5555',
-      senha: '123456',
-      tipoUsuario: TipoUsuario.crianca,
-      criadoEm: DateTime(2015, 2, 3),
-      atualizadoEm: DateTime.now(),
-    ),
-    Usuario(
-      id: 4,
-      nomeCompleto: 'Julia Alves',
-      nomeUsuario: 'julia',
-      email: 'julia@email.com',
-      telefone: '99999-6666',
-      senha: '123456',
-      tipoUsuario: TipoUsuario.crianca,
-      criadoEm: DateTime(2012, 11, 15),
-      atualizadoEm: DateTime.now(),
-    ),
-    Usuario(
-      id: 5,
-      nomeCompleto: 'Rafaela Costa',
-      nomeUsuario: 'rafaela',
-      email: 'rafaela@email.com',
-      telefone: '99999-7777',
-      senha: '123456',
-      tipoUsuario: TipoUsuario.crianca,
-      criadoEm: DateTime(2016, 1, 20),
-      atualizadoEm: DateTime.now(),
-    ),
-    Usuario(
-      id: 6,
-      nomeCompleto: 'Bruno Dias',
-      nomeUsuario: 'bruno',
-      email: 'bruno@email.com',
-      telefone: '99999-8888',
-      senha: '123456',
-      tipoUsuario: TipoUsuario.crianca,
-      criadoEm: DateTime(2014, 7, 8),
-      atualizadoEm: DateTime.now(),
-    ),
-  ];
-
-  String getNomeCrianca(int idUsuario) {
-    return usuariosCrianca.firstWhere(
-      (u) => u.id == idUsuario,
-      orElse: () => Usuario(id: 0, nomeCompleto: 'Desconhecido', nomeUsuario: '', email: '', telefone: '', senha: '', tipoUsuario: TipoUsuario.crianca, criadoEm: DateTime.now(), atualizadoEm: DateTime.now()),
-    ).nomeCompleto;
-  }
+  List<ChildInfo> ranking = [];
+  bool isLoading = true;
+  String? errorMsg;
 
   @override
   void initState() {
@@ -112,15 +33,70 @@ class _RankingWidgetState extends State<RankingWidget> with SingleTickerProvider
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat();
-    
+
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 2),
     );
-    
-    // Dispara confete quando o widget é construído
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _confettiController.play();
     });
+
+    _loadRanking();
+  }
+
+  Future<void> _loadRanking() async {
+    setState(() {
+      isLoading = true;
+      errorMsg = null;
+    });
+    try {
+      int? idResponsavel;
+      int? idCrianca;
+
+      // Obtenha o usuário do widget ou de outro local conforme sua arquitetura
+      final usuario = widget.usuario;
+      if (usuario != null) {
+        if (usuario.tipoUsuario == TipoUsuario.responsavel) {
+          idResponsavel = usuario.idExterno ?? usuario.id;
+        } else {
+          idCrianca = usuario.idExterno ?? usuario.id;
+        }
+      }
+
+      if (idResponsavel != null) {
+        ranking = await ResponsibleService().fetchChildren(idResponsavel);
+      } else if (idCrianca != null) {
+        final dio = Dio();
+        final url = '${ApiConfig.api}/criancas/$idCrianca';
+        final response = await dio.get(url);
+        if (response.statusCode == 200 && response.data != null) {
+          final responsavel = response.data['responsavel'];
+          if (responsavel != null && responsavel['id'] != null) {
+            idResponsavel = responsavel['id'];
+            ranking = await ResponsibleService().fetchChildren(idResponsavel!);
+          } else {
+            throw Exception('Responsável não encontrado para esta criança');
+          }
+        } else {
+          throw Exception('Erro ao buscar dados da criança');
+        }
+      } else {
+        throw Exception('Usuário não identificado');
+      }
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        errorMsg = e.toString();
+      });
+    }
+  }
+
+  String getNomeCrianca(ChildInfo crianca) {
+    return crianca.nome;
   }
 
   @override
@@ -132,11 +108,37 @@ class _RankingWidgetState extends State<RankingWidget> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (errorMsg != null) {
+      return Center(child: Text(errorMsg!, style: const TextStyle(color: Colors.red)));
+    }
     // Ordena por pontos decrescentes
-    final sortedRanking = List<Crianca>.from(ranking)
-      ..sort((a, b) => b.ponto.compareTo(a.ponto));
+    final sortedRanking = List<ChildInfo>.from(ranking)
+      ..sort((a, b) => (b.ponto ?? 0).compareTo(a.ponto ?? 0));
     final top3 = sortedRanking.take(3).toList();
     final others = sortedRanking.skip(3).toList();
+
+    // Preenche o top3 com placeholders se houver menos de 3 crianças
+    final List<Widget> podium = [];
+    for (int i = 0; i < 3; i++) {
+      if (i < top3.length) {
+        podium.add(_buildTopThreeCard(
+          context,
+          i + 1,
+          top3[i],
+          i == 0
+              ? Colors.amber.shade600
+              : (i == 1 ? Colors.grey.shade400 : Colors.brown.shade300),
+          isFirst: i == 0,
+          animationDelay: i * 400,
+        ));
+      } else {
+        // Placeholder visual para posições vazias
+        podium.add(_buildPodiumPlaceholder(i + 1));
+      }
+    }
 
     return Expanded(
       child: Container(
@@ -222,48 +224,34 @@ class _RankingWidgetState extends State<RankingWidget> with SingleTickerProvider
               alignment: Alignment.center,
               children: [
                 SizedBox(
-                  height: 140, // Altura fixa menor
+                  height: 140,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // 2º Lugar
-                      if (top3.length > 1)
-                        _buildTopThreeCard(context, 2, top3[1], Colors.grey.shade400, animationDelay: 400),
-                      // 1º Lugar - Maior e destacado
-                      if (top3.isNotEmpty)
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            _buildTopThreeCard(context, 1, top3[0], Colors.amber.shade600, isFirst: true, animationDelay: 0),
-                            // Controlador de confete acima do primeiro lugar
-                            Positioned(
-                              top: -10,
-                              child: ConfettiWidget(
-                                confettiController: _confettiController,
-                                blastDirection: math.pi / 2, // para baixo
-                                emissionFrequency: 0.05,
-                                numberOfParticles: 15,
-                                maxBlastForce: 15,
-                                minBlastForce: 8,
-                                gravity: 0.2,
-                                colors: const [
-                                  Colors.amber,
-                                  Colors.red,
-                                  Colors.blue,
-                                  Colors.green,
-                                  Colors.purple,
-                                  Colors.orange,
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      // 3º Lugar
-                      if (top3.length > 2)
-                        _buildTopThreeCard(context, 3, top3[2], Colors.brown.shade300, animationDelay: 800),
-                    ],
+                    children: podium,
                   ),
                 ),
+                // Confetti apenas se houver pelo menos um no pódio
+                if (top3.isNotEmpty)
+                  Positioned(
+                    top: -10,
+                    child: ConfettiWidget(
+                      confettiController: _confettiController,
+                      blastDirection: math.pi / 2,
+                      emissionFrequency: 0.05,
+                      numberOfParticles: 15,
+                      maxBlastForce: 15,
+                      minBlastForce: 8,
+                      gravity: 0.2,
+                      colors: const [
+                        Colors.amber,
+                        Colors.red,
+                        Colors.blue,
+                        Colors.green,
+                        Colors.purple,
+                        Colors.orange,
+                      ],
+                    ),
+                  ),
               ],
             ),
             
@@ -290,20 +278,34 @@ class _RankingWidgetState extends State<RankingWidget> with SingleTickerProvider
             
             // Lista de outros competidores - ocupa o resto do espaço
             Expanded(
-              child: ListView.separated(
-                padding: EdgeInsets.zero,
-                itemCount: others.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
-                itemBuilder: (context, index) {
-                  final crianca = others[index];
-                  return RankingItem(
-                    position: index + 4,
-                    name: getNomeCrianca(crianca.idUsuario),
-                    points: crianca.ponto,
-                    animationDelay: 100 + index * 150,
-                  );
-                },
-              ),
+              child: others.isEmpty
+                  ? Center(
+                      child: Text(
+                        ranking.length == 1
+                            ? 'Só há uma criança vinculada ao responsável.'
+                            : 'Nenhum competidor extra no ranking.',
+                        style: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: EdgeInsets.zero,
+                      itemCount: others.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      itemBuilder: (context, index) {
+                        final crianca = others[index];
+                        return RankingItem(
+                          position: index + 4,
+                          name: getNomeCrianca(crianca),
+                          points: crianca.ponto ?? 0,
+                          animationDelay: 100 + index * 150,
+                        );
+                      },
+                    ),
             ),
           ],
         ),
@@ -314,7 +316,7 @@ class _RankingWidgetState extends State<RankingWidget> with SingleTickerProvider
   Widget _buildTopThreeCard(
     BuildContext context,
     int position,
-    Crianca crianca,
+    ChildInfo crianca,
     Color medalColor, {
     bool isFirst = false,
     int animationDelay = 0,
@@ -448,7 +450,7 @@ class _RankingWidgetState extends State<RankingWidget> with SingleTickerProvider
         
         // Nome compacto
         Text(
-          getNomeCrianca(crianca.idUsuario),
+          getNomeCrianca(crianca),
           style: TextStyle(
             fontSize: fontSize,
             fontWeight: FontWeight.w600,
@@ -469,11 +471,68 @@ class _RankingWidgetState extends State<RankingWidget> with SingleTickerProvider
             ),
             const SizedBox(width: 4),
             Text(
-              _formatPoints(crianca.ponto),
+              _formatPoints(crianca.ponto ?? 0),
               style: TextStyle(
                 fontSize: fontSize,
                 fontWeight: FontWeight.bold,
                 color: AppColors.primary,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPodiumPlaceholder(int position) {
+    Color medalColor;
+    switch (position) {
+      case 1:
+        medalColor = Colors.amber.shade200;
+        break;
+      case 2:
+        medalColor = Colors.grey.shade300;
+        break;
+      case 3:
+        medalColor = Colors.brown.shade100;
+        break;
+      default:
+        medalColor = Colors.grey.shade200;
+    }
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: position == 1 ? 85.0 : 70.0,
+          height: position == 1 ? 85.0 : 70.0,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: medalColor,
+            border: Border.all(color: medalColor, width: position == 1 ? 2.5 : 2),
+          ),
+          child: Icon(Icons.person_outline, color: Colors.white54, size: position == 1 ? 38 : 30),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Vazio',
+          style: TextStyle(
+            fontSize: position == 1 ? 14.0 : 12.0,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade400,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.star, color: Colors.grey.shade300, size: position == 1 ? 18.0 : 16.0),
+            const SizedBox(width: 4),
+            Text(
+              '--',
+              style: TextStyle(
+                fontSize: position == 1 ? 14.0 : 12.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade300,
               ),
             ),
           ],

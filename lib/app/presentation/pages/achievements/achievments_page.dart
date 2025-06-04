@@ -38,7 +38,8 @@ class _AchievementsPageState extends State<AchievementsPage> {
     setState(() => isLoading = true);
     try {
       final listaRecompensas = await _achievementsService.fetchRecompensas(
-        widget.idResponsavel,
+        responsavelId: widget.idResponsavel,
+        criancaId: widget.idCrianca,
       );
       setState(() {
         recompensas = listaRecompensas;

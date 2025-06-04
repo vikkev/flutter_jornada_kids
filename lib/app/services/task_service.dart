@@ -34,7 +34,7 @@ class TaskService {
         // Sucesso, mas resposta é String ou null
         return TaskResponse(
           id: 0,
-          responsavel: '',
+          responsavel: {},
           crianca: {},
           titulo: '',
           pontuacaoTotal: 0,
@@ -79,54 +79,67 @@ class TaskService {
       throw Exception('Erro ao buscar tarefas do responsável');
     }
   }
+
+  Future<List<TaskResponse>> fetchTarefasDaCrianca(int criancaId) async {
+    final url = '${ApiConfig.api}/criancas/$criancaId/tarefas';
+    final response = await _dio.get(url);
+    if (response.statusCode == 200 && response.data is List) {
+      return (response.data as List).map((item) => TaskResponse.fromJson(item)).toList();
+    } else {
+      throw Exception('Erro ao buscar tarefas da criança');
+    }
+  }
 }
 
 class TaskResponse {
   final int id;
-  final String responsavel;
-  final Map<String, dynamic> crianca;
   final String titulo;
   final int pontuacaoTotal;
-  final int pontuacaoConquistada;
-  final int estrela;
+  final int? pontuacaoConquistada;
+  final int? estrela;
   final String prioridade;
   final String situacao;
   final String dataHoraLimite;
-  final String dataHoraConclusao;
-  final String criadoEm;
-  final String atualizadoEm;
+  final String? dataHoraConclusao;
+  final String? criadoEm;
+  final String? atualizadoEm;
+  final Map<String, dynamic>? crianca;
+  final Map<String, dynamic>? responsavel;
+  final String? descricao;
 
   TaskResponse({
     required this.id,
-    required this.responsavel,
-    required this.crianca,
     required this.titulo,
     required this.pontuacaoTotal,
-    required this.pontuacaoConquistada,
-    required this.estrela,
+    this.pontuacaoConquistada,
+    this.estrela,
     required this.prioridade,
     required this.situacao,
     required this.dataHoraLimite,
-    required this.dataHoraConclusao,
-    required this.criadoEm,
-    required this.atualizadoEm,
+    this.dataHoraConclusao,
+    this.criadoEm,
+    this.atualizadoEm,
+    this.crianca,
+    this.responsavel,
+    this.descricao,
   });
 
   factory TaskResponse.fromJson(Map<String, dynamic> json) {
     return TaskResponse(
       id: json['id'] ?? 0,
-      responsavel: json['responsavel'] ?? '',
-      crianca: json['crianca'] ?? {},
       titulo: json['titulo'] ?? '',
       pontuacaoTotal: json['pontuacaoTotal'] ?? 0,
-      pontuacaoConquistada: json['pontuacaoConquistada'] ?? 0,
-      estrela: json['estrela'] ?? 0,
+      pontuacaoConquistada: json['pontuacaoConquistada'],
+      estrela: json['estrela'],
       prioridade: json['prioridade'] ?? '',
       situacao: json['situacao'] ?? '',
       dataHoraLimite: json['dataHoraLimite'] ?? '',
-      dataHoraConclusao: json['dataHoraConclusao'] ?? '',
-      criadoEm: json['criadoEm'] ?? '',
-      atualizadoEm: json['atualizadoEm'] ?? '',
+      dataHoraConclusao: json['dataHoraConclusao'],
+      criadoEm: json['criadoEm'],
+      atualizadoEm: json['atualizadoEm'],
+      crianca: json['crianca'],
+      responsavel: json['responsavel'],
+      descricao: json['descricao'],
     );
   }
 }

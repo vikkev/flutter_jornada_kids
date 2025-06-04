@@ -5,8 +5,10 @@ import 'package:flutter_jornadakids/app/core/utils/constants.dart';
 import 'package:flutter_jornadakids/app/models/enums.dart';
 import 'package:flutter_jornadakids/app/models/tarefa.dart';
 import 'package:flutter_jornadakids/app/models/usuario.dart';
+import 'package:flutter_jornadakids/app/services/api_config.dart';
 import 'package:flutter_jornadakids/app/services/responsible_service.dart';
 import 'package:flutter_jornadakids/app/services/task_service.dart';
+import 'package:dio/dio.dart'; // Adicione para o post concluir tarefa
 
 class TasksPage extends StatefulWidget {
   final TipoUsuario userType;
@@ -77,19 +79,25 @@ class _TasksPageState extends State<TasksPage> {
           status: null,
         );
       } else {
-        // Para criança/adolescente, buscar tarefas dela (ajustar se necessário)
-        responses = await taskService.fetchAllTasks();
-        // Filtrar por usuário se necessário
+        // Para criança/adolescente, buscar tarefas dela corretamente
+        responses = await taskService.fetchTarefasDaCrianca(widget.idParaRequests);
       }
       setState(() {
-        tasks = responses.map(_taskResponseToTarefa).where((t) {
-          if (selectedDate != null) {
-            return t.dataLimite.day == selectedDate!.day &&
-                   t.dataLimite.month == selectedDate!.month &&
-                   t.dataLimite.year == selectedDate!.year;
-          }
-          return true;
-        }).toList();
+        tasks = responses
+            .map((t) => _taskResponseToTarefa(t))
+            .where((t) {
+              if (widget.userType == TipoUsuario.crianca) {
+                // Só mostra tarefas da criança logada (id da tarefa/criança igual ao id do usuário logado)
+                return t.responsavelId == widget.usuario.id || t.responsavelId == widget.usuario.idExterno;
+              }
+              if (selectedDate != null) {
+                return t.dataLimite.day == selectedDate!.day &&
+                       t.dataLimite.month == selectedDate!.month &&
+                       t.dataLimite.year == selectedDate!.year;
+              }
+              return true;
+            })
+            .toList();
         isLoading = false;
       });
     } catch (e) {
@@ -101,19 +109,68 @@ class _TasksPageState extends State<TasksPage> {
   }
 
   Tarefa _taskResponseToTarefa(TaskResponse response) {
+    int responsavelId = 0;
+    String nomeResponsavelOuCrianca = '';
+    if (widget.userType == TipoUsuario.crianca) {
+      // Estrutura: responsavel é objeto
+      responsavelId = response.responsavel?['id'] ?? 0;
+      nomeResponsavelOuCrianca = response.responsavel?['usuario']?['nomeCompleto'] ?? '';
+    } else {
+      // Estrutura: crianca é objeto
+      responsavelId = response.crianca?['id'] ?? 0;
+      nomeResponsavelOuCrianca = response.crianca?['usuario']?['nomeCompleto'] ?? '';
+    }
     return Tarefa(
       id: response.id,
-      responsavelId: int.tryParse(response.responsavel) ?? 0,
+      responsavelId: responsavelId,
       titulo: response.titulo,
-      descricao: '', // Ajustar se vier descrição na API
+      descricao: response.descricao ?? '',
       ponto: response.pontuacaoTotal,
-      prioridade: PrioridadeTarefaExtension.fromCode(response.prioridade),
-      foto: null, // Ajustar se vier foto
-      situacao: SituacaoTarefaExtension.fromCode(response.situacao),
+      prioridade: PrioridadeTarefaExtension.fromCode(
+        response.prioridade.length == 1
+          ? response.prioridade
+          : _prioridadeLabelToCode(response.prioridade)
+      ),
+      foto: null,
+      situacao: SituacaoTarefaExtension.fromCode(
+        response.situacao.length == 1
+          ? response.situacao
+          : _situacaoLabelToCode(response.situacao)
+      ),
       dataLimite: DateTime.tryParse(response.dataHoraLimite) ?? DateTime.now(),
-      criadoEm: DateTime.tryParse(response.criadoEm) ?? DateTime.now(),
-      atualizadoEm: DateTime.tryParse(response.atualizadoEm) ?? DateTime.now(),
+      criadoEm: DateTime.tryParse(response.criadoEm ?? '') ?? DateTime.now(),
+      atualizadoEm: DateTime.tryParse(response.atualizadoEm ?? '') ?? DateTime.now(),
     );
+  }
+
+  String _prioridadeLabelToCode(String label) {
+    switch (label.toLowerCase()) {
+      case 'alta':
+        return 'A';
+      case 'média':
+      case 'media':
+        return 'M';
+      case 'baixa':
+        return 'B';
+      default:
+        return 'M';
+    }
+  }
+
+  String _situacaoLabelToCode(String label) {
+    switch (label.toLowerCase()) {
+      case 'pendente':
+        return 'P';
+      case 'expirada':
+        return 'E';
+      case 'concluída':
+      case 'concluida':
+        return 'C';
+      case 'avaliada':
+        return 'A';
+      default:
+        return 'P';
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -233,131 +290,131 @@ class _TasksPageState extends State<TasksPage> {
     if (isLoadingChildren) {
       return const Center(child: CircularProgressIndicator());
     }
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          // Dropdown de crianças
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(25),
-              border: Border.all(color: Colors.grey.shade300),
-            ),
-            child: DropdownButtonFormField<String>(
-              value: selectedChild,
-              decoration: const InputDecoration(
-                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                border: InputBorder.none,
-                hintText: 'Selecione a criança/adolescente',
-                hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Dropdown de crianças
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(color: Colors.grey.shade300),
               ),
-              icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade600),
-              dropdownColor: Colors.white,
-              items: children.map((c) {
-                return DropdownMenuItem<String>(
-                  value: c.nome,
-                  child: Text(c.nome, style: const TextStyle(fontSize: 14)),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedChild = newValue;
-                });
-                _loadTasks();
-              },
-            ),
-          ).animate().fadeIn(duration: 600.ms, delay: 200.ms).slideX(begin: -0.4, curve: Curves.easeOutBack),
+              child: DropdownButtonFormField<String>(
+                value: selectedChild,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  border: InputBorder.none,
+                  hintText: 'Selecione a criança/adolescente',
+                  hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+                icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade600),
+                dropdownColor: Colors.white,
+                items: children.map((c) {
+                  return DropdownMenuItem<String>(
+                    value: c.nome,
+                    child: Text(c.nome, style: const TextStyle(fontSize: 14)),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedChild = newValue;
+                  });
+                  _loadTasks();
+                },
+              ),
+            ).animate().fadeIn(duration: 600.ms, delay: 200.ms).slideX(begin: -0.4, curve: Curves.easeOutBack),
 
-          const SizedBox(height: 12),
+            const SizedBox(height: 12),
 
-          // Divider
-          Divider(color: Colors.grey.shade300)
-              .animate()
-              .fadeIn(duration: 400.ms, delay: 800.ms)
-              .scale(begin: const Offset(0, 1)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.task, size: 64, color: Colors.grey.shade400),
-          const SizedBox(height: 16),
-          Text(
-            'Nenhuma tarefa encontrada',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Tente ajustar os filtros',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade500,
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(duration: 600.ms).scale(begin: const Offset(0.8, 0.8));
-  }
-
-  Widget _buildTasksList() {
-    // Só mostra animação na primeira renderização
-    final showAnimation = _showInitialAnimation;
-    _showInitialAnimation = false;
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      itemCount: tasks.length,
-      itemBuilder: (context, index) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: TaskCard(
-          tarefa: tasks[index],
-          responsavel: _childInfoToUsuario(children.firstWhere((c) => c.id == tasks[index].responsavelId, orElse: () => ChildInfo(id: 0, idade: 0, nivel: 0, nome: ''))),
-          showDetails: widget.userType == TipoUsuario.responsavel,
-          animationDelay: showAnimation ? index * 150 : 0,
-          onStatusChanged: (taskId, newStatus) async {
-            setState(() {
-              final idx = tasks.indexWhere((t) => t.id == taskId);
-              if (idx != -1) {
-                tasks[idx] = tasks[idx].copyWith(situacao: newStatus);
-              }
-            });
-          },
+            // Divider
+            Divider(color: Colors.grey.shade300)
+                .animate()
+                .fadeIn(duration: 400.ms, delay: 800.ms)
+                .scale(begin: const Offset(0, 1)),
+          ],
         ),
-      ),
-    );
+      );
+    }
+
+    Widget _buildEmptyState() {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.task, size: 64, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
+            Text(
+              'Nenhuma tarefa encontrada',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Tente ajustar os filtros',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade500,
+              ),
+            ),
+          ],
+        ),
+      ).animate().fadeIn(duration: 600.ms).scale(begin: const Offset(0.8, 0.8));
+    }
+
+    Widget _buildTasksList() {
+      // Só mostra animação na primeira renderização
+      final showAnimation = _showInitialAnimation;
+      _showInitialAnimation = false;
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        itemCount: tasks.length,
+        itemBuilder: (context, index) => Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: TaskCard(
+            tarefa: tasks[index],
+            responsavel: _childInfoToUsuario(children.firstWhere((c) => c.id == tasks[index].responsavelId, orElse: () => ChildInfo(id: 0, idade: 0, nivel: 0, nome: '', ponto: 0))),
+            showDetails: widget.userType == TipoUsuario.responsavel,
+            animationDelay: showAnimation ? index * 150 : 0,
+            onStatusChanged: (taskId, newStatus) async {
+              setState(() {
+                final idx = tasks.indexWhere((t) => t.id == taskId);
+                if (idx != -1) {
+                  tasks[idx] = tasks[idx].copyWith(situacao: newStatus);
+                }
+              });
+            },
+          ),
+        ),
+      );
+    }
+
+    bool _hasActiveFilters() {
+      return selectedChild != null ||
+            selectedDate != null ||
+            selectedCategory != null;
+    }
+
+    Usuario _childInfoToUsuario(ChildInfo child) {
+      return Usuario(
+        id: child.id,
+        nomeCompleto: child.nome,
+        nomeUsuario: child.nome,
+        email: '',
+        telefone: '',
+        senha: '',
+        tipoUsuario: TipoUsuario.crianca,
+        criadoEm: DateTime.now(),
+        atualizadoEm: DateTime.now(),
+      );
+    }
   }
 
-  bool _hasActiveFilters() {
-    return selectedChild != null ||
-           selectedDate != null ||
-           selectedCategory != null;
-  }
-
-  Usuario _childInfoToUsuario(ChildInfo child) {
-    return Usuario(
-      id: child.id,
-      nomeCompleto: child.nome,
-      nomeUsuario: child.nome,
-      email: '',
-      telefone: '',
-      senha: '',
-      tipoUsuario: TipoUsuario.crianca,
-      criadoEm: DateTime.now(),
-      atualizadoEm: DateTime.now(),
-    );
-  }
-}
-
-class TaskCard extends StatefulWidget {
+  class TaskCard extends StatefulWidget {
   final Tarefa tarefa;
   final Usuario responsavel;
   final bool showDetails;
@@ -410,7 +467,7 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.gray200),
             child: const Text('Sim, confirmar'),
           ),
         ],
@@ -418,6 +475,25 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
     );
 
     if (shouldComplete == true) {
+      // Se for criança, faz o post para concluir tarefa
+      final isCrianca = widget.responsavel.tipoUsuario == TipoUsuario.crianca;
+      if (isCrianca) {
+        try {
+          final dio = Dio();
+          final url = '${ApiConfig.api}/tarefas/${widget.tarefa.id}/concluir';
+          await dio.post(url);
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Erro ao concluir tarefa: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+        }
+      }
       _checkboxController.forward();
       widget.onStatusChanged?.call(widget.tarefa.id, SituacaoTarefa.C);
     }
@@ -664,26 +740,28 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
   }
 
   double _getProgressValue() {
+    // Progresso: (agora - criadoEm) / (dataLimite - criadoEm)
     final now = DateTime.now();
+    final criado = widget.tarefa.criadoEm;
     final deadline = widget.tarefa.dataLimite;
     if (now.isAfter(deadline)) {
-      return 1.0; // Vencido
+      return 1.0;
     }
-    final totalTime = deadline.difference(DateTime.now().subtract(Duration(days: 7))).inMilliseconds;
-    final remainingTime = deadline.difference(now).inMilliseconds;
-    return 1.0 - (remainingTime / totalTime).clamp(0.0, 1.0);
+    final total = deadline.difference(criado).inSeconds;
+    final done = now.difference(criado).inSeconds;
+    if (total <= 0) return 1.0;
+    return (done / total).clamp(0.0, 1.0);
   }
   
   Color _getProgressColor() {
-    final now = DateTime.now();
-    final deadline = widget.tarefa.dataLimite;
-    final hoursUntilDeadline = deadline.difference(now).inHours;
-    if (hoursUntilDeadline < 0) {
-      return Colors.red; // Vencido
-    } else if (hoursUntilDeadline < 24) {
-      return Colors.orange; // Urgente
+    // Verde se < 70%, amarelo se >=70% e < 100%, vermelho se >=100%
+    final progress = _getProgressValue();
+    if (progress >= 1.0) {
+      return Colors.red;
+    } else if (progress >= 0.7) {
+      return Colors.orange;
     } else {
-      return AppColors.primary; // Normal
+      return AppColors.primary;
     }
   }
 
