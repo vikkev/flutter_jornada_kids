@@ -49,8 +49,19 @@ class _HomePageState extends State<HomePage> {
             usuario: widget.usuario,
             idParaRequests: widget.usuario.idExterno ?? widget.usuario.id,
           ),
-          AchievementsPage(userType: widget.usuario.tipoUsuario),
-          SettingsPage(usuario: widget.usuario ),
+          AchievementsPage(
+            userType: widget.usuario.tipoUsuario,
+            idResponsavel:
+                widget.usuario.tipoUsuario == TipoUsuario.responsavel
+                    ? widget.usuario.idExterno ?? widget.usuario.id
+                    : widget.usuario.idResponsavel ?? 0,
+            idCrianca:
+                widget.usuario.tipoUsuario == TipoUsuario.crianca
+                    ? widget.usuario.idExterno ?? widget.usuario.id
+                    : null,
+            pontosDisponiveis: widget.usuario.pontos ?? 0,
+          ),
+          SettingsPage(usuario: widget.usuario),
         ],
       ),
       bottomNavigationBar: AppBottomNavbar(
@@ -118,7 +129,10 @@ class _HomePageState extends State<HomePage> {
                       // Card compacto para avatar e saudação centralizado
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                         margin: const EdgeInsets.only(bottom: 20),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -142,26 +156,38 @@ class _HomePageState extends State<HomePage> {
                                 shape: BoxShape.circle,
                                 gradient: LinearGradient(
                                   colors: [
-                                    constants.AppColors.primary.withOpacity(0.18),
-                                    constants.AppColors.primary.withOpacity(0.08),
+                                    constants.AppColors.primary.withOpacity(
+                                      0.18,
+                                    ),
+                                    constants.AppColors.primary.withOpacity(
+                                      0.08,
+                                    ),
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
                                 border: Border.all(
-                                  color: constants.AppColors.primary.withOpacity(0.18),
+                                  color: constants.AppColors.primary
+                                      .withOpacity(0.18),
                                   width: 2,
                                 ),
                               ),
-                              child: widget.usuario.avatar != null
-                                  ? ClipOval(child: Image.memory(widget.usuario.avatar!, fit: BoxFit.cover))
-                                  : Icon(
-                                      widget.usuario.tipoUsuario == TipoUsuario.responsavel
-                                          ? Icons.supervisor_account
-                                          : Icons.child_care,
-                                      color: constants.AppColors.primary,
-                                      size: 24,
-                                    ),
+                              child:
+                                  widget.usuario.avatar != null
+                                      ? ClipOval(
+                                        child: Image.memory(
+                                          widget.usuario.avatar!,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                      : Icon(
+                                        widget.usuario.tipoUsuario ==
+                                                TipoUsuario.responsavel
+                                            ? Icons.supervisor_account
+                                            : Icons.child_care,
+                                        color: constants.AppColors.primary,
+                                        size: 24,
+                                      ),
                             ),
                             const SizedBox(width: 16),
                             // Saudação e nome centralizados
@@ -179,7 +205,9 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  _getFirstAndLastName(widget.usuario.nomeCompleto),
+                                  _getFirstAndLastName(
+                                    widget.usuario.nomeCompleto,
+                                  ),
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     fontSize: 17,
@@ -195,9 +223,11 @@ class _HomePageState extends State<HomePage> {
                       // Widget principal (CreateTask ou Score)
                       if (widget.usuario.tipoUsuario == TipoUsuario.responsavel)
                         CreateTaskWidget(
-                          responsavelId: widget.usuario.idExterno ?? widget.usuario.id, // <-- use idExterno
-                          usuarioResponsavel: widget.usuario,
-                        )
+                              responsavelId:
+                                  widget.usuario.idExterno ??
+                                  widget.usuario.id, // <-- use idExterno
+                              usuarioResponsavel: widget.usuario,
+                            )
                             .animate()
                             .fadeIn(delay: 700.ms, duration: 600.ms)
                             .slideY(begin: 0.3, end: 0)

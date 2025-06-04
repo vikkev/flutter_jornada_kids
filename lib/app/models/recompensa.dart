@@ -5,7 +5,7 @@ class Recompensa {
   int responsavelId;
   String titulo;
   String observacao;
-  int pontoGasto;
+  int pontuacaoNecessaria;
   String? url;
   SituacaoRecompensa situacao;
   DateTime criadoEm;
@@ -16,7 +16,7 @@ class Recompensa {
     required this.responsavelId,
     required this.titulo,
     required this.observacao,
-    required this.pontoGasto,
+    required this.pontuacaoNecessaria,
     this.url,
     required this.situacao,
     required this.criadoEm,
@@ -28,7 +28,7 @@ class Recompensa {
     int? responsavelId,
     String? titulo,
     String? observacao,
-    int? pontoGasto,
+    int? pontuacaoNecessaria,
     String? url,
     SituacaoRecompensa? situacao,
     DateTime? criadoEm,
@@ -39,7 +39,7 @@ class Recompensa {
       responsavelId: responsavelId ?? this.responsavelId,
       titulo: titulo ?? this.titulo,
       observacao: observacao ?? this.observacao,
-      pontoGasto: pontoGasto ?? this.pontoGasto,
+      pontuacaoNecessaria: pontuacaoNecessaria ?? this.pontuacaoNecessaria,
       url: url ?? this.url,
       situacao: situacao ?? this.situacao,
       criadoEm: criadoEm ?? this.criadoEm,
