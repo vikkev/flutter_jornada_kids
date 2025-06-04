@@ -50,7 +50,21 @@ class _HomePageState extends State<HomePage> {
             idParaRequests: widget.usuario.idExterno ?? widget.usuario.id,
           ),
           AchievementsPage(userType: widget.usuario.tipoUsuario),
-          SettingsPage(usuario: widget.usuario),
+          SettingsPage(
+            usuario: Usuario(
+              id: widget.usuario.id,
+              idExterno: widget.usuario.idExterno ?? widget.usuario.id,
+              nomeCompleto: widget.usuario.nomeCompleto,
+              nomeUsuario: widget.usuario.nomeUsuario,
+              email: widget.usuario.email,
+              telefone: widget.usuario.telefone,
+              senha: widget.usuario.senha,
+              avatar: widget.usuario.avatar,
+              tipoUsuario: widget.usuario.tipoUsuario,
+              criadoEm: widget.usuario.criadoEm,
+              atualizadoEm: widget.usuario.atualizadoEm,
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: AppBottomNavbar(

@@ -20,7 +20,7 @@ class _PinCodePageState extends State<PinCodePage> {
   @override
   void initState() {
     super.initState();
-    _responsavelFuture = ResponsibleService().fetchResponsible(widget.usuario.id);
+    _responsavelFuture = ResponsibleService().fetchResponsible(widget.usuario.idExterno ?? widget.usuario.id);
   }
 
   @override
