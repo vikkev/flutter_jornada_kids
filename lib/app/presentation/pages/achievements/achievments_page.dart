@@ -85,7 +85,7 @@ class _AchievementsPageState extends State<AchievementsPage> {
                   controller: pontosController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: 'Pontos necessários',
+                    labelText: 'Estrelas necessárias',
                   ),
                 ),
               ],
@@ -224,7 +224,7 @@ class _AchievementsPageState extends State<AchievementsPage> {
             (context) => AlertDialog(
               title: const Text('Resgatar recompensa'),
               content: Text(
-                'Deseja resgatar "${recompensa.titulo}" por ${recompensa.pontuacaoNecessaria} pontos?',
+                'Deseja resgatar "${recompensa.titulo}" por ${recompensa.pontuacaoNecessaria} estrelas?',
               ),
               actions: [
                 TextButton(
@@ -252,7 +252,7 @@ class _AchievementsPageState extends State<AchievementsPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Pontos insuficientes!'),
+          content: Text('Estrelas insuficientes!'),
           backgroundColor: Colors.red,
         ),
       );
@@ -370,7 +370,7 @@ class _AchievementsPageState extends State<AchievementsPage> {
                                               ),
                                               const SizedBox(width: 4),
                                               Text(
-                                                '${recompensa.pontuacaoNecessaria} pontos',
+                                                '${recompensa.pontuacaoNecessaria} estrelas',
                                                 style: const TextStyle(
                                                   fontSize: 14,
                                                   color: AppColors.primary,
@@ -411,15 +411,15 @@ class _AchievementsPageState extends State<AchievementsPage> {
                                       Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          IconButton(
-                                            icon: const Icon(
-                                              Icons.edit,
-                                              color: AppColors.primary,
-                                            ),
-                                            tooltip: 'Editar',
-                                            onPressed:
-                                                () {}, // TODO: Implementar edição
-                                          ),
+                                          // IconButton(
+                                          //   icon: const Icon(
+                                          //     Icons.edit,
+                                          //     color: AppColors.primary,
+                                          //   ),
+                                          //   tooltip: 'Editar',
+                                          //   onPressed:
+                                          //       () {}, // TODO: Implementar edição
+                                          // ),
                                           IconButton(
                                             icon: const Icon(
                                               Icons.delete,

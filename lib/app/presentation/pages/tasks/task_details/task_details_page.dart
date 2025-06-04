@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_jornadakids/app/core/utils/constants.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_jornadakids/app/presentation/widgets/success_message_pag
 import 'package:flutter_jornadakids/app/models/tarefa.dart';
 import 'package:flutter_jornadakids/app/models/usuario.dart';
 import 'package:flutter_jornadakids/app/models/enums.dart';
+import 'package:flutter_jornadakids/app/services/api_config.dart';
 
 class TaskDetailsPage extends StatefulWidget {
   final Tarefa tarefa;
@@ -37,51 +39,128 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
     });
   }
 
-  void _approveTask() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => SuccessMessagePage(
-          message: 'Tarefa aprovada com sucesso!\nA criança ganhou ${_tarefaAtual.ponto} pontos.',
-          buttonText: 'Voltar às tarefas',
-          onButtonPressed: () {
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          },
-        ),
-      ),
+  Future<void> _approveTask() async {
+    int estrelas = 5;
+    final result = await showDialog<int>(
+      context: context,
+      builder: (context) {
+        int selected = 5;
+        return AlertDialog(
+          title: const Text('Avaliar tarefa'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Quantas estrelas deseja atribuir para esta tarefa?'),
+              const SizedBox(height: 16),
+              StatefulBuilder(
+                builder: (context, setState) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (i) {
+                      return IconButton(
+                        icon: Icon(
+                          i < selected ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                          size: 32,
+                        ),
+                        onPressed: () => setState(() => selected = i + 1),
+                      );
+                    }),
+                  );
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(selected),
+              child: const Text('Avaliar'),
+            ),
+          ],
+        );
+      },
     );
+    if (result != null) {
+      estrelas = result;
+      try {
+        final dio = Dio();
+        final url = '${ApiConfig.api}/tarefas/${_tarefaAtual.id}/avaliar';
+        await dio.post(url, data: {"estrela": estrelas});
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao avaliar tarefa: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+      }
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => SuccessMessagePage(
+            message: 'Tarefa aprovada com sucesso!\nA criança ganhou ${_tarefaAtual.ponto} pontos.',
+            buttonText: 'Voltar às tarefas',
+            onButtonPressed: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+          ),
+        ),
+      );
+    }
   }
 
-  void _rejectTask() {
-    showDialog(
+  Future<void> _rejectTask() async {
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Reprovar tarefa'),
         content: const Text('Tem certeza que deseja reprovar esta tarefa?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => SuccessMessagePage(
-                    message: 'Tarefa reprovada.\nA criança precisará refazer a atividade.',
-                    buttonText: 'Voltar às tarefas',
-                    onButtonPressed: () {
-                      Navigator.of(context).popUntil((route) => route.isFirst);
-                    },
-                  ),
-                ),
-              );
-            },
+            onPressed: () => Navigator.of(context).pop(true),
             child: const Text('Reprovar', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
+    if (confirm == true) {
+      try {
+        final dio = Dio();
+        final url = '${ApiConfig.api}/tarefas/${_tarefaAtual.id}/avaliar';
+        await dio.post(url, data: {"estrela": 0});
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao reprovar tarefa: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+      }
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => SuccessMessagePage(
+            message: 'Tarefa reprovada.\nA criança precisará refazer a atividade.',
+            buttonText: 'Voltar às tarefas',
+            onButtonPressed: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+          ),
+        ),
+      );
+    }
   }
 
   void _openEditModal() async {
@@ -213,6 +292,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
             const SizedBox(height: 8),
 
             // Botão Editar
+            /*
             Center(
               child: GestureDetector(
                 onTap: _openEditModal,
@@ -236,6 +316,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                 .animate()
                 .fadeIn(duration: 600.ms, delay: 400.ms)
                 .scale(begin: const Offset(0.8, 0.8)),
+            */
 
             const SizedBox(height: 24),
 
@@ -309,7 +390,8 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
 
                     const SizedBox(height: 20),
 
-                    // Fotos de comprovação
+                    // Fotos de comprovação (comentado)
+                    /*
                     Text(
                       'Fotos de comprovação',
                       style: TextStyle(
@@ -318,10 +400,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                         color: Colors.grey.shade700,
                       ),
                     ),
-
                     const SizedBox(height: 12),
-
-                    // Grid de fotos
                     Row(
                       children: [
                         ...List.generate(3, (index) => 
@@ -349,10 +428,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 12),
-
-                    // Ver mais link
                     Align(
                       alignment: Alignment.centerRight,
                       child: Text(
@@ -366,6 +442,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                     )
                         .animate()
                         .fadeIn(duration: 500.ms, delay: 1000.ms),
+                    */
                   ],
                 ),
               ),
