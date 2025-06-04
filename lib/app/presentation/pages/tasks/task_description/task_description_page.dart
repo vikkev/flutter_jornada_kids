@@ -21,6 +21,7 @@ class TaskDescriptionPage extends StatefulWidget {
 
 class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
   final TextEditingController taskNameController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
   final TextEditingController deadlineController = TextEditingController();
   final TextEditingController scoreController = TextEditingController();
 
@@ -35,6 +36,7 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
   void initState() {
     super.initState();
     taskNameController.addListener(_validateForm);
+    descriptionController.addListener(_validateForm);
     deadlineController.addListener(_validateForm);
     scoreController.addListener(_validateForm);
   }
@@ -42,9 +44,11 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
   @override
   void dispose() {
     taskNameController.removeListener(_validateForm);
+    descriptionController.removeListener(_validateForm);
     deadlineController.removeListener(_validateForm);
     scoreController.removeListener(_validateForm);
     taskNameController.dispose();
+    descriptionController.dispose();
     deadlineController.dispose();
     scoreController.dispose();
     super.dispose();
@@ -52,6 +56,7 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
 
   void _validateForm() {
     final isValid = taskNameController.text.isNotEmpty &&
+        descriptionController.text.isNotEmpty &&
         deadlineController.text.isNotEmpty &&
         scoreController.text.isNotEmpty &&
         selectedDeadline != null &&
@@ -74,6 +79,7 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
         idResponsavel: widget.idResponsavel,
         idCrianca: widget.idCrianca,
         titulo: taskNameController.text,
+        descricao: descriptionController.text,
         pontuacaoTotal: int.tryParse(scoreController.text) ?? 0,
         prioridade: _prioridadeSelecionada.code,
         dataHoraLimite: selectedDeadline!,
@@ -171,6 +177,36 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
               ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.2),
               const SizedBox(height: 6),
               _buildTextField(taskNameController, 'Nome da Tarefa'),
+              const SizedBox(height: 12),
+              const Text(
+                'Descrição da Tarefa',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.darkText,
+                ),
+              ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.2, delay: 50.ms),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade400),
+                ),
+                child: TextField(
+                  controller: descriptionController,
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'Descrição da Tarefa',
+                    hintStyle: TextStyle(color: Colors.grey.shade600),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
               const SizedBox(height: 12),
               const Text(
                 'Prazo da Tarefa',

@@ -4,8 +4,6 @@ import 'package:flutter_jornadakids/app/models/enums.dart';
 import 'package:flutter_jornadakids/app/presentation/pages/tasks/task_description/task_description_page.dart';
 import 'package:flutter_jornadakids/app/core/utils/constants.dart';
 import 'package:flutter_jornadakids/app/services/responsible_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 class TaskAssignmentScreen extends StatefulWidget {
   final int responsavelId;
@@ -20,20 +18,10 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
   ChildInfo? selectedUser;
   late Future<List<ChildInfo>> _childrenFuture;
 
-  Future<List<ChildInfo>> _loadChildrenFromLocalStorage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final childrenString = prefs.getString('children');
-    if (childrenString != null) {
-      final List<dynamic> childrenJson = jsonDecode(childrenString);
-      return childrenJson.map((json) => ChildInfo.fromJson(json)).toList();
-    }
-    return [];
-  }
-
   @override
   void initState() {
     super.initState();
-    _childrenFuture = _loadChildrenFromLocalStorage();
+    _childrenFuture = ResponsibleService().fetchChildren(widget.usuarioResponsavel.idExterno ?? widget.usuarioResponsavel.id);
   }
 
   @override
@@ -100,7 +88,7 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => TaskDescriptionPage(
-                              idResponsavel: widget.responsavelId,
+                              idResponsavel: widget.usuarioResponsavel.idExterno ?? widget.usuarioResponsavel.id, // <-- use idExterno
                               idCrianca: selectedUser!.id,
                               usuarioResponsavel: widget.usuarioResponsavel,
                             ),
@@ -189,29 +177,4 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
   }
 }
 
-class ChildInfo {
-  final int id;
-  final int idade;
-  final String nivel;
-  final String nome;
-
-  const ChildInfo({
-    required this.id,
-    required this.idade,
-    required this.nivel,
-    required this.nome,
-  });
-
-  ChildInfo.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
-        idade = json['idade'],
-        nivel = json['nivel'],
-        nome = json['nome'];
-
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'idade': idade,
-    'nivel': nivel,
-    'nome': nome,
-  };
-}
+// Use o mesmo ChildInfo do seu responsible_service.dart

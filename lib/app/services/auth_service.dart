@@ -39,6 +39,7 @@ class AuthService {
         }
         final user = Usuario(
           id: usuarioData['id'] ?? 0,
+          idExterno: data['id'] ?? usuarioData['id'],
           nomeCompleto: usuarioData['nomeCompleto'] ?? '',
           nomeUsuario: usuarioData['nomeUsuario'] ?? '',
           email: usuarioData['email'] ?? '',
@@ -73,4 +74,4 @@ class AuthResult {
     required this.message,
     this.user,
   });
-} 
+}

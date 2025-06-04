@@ -47,6 +47,7 @@ class _HomePageState extends State<HomePage> {
           TasksPage(
             userType: widget.usuario.tipoUsuario,
             usuario: widget.usuario,
+            idParaRequests: widget.usuario.idExterno ?? widget.usuario.id,
           ),
           AchievementsPage(userType: widget.usuario.tipoUsuario),
           SettingsPage(usuario: widget.usuario),
@@ -193,7 +194,10 @@ class _HomePageState extends State<HomePage> {
                       ),
                       // Widget principal (CreateTask ou Score)
                       if (widget.usuario.tipoUsuario == TipoUsuario.responsavel)
-                        CreateTaskWidget(responsavelId: widget.usuario.id, usuarioResponsavel: widget.usuario,)
+                        CreateTaskWidget(
+                          responsavelId: widget.usuario.idExterno ?? widget.usuario.id, // <-- use idExterno
+                          usuarioResponsavel: widget.usuario,
+                        )
                             .animate()
                             .fadeIn(delay: 700.ms, duration: 600.ms)
                             .slideY(begin: 0.3, end: 0)

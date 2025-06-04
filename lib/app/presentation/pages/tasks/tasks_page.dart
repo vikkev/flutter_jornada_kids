@@ -11,8 +11,9 @@ import 'package:flutter_jornadakids/app/services/task_service.dart';
 class TasksPage extends StatefulWidget {
   final TipoUsuario userType;
   final Usuario usuario;
+  final int idParaRequests; // <-- adicione
 
-  const TasksPage({super.key, required this.userType, required this.usuario});
+  const TasksPage({super.key, required this.userType, required this.usuario, required this.idParaRequests});
 
   @override
   State<TasksPage> createState() => _TasksPageState();
@@ -43,7 +44,7 @@ class _TasksPageState extends State<TasksPage> {
       isLoadingChildren = true;
     });
     try {
-      final fetchedChildren = await ResponsibleService().fetchChildren(widget.usuario.id);
+      final fetchedChildren = await ResponsibleService().fetchChildren(widget.idParaRequests);
       setState(() {
         children = fetchedChildren;
         isLoadingChildren = false;
@@ -71,7 +72,7 @@ class _TasksPageState extends State<TasksPage> {
           criancaId = child.id;
         }
         responses = await taskService.fetchTarefasDoResponsavel(
-          responsavelId: widget.usuario.id,
+          responsavelId: widget.idParaRequests,
           criancaId: criancaId,
           status: null,
         );

@@ -8,6 +8,7 @@ class TaskService {
     required int idResponsavel,
     required int idCrianca,
     required String titulo,
+    required String descricao,
     required int pontuacaoTotal,
     required String prioridade,
     required DateTime dataHoraLimite,
@@ -19,6 +20,7 @@ class TaskService {
         'idResponsavel': idResponsavel,
         'idCrianca': idCrianca,
         'titulo': titulo,
+        'descricao': descricao,
         'pontuacaoTotal': pontuacaoTotal,
         'prioridade': prioridade,
         'dataHoraLimite': dataHoraLimite.toIso8601String(),
@@ -50,7 +52,6 @@ class TaskService {
       throw Exception('Erro ao criar tarefa');
     }
   }
-
 
   Future<List<TaskResponse>> fetchAllTasks() async {
     final url = '${ApiConfig.api}/tarefas';
@@ -128,4 +129,4 @@ class TaskResponse {
       atualizadoEm: json['atualizadoEm'] ?? '',
     );
   }
-} 
+}
