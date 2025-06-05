@@ -99,7 +99,7 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
                   (route) => false,
                 );
               },
-              secondaryButtonText: 'Criar outra tarefa para esta criança',
+              secondaryButtonText: 'Criar outra tarefa para esta criança/adolescente',
               onSecondaryButtonPressed: () {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(

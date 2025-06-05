@@ -66,7 +66,7 @@ class CreateTaskWidget extends StatelessWidget {
           
           // Subtítulo
           Text(
-            'Atribua novas atividades para as crianças',
+            'Atribua novas atividades para as crianças/adolescentes',
             style: TextStyle(
               fontSize: 14,
               color: AppColors.darkText.withOpacity(0.6),

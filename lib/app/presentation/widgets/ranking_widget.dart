@@ -46,6 +46,7 @@ class _RankingWidgetState extends State<RankingWidget> with SingleTickerProvider
   }
 
   Future<void> _loadRanking() async {
+    if (!mounted) return;
     setState(() {
       isLoading = true;
       errorMsg = null;
@@ -76,18 +77,20 @@ class _RankingWidgetState extends State<RankingWidget> with SingleTickerProvider
             idResponsavel = responsavel['id'];
             ranking = await ResponsibleService().fetchChildren(idResponsavel!);
           } else {
-            throw Exception('Responsável não encontrado para esta criança');
+            throw Exception('Responsável não encontrado para esta criança/adolescente');
           }
         } else {
-          throw Exception('Erro ao buscar dados da criança');
+          throw Exception('Erro ao buscar dados da criança/adolescente');
         }
       } else {
         throw Exception('Usuário não identificado');
       }
+      if (!mounted) return;
       setState(() {
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         isLoading = false;
         errorMsg = e.toString();
@@ -282,7 +285,7 @@ class _RankingWidgetState extends State<RankingWidget> with SingleTickerProvider
                   ? Center(
                       child: Text(
                         ranking.length == 1
-                            ? 'Só há uma criança vinculada ao responsável.'
+                            ? 'Só há uma criança/adolescente vinculada ao responsável.'
                             : 'Nenhum competidor extra no ranking.',
                         style: TextStyle(
                           color: Colors.grey.shade500,
@@ -324,7 +327,17 @@ class _RankingWidgetState extends State<RankingWidget> with SingleTickerProvider
     final size = isFirst ? 85.0 : 70.0; // Tamanhos menores
     final fontSize = isFirst ? 14.0 : 12.0;
     final iconSize = isFirst ? 18.0 : 16.0;
-    
+
+    // Exemplo: Defina um ícone diferente para cada posição
+    IconData? customIcon;
+    if (position == 1) {
+      customIcon = Icons.emoji_events; // Troféu
+    } else if (position == 2) {
+      customIcon = Icons.star; // Estrela
+    } else if (position == 3) {
+      customIcon = Icons.military_tech; // Medalha
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -381,6 +394,31 @@ class _RankingWidgetState extends State<RankingWidget> with SingleTickerProvider
                 ),
               ),
             ),
+            // Ícone customizado sobreposto (exemplo)
+            if (customIcon != null)
+              Positioned(
+                top: 6,
+                left: 6,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: medalColor.withOpacity(0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    customIcon,
+                    color: medalColor,
+                    size: 18,
+                  ),
+                ),
+              ),
             // Posição
             Positioned(
               bottom: -5,
@@ -460,18 +498,18 @@ class _RankingWidgetState extends State<RankingWidget> with SingleTickerProvider
         
         const SizedBox(height: 4),
         
-        // Pontos
+        // Pontos (icone trocado para medalha e texto "pontos")
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.star,
-              color: Colors.amber.shade500,
+              Icons.emoji_events, // medalha
+              color: Colors.orange.shade400,
               size: iconSize,
             ),
             const SizedBox(width: 4),
             Text(
-              _formatPoints(crianca.ponto ?? 0),
+              '${_formatPoints(crianca.ponto ?? 0)} pontos',
               style: TextStyle(
                 fontSize: fontSize,
                 fontWeight: FontWeight.bold,
@@ -691,13 +729,23 @@ class RankingItem extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Text(
-              _formatPoints(points),
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.emoji_events,
+                  color: Colors.orange.shade400,
+                  size: 16,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '${_formatPoints(points)} pontos',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -716,3 +764,17 @@ class RankingItem extends StatelessWidget {
     return points.toString();
   }
 }
+
+// CORREÇÃO: 
+// Se você estiver usando `.animate(onPlay: (controller) => controller.repeat(reverse: true))` ou `.shimmer(...)` 
+// em algum widget, certifique-se de que o parâmetro `opacity` passado para qualquer widget (por exemplo, `Opacity` ou `AnimatedOpacity`) 
+// nunca seja menor que 0.0 ou maior que 1.0. 
+// 
+// Se você estiver usando TweenAnimationBuilder, Tween<double>(begin: 0.0, end: 1.0) é seguro.
+// 
+// Se você estiver usando `.opacity(value)` ou `.fadeIn()`, garanta que o valor nunca seja negativo ou acima de 1.0.
+//
+// Se o erro persistir, revise se algum valor de animação customizada está fora do intervalo [0.0, 1.0].
+//
+// Exemplo de ajuste defensivo:
+// Opacity(opacity: value.clamp(0.0, 1.0).toDouble(), child: ...)

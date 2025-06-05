@@ -70,7 +70,7 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
                       } else if (snapshot.hasError) {
                         return Center(child: Text('Erro: \\${snapshot.error}'));
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(child: Text('Nenhuma criança encontrada.'));
+                        return const Center(child: Text('Nenhuma criança/adolescente encontrada.'));
                       }
                       final users = snapshot.data!;
                       return ListView(

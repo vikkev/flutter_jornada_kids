@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: constants.AppColors.primary,
+      backgroundColor: constants.AppColors.secondary,
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
@@ -90,8 +90,8 @@ class _HomePageState extends State<HomePage> {
                 end: Alignment.bottomCenter,
                 colors: [
                   constants.AppColors.primary,
-                  constants.AppColors.primary.withOpacity(0.8),
                 ],
+                stops: const [0.0, 0.7],
               ),
             ),
           ),
@@ -232,7 +232,7 @@ class _HomePageState extends State<HomePage> {
                             .fadeIn(delay: 700.ms, duration: 600.ms)
                             .slideY(begin: 0.3, end: 0)
                       else
-                        const ScoreWidget()
+                        ScoreWidget(usuario: widget.usuario)
                             .animate()
                             .fadeIn(delay: 700.ms, duration: 600.ms)
                             .slideY(begin: 0.3, end: 0),

@@ -47,12 +47,14 @@ class _TasksPageState extends State<TasksPage> {
     });
     try {
       final fetchedChildren = await ResponsibleService().fetchChildren(widget.idParaRequests);
+      if (!mounted) return;
       setState(() {
         children = fetchedChildren;
         isLoadingChildren = false;
       });
       _loadTasks();
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         isLoadingChildren = false;
       });
@@ -61,6 +63,7 @@ class _TasksPageState extends State<TasksPage> {
   }
 
   Future<void> _loadTasks() async {
+    if (!mounted) return; // Adicionado para evitar setState após dispose
     setState(() {
       isLoading = true;
     });
@@ -82,6 +85,7 @@ class _TasksPageState extends State<TasksPage> {
         // Para criança/adolescente, buscar tarefas dela corretamente
         responses = await taskService.fetchTarefasDaCrianca(widget.idParaRequests);
       }
+      if (!mounted) return;
       setState(() {
         tasks = responses
             .map((t) => _taskResponseToTarefa(t))
@@ -101,9 +105,8 @@ class _TasksPageState extends State<TasksPage> {
         isLoading = false;
       });
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
+      if (!mounted) return;
+      setState(() => isLoading = false);
       // Tratar erro se necessário
     }
   }
@@ -148,7 +151,6 @@ class _TasksPageState extends State<TasksPage> {
       case 'alta':
         return 'A';
       case 'média':
-      case 'media':
         return 'M';
       case 'baixa':
         return 'B';
@@ -164,7 +166,6 @@ class _TasksPageState extends State<TasksPage> {
       case 'expirada':
         return 'E';
       case 'concluída':
-      case 'concluida':
         return 'C';
       case 'avaliada':
         return 'A';
@@ -225,7 +226,7 @@ class _TasksPageState extends State<TasksPage> {
       case SituacaoTarefa.E:
         return 'Vencida';
       case SituacaoTarefa.A:
-        return 'Aguardando';
+        return 'Avaliada';
     }
   }
 
@@ -238,7 +239,7 @@ class _TasksPageState extends State<TasksPage> {
       case SituacaoTarefa.E:
         return Colors.red;
       case SituacaoTarefa.A:
-        return Colors.blueGrey;
+        return Colors.green;
     }
   }
 
@@ -523,12 +524,12 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
               ? Border.all(color: Colors.red, width: 2)
               : null,
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(13),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -635,7 +636,7 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
                   ),
                 ],
               ),
-              if (widget.showDetails) ...[
+              if (widget.showDetails && widget.tarefa.situacao == SituacaoTarefa.C) ...[
                 const SizedBox(height: 16),
                 Align(
                   alignment: Alignment.center,

@@ -40,34 +40,26 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
   }
 
   Future<void> _approveTask() async {
-    int estrelas = 5;
+    int estrelas = 1;
     final result = await showDialog<int>(
       context: context,
       builder: (context) {
-        int selected = 5;
+        final controller = TextEditingController(text: '1');
         return AlertDialog(
           title: const Text('Avaliar tarefa'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Quantas estrelas deseja atribuir para esta tarefa?'),
+              const Text('Quantas estrelas deseja atribuir para esta tarefa? (1 a 5)'),
               const SizedBox(height: 16),
-              StatefulBuilder(
-                builder: (context, setState) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(5, (i) {
-                      return IconButton(
-                        icon: Icon(
-                          i < selected ? Icons.star : Icons.star_border,
-                          color: Colors.amber,
-                          size: 32,
-                        ),
-                        onPressed: () => setState(() => selected = i + 1),
-                      );
-                    }),
-                  );
-                },
+              TextField(
+                controller: controller,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Estrelas',
+                  border: OutlineInputBorder(),
+                ),
+                maxLength: 1,
               ),
             ],
           ),
@@ -77,7 +69,12 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
               child: const Text('Cancelar'),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(selected),
+              onPressed: () {
+                int value = int.tryParse(controller.text) ?? 1;
+                if (value < 1) value = 1;
+                if (value > 5) value = 5;
+                Navigator.of(context).pop(value);
+              },
               child: const Text('Avaliar'),
             ),
           ],
@@ -104,7 +101,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => SuccessMessagePage(
-            message: 'Tarefa aprovada com sucesso!\nA criança ganhou ${_tarefaAtual.ponto} pontos.',
+            message: 'Tarefa aprovada com sucesso!\nA criança/adolescente ganhou ${_tarefaAtual.ponto} pontos.',
             buttonText: 'Voltar às tarefas',
             onButtonPressed: () {
               Navigator.of(context).popUntil((route) => route.isFirst);
@@ -152,7 +149,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => SuccessMessagePage(
-            message: 'Tarefa reprovada.\nA criança precisará refazer a atividade.',
+            message: 'Tarefa reprovada.\nA criança/adolescente precisará refazer a atividade.',
             buttonText: 'Voltar às tarefas',
             onButtonPressed: () {
               Navigator.of(context).popUntil((route) => route.isFirst);
@@ -254,6 +251,33 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
     return points.toString();
   }
 
+  // Adicione estas funções para tratar status igual ao TasksPage
+  String _getStatusText(SituacaoTarefa status) {
+    switch (status) {
+      case SituacaoTarefa.P:
+        return 'Pendente';
+      case SituacaoTarefa.C:
+        return 'Concluída';
+      case SituacaoTarefa.E:
+        return 'Vencida';
+      case SituacaoTarefa.A:
+        return 'Avaliada';
+    }
+  }
+
+  Color _getStatusColor(SituacaoTarefa status) {
+    switch (status) {
+      case SituacaoTarefa.P:
+        return Colors.orange;
+      case SituacaoTarefa.C:
+        return AppColors.primary;
+      case SituacaoTarefa.E:
+        return Colors.red;
+      case SituacaoTarefa.A:
+        return Colors.green;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final tarefa = _tarefaAtual;
@@ -327,12 +351,12 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(13),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.4),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
@@ -355,7 +379,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                         ),
                         Row(
                           children: [
-                            const Icon(Icons.star, color: Colors.amber, size: 20),
+                            const Icon(Icons.emoji_events, color: Colors.amber, size: 20),
                             const SizedBox(width: 4),
                             Text(
                               _formatPoints(tarefa.ponto),
@@ -363,6 +387,15 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Text(
+                              'pontos',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
@@ -373,10 +406,11 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                     const SizedBox(height: 16),
 
                     // Status
-                    _buildDetailRow('Status', tarefa.situacao.name, 
-                        color: tarefa.situacao == SituacaoTarefa.P 
-                            ? Colors.orange 
-                            : AppColors.primary),
+                    _buildDetailRow(
+                      'Status',
+                      _getStatusText(tarefa.situacao), // Use função para texto
+                      color: _getStatusColor(tarefa.situacao), // Use função para cor
+                    ),
 
                     const SizedBox(height: 12),
 
@@ -458,22 +492,34 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
               Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: _approveTask,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        minimumSize: const Size(0, 48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        elevation: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.25),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        borderRadius: BorderRadius.circular(24),
                       ),
-                      child: const Text(
-                        'Aprovar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      child: ElevatedButton(
+                        onPressed: _approveTask,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          minimumSize: const Size(0, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'Aprovar',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -485,22 +531,34 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                   const SizedBox(width: 16),
 
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: _rejectTask,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        minimumSize: const Size(0, 48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        elevation: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.22),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        borderRadius: BorderRadius.circular(24),
                       ),
-                      child: const Text(
-                        'Reprovar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      child: ElevatedButton(
+                        onPressed: _rejectTask,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          minimumSize: const Size(0, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'Reprovar',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),

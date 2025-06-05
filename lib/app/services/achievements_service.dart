@@ -141,7 +141,7 @@ class AchievementsService {
   Future<void> deleteRecompensa(int responsavelId, int recompensaId) async {
     try {
       final url =
-          '${ApiConfig.api}/responsaveis/$responsavelId/recompensas/$recompensaId';
+          '${ApiConfig.api}/recompensas/$recompensaId';
       final response = await _dio.delete(
         url,
         options: Options(

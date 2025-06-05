@@ -10,7 +10,7 @@ class ResponsibleService {
     if (response.statusCode == 200 && response.data is List) {
       return (response.data as List).map((item) => ChildInfo.fromJson(item)).toList();
     } else {
-      throw Exception('Erro ao buscar crianças');
+      throw Exception('Erro ao buscar crianças/adolescentes');
     }
   }
 
@@ -30,7 +30,7 @@ class ResponsibleService {
     if (response.statusCode == 200 && response.data is List) {
       return (response.data as List).map((item) => ChildInfo.fromJson(item)).toList();
     } else {
-      throw Exception('Erro ao buscar crianças do responsável');
+      throw Exception('Erro ao buscar crianças/adolescentes do responsável');
     }
   }
 }

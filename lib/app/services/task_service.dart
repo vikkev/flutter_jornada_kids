@@ -86,7 +86,7 @@ class TaskService {
     if (response.statusCode == 200 && response.data is List) {
       return (response.data as List).map((item) => TaskResponse.fromJson(item)).toList();
     } else {
-      throw Exception('Erro ao buscar tarefas da criança');
+      throw Exception('Erro ao buscar tarefas da criança/adolescente');
     }
   }
 }

@@ -23,37 +23,78 @@ class AchievementsPage extends StatefulWidget {
   State<AchievementsPage> createState() => _AchievementsPageState();
 }
 
-class _AchievementsPageState extends State<AchievementsPage> {
+class _AchievementsPageState extends State<AchievementsPage>
+    with TickerProviderStateMixin {
   final _achievementsService = AchievementsService();
   List<RecompensaResponse> recompensas = [];
   bool isLoading = true;
+  late AnimationController _shimmerController;
+  late AnimationController _headerController;
 
   @override
   void initState() {
     super.initState();
+    _shimmerController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat();
+    
+    _headerController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+    
     _carregarRecompensas();
+    _headerController.forward();
+  }
+
+  @override
+  void dispose() {
+    _shimmerController.dispose();
+    _headerController.dispose();
+    super.dispose();
   }
 
   Future<void> _carregarRecompensas() async {
+    if (!mounted) return; // <- Adicionado para evitar setState após dispose
     setState(() => isLoading = true);
     try {
       final listaRecompensas = await _achievementsService.fetchRecompensas(
         responsavelId: widget.idResponsavel,
         criancaId: widget.idCrianca,
       );
+      if (!mounted) return; // <- Adicionado para evitar setState após dispose
       setState(() {
         recompensas = listaRecompensas;
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return; // <- Adicionado para evitar setState após dispose
       setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao carregar recompensas: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showCustomSnackBar('Erro ao carregar recompensas: $e', isError: true);
     }
+  }
+
+  void _showCustomSnackBar(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              isError ? Icons.error_outline : Icons.check_circle_outline,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: isError ? Colors.red.shade600 : Colors.green.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
   }
 
   void _adicionarRecompensa() async {
@@ -63,74 +104,101 @@ class _AchievementsPageState extends State<AchievementsPage> {
         final tituloController = TextEditingController();
         final obsController = TextEditingController();
         final pontosController = TextEditingController();
-        return AlertDialog(
-          title: const Text('Nova Recompensa'),
-          content: SingleChildScrollView(
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.white,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(
-                  controller: tituloController,
-                  decoration: const InputDecoration(labelText: 'Título'),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [AppColors.primary, AppColors.secondary],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.emoji_events,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    const Text(
+                      'Nova Recompensa',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.darkText,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: obsController,
-                  decoration: const InputDecoration(
-                    labelText: 'Descrição/Observação',
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: pontosController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Estrelas necessárias',
-                  ),
+                const SizedBox(height: 24),
+                _buildTextField(tituloController, 'Título', Icons.title),
+                const SizedBox(height: 16),
+                _buildTextField(obsController, 'Descrição', Icons.description),
+                const SizedBox(height: 16),
+                _buildTextField(pontosController, 'Pontos necessários', Icons.emoji_events, isNumber: true),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(color: AppColors.gray200),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(
+                            color: AppColors.gray400,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _validarESalvarRecompensa(
+                          context,
+                          tituloController,
+                          obsController,
+                          pontosController,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'Salvar',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (tituloController.text.isEmpty ||
-                    pontosController.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Preencha todos os campos obrigatórios!'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  return;
-                }
-
-                final pontuacao = int.tryParse(pontosController.text) ?? 0;
-                if (pontuacao <= 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'A pontuação necessária deve ser maior que zero!',
-                      ),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  return;
-                }
-
-                Navigator.of(context).pop({
-                  'titulo': tituloController.text,
-                  'observacao': obsController.text,
-                  'pontuacaoNecessaria': pontuacao,
-                });
-              },
-              child: const Text('Salvar'),
-            ),
-          ],
         );
       },
     );
@@ -145,47 +213,151 @@ class _AchievementsPageState extends State<AchievementsPage> {
         );
         _carregarRecompensas();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Recompensa criada com sucesso!'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          _showCustomSnackBar('Recompensa criada com sucesso!');
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erro ao criar recompensa: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          _showCustomSnackBar('Erro ao criar recompensa: $e', isError: true);
         }
       }
     }
   }
 
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool isNumber = false}) {
+    return TextField(
+      controller: controller,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: AppColors.primary),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.gray200),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.primary, width: 2),
+        ),
+        filled: true,
+        fillColor: AppColors.lightGray,
+      ),
+    );
+  }
+
+  void _validarESalvarRecompensa(
+    BuildContext context,
+    TextEditingController tituloController,
+    TextEditingController obsController,
+    TextEditingController pontosController,
+  ) {
+    if (tituloController.text.isEmpty || pontosController.text.isEmpty) {
+      _showCustomSnackBar('Preencha todos os campos obrigatórios!', isError: true);
+      return;
+    }
+
+    final pontuacao = int.tryParse(pontosController.text) ?? 0;
+    if (pontuacao <= 0) {
+      _showCustomSnackBar('A pontuação necessária deve ser maior que zero!', isError: true);
+      return;
+    }
+
+    Navigator.of(context).pop({
+      'titulo': tituloController.text,
+      'observacao': obsController.text,
+      'pontuacaoNecessaria': pontuacao,
+    });
+  }
+
   void _excluirRecompensa(RecompensaResponse recompensa) async {
     final confirma = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Excluir Recompensa'),
-            content: Text(
-              'Tem certeza que deseja excluir a recompensa "${recompensa.titulo}"?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancelar'),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.white,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Icon(
+                  Icons.delete_outline,
+                  color: Colors.red.shade600,
+                  size: 32,
+                ),
               ),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: const Text('Excluir'),
+              const SizedBox(height: 16),
+              const Text(
+                'Excluir Recompensa',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.darkText,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Tem certeza que deseja excluir a recompensa "${recompensa.titulo}"?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppColors.gray400,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Cancelar',
+                        style: TextStyle(
+                          color: AppColors.gray400,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.shade600,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Excluir',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
+        ),
+      ),
     );
 
     if (confirma == true) {
@@ -196,21 +368,11 @@ class _AchievementsPageState extends State<AchievementsPage> {
         );
         _carregarRecompensas();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Recompensa excluída com sucesso!'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          _showCustomSnackBar('Recompensa excluída com sucesso!');
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erro ao excluir recompensa: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          _showCustomSnackBar('Erro ao excluir recompensa: $e', isError: true);
         }
       }
     }
@@ -220,227 +382,508 @@ class _AchievementsPageState extends State<AchievementsPage> {
     if (widget.pontosDisponiveis >= recompensa.pontuacaoNecessaria) {
       showDialog(
         context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('Resgatar recompensa'),
-              content: Text(
-                'Deseja resgatar "${recompensa.titulo}" por ${recompensa.pontuacaoNecessaria} estrelas?',
+        builder: (context) => Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white,
+                  Colors.amber.shade50,
+                ],
               ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancelar'),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.amber.shade400, Colors.orange.shade400],
+                    ),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: const Icon(
+                    Icons.emoji_events,
+                    color: Colors.white,
+                    size: 32,
+                  ),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Recompensa "${recompensa.titulo}" resgatada!',
+                const SizedBox(height: 16),
+                const Text(
+                  'Resgatar Recompensa',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkText,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Deseja resgatar "${recompensa.titulo}" por ${recompensa.pontuacaoNecessaria} pontos?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppColors.gray400,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        backgroundColor: Colors.green,
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(
+                            color: AppColors.gray400,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                    );
-                    // TODO: Implementar lógica de resgate na API
-                  },
-                  child: const Text('Resgatar'),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          _showCustomSnackBar('Recompensa "${recompensa.titulo}" resgatada!');
+                          // TODO: Implementar lógica de resgate na API
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber.shade600,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'Resgatar',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Estrelas insuficientes!'),
-          backgroundColor: Colors.red,
+          ),
         ),
       );
+    } else {
+      _showCustomSnackBar('Estrelas insuficientes!', isError: true);
+    }
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.primary, AppColors.secondary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.4),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(25),
+          bottomRight: Radius.circular(25),
+        ),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: const Icon(
+                      Icons.emoji_events,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Recompensas',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        '${widget.pontosDisponiveis} pontos disponíveis',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withOpacity(0.9),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              if (widget.userType == TipoUsuario.responsavel)
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton.icon(
+                    onPressed: _adicionarRecompensa,
+                    icon: const Icon(Icons.add, size: 20),
+                    label: const Text('Adicionar'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppColors.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 800.ms).slideY(begin: -0.3);
+  }
+
+  Widget _buildRecompensaCard(RecompensaResponse recompensa, int index) {
+    final canRedeem = widget.pontosDisponiveis >= recompensa.pontuacaoNecessaria;
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white, 
+              
+              borderRadius: BorderRadius.circular(20),
+              border: canRedeem && widget.userType == TipoUsuario.crianca
+                  ? Border.all(color: Colors.amber.shade200, width: 2)
+                  : null,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: canRedeem && widget.userType == TipoUsuario.crianca
+                          ? [Colors.amber.shade400, Colors.orange.shade400]
+                          : [AppColors.primary, AppColors.secondary],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.emoji_events,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        recompensa.titulo,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.darkText,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        recompensa.observacao,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.gray400,
+                          height: 1.3,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.amber.shade100, Colors.amber.shade50],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.emoji_events, // trocado de star para emoji_events
+                              color: Colors.amber,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${recompensa.pontuacaoNecessaria} pontos',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.amber.shade800,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (widget.userType == TipoUsuario.crianca)
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: canRedeem
+                          ? LinearGradient(
+                              colors: [Colors.amber.shade400, Colors.orange.shade400],
+                            )
+                          : LinearGradient(
+                              colors: [AppColors.gray200, AppColors.gray400],
+                            ),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: canRedeem ? () => _resgatarRecompensa(recompensa) : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      child: Text(
+                        canRedeem ? 'Resgatar' : 'Bloqueado',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                if (widget.userType == TipoUsuario.responsavel)
+                  IconButton(
+                    icon: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 6,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.delete_outline,
+                        color: Colors.red.shade600,
+                        size: 18,
+                      ),
+                    ),
+                    tooltip: 'Excluir',
+                    onPressed: () => _excluirRecompensa(recompensa),
+                  ),
+              ],
+            ),
+          ),
+          if (canRedeem && widget.userType == TipoUsuario.crianca)
+            Positioned(
+              top: 12,
+              right: 12,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.green.shade400, Colors.green.shade600],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'Disponível!',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    )
+        .animate()
+        .fadeIn(duration: 600.ms, delay: (index * 100).ms)
+        .slideX(begin: 0.2)
+        .shimmer(
+          delay: (index * 200).ms,
+          duration: 1000.ms,
+          color: canRedeem ? Colors.amber.withOpacity(0.3) : Colors.transparent,
+        );
+  }
+
+  String _getStatusText(SituacaoTarefa status) {
+    switch (status) {
+      case SituacaoTarefa.P:
+        return 'Pendente';
+      case SituacaoTarefa.C:
+        return 'Concluída';
+      case SituacaoTarefa.E:
+        return 'Vencida';
+      case SituacaoTarefa.A:
+        return 'Avaliada';
+    }
+  }
+
+  Color _getStatusColor(SituacaoTarefa status) {
+    switch (status) {
+      case SituacaoTarefa.P:
+        return Colors.orange;
+      case SituacaoTarefa.C:
+        return AppColors.primary;
+      case SituacaoTarefa.E:
+        return Colors.red;
+      case SituacaoTarefa.A:
+        return Colors.green;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
+      backgroundColor: AppColors.lightGray,
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Recompensas',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkText,
-                    ),
-                  ),
-                  if (widget.userType == TipoUsuario.responsavel)
-                    ElevatedButton.icon(
-                      onPressed: _adicionarRecompensa,
-                      icon: const Icon(Icons.add, size: 18),
-                      label: const Text('Adicionar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                ],
-              ),
-            ),
+            _buildHeader(),
+            const SizedBox(height: 20),
             Expanded(
-              child:
-                  isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : recompensas.isEmpty
-                      ? const Center(
-                        child: Text('Nenhuma recompensa disponível'),
-                      )
-                      : ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 8,
-                        ),
-                        itemCount: recompensas.length,
-                        itemBuilder: (context, index) {
-                          final recompensa = recompensas[index];
-                          return Container(
-                                margin: const EdgeInsets.only(bottom: 14),
-                                padding: const EdgeInsets.all(18),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(18),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.07),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.emoji_events,
-                                      color: AppColors.primary,
-                                      size: 32,
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            recompensa.titulo,
-                                            style: const TextStyle(
-                                              fontSize: 17,
-                                              fontWeight: FontWeight.bold,
-                                              color: AppColors.darkText,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            recompensa.observacao,
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              color: AppColors.gray400,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                Icons.star,
-                                                color: Colors.amber,
-                                                size: 18,
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                '${recompensa.pontuacaoNecessaria} estrelas',
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: AppColors.primary,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    if (widget.userType == TipoUsuario.crianca)
-                                      ElevatedButton(
-                                        onPressed:
-                                            () =>
-                                                _resgatarRecompensa(recompensa),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.primary,
-                                          foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              14,
-                                            ),
-                                          ),
-                                          elevation: 0,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
-                                          textStyle: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        child: const Text('Resgatar'),
-                                      ),
-                                    if (widget.userType ==
-                                        TipoUsuario.responsavel)
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          // IconButton(
-                                          //   icon: const Icon(
-                                          //     Icons.edit,
-                                          //     color: AppColors.primary,
-                                          //   ),
-                                          //   tooltip: 'Editar',
-                                          //   onPressed:
-                                          //       () {}, // TODO: Implementar edição
-                                          // ),
-                                          IconButton(
-                                            icon: const Icon(
-                                              Icons.delete,
-                                              color: Colors.red,
-                                            ),
-                                            tooltip: 'Excluir',
-                                            onPressed:
-                                                () => _excluirRecompensa(
-                                                  recompensa,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                  ],
-                                ),
-                              )
-                              .animate()
-                              .fadeIn(duration: 600.ms, delay: (index * 120).ms)
-                              .slideY(begin: 0.08);
-                        },
+              child: isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
                       ),
+                    )
+                  : recompensas.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(24),
+                                decoration: BoxDecoration(
+                                  color: AppColors.gray100,
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                                child: Icon(
+                                  Icons.emoji_events_outlined,
+                                  size: 48,
+                                  color: AppColors.gray300,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Nenhuma recompensa disponível',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: AppColors.gray400,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                widget.userType == TipoUsuario.responsavel
+                                    ? 'Adicione recompensas para motivar as crianças/adolescentes!'
+                                    : 'Aguarde novas recompensas serem adicionadas',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppColors.gray300,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ).animate().fadeIn(duration: 800.ms).scale(begin: const Offset(0.8, 0.8))
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          itemCount: recompensas.length,
+                          itemBuilder: (context, index) {
+                            final recompensa = recompensas[index];
+                            return _buildRecompensaCard(recompensa, index);
+                          },
+                        ),
             ),
           ],
         ),

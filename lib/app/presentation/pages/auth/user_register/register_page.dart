@@ -122,7 +122,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      widget.isResponsible ? 'Novo Cadastro de Responsável' : 'Novo Cadastro de Criança',
+                      widget.isResponsible ? 'Novo Cadastro de Responsável' : 'Novo Cadastro de Criança/Adolescente',
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,

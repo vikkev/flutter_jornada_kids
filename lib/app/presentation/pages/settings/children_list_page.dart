@@ -22,7 +22,7 @@ class _ChildrenListPageState extends State<ChildrenListPage> {
   @override
   void initState() {
     super.initState();
-    _childrenFuture = ResponsibleService().fetchChildren(widget.responsavel.id);
+    _childrenFuture = ResponsibleService().fetchChildren(widget.responsavel.idExterno ?? widget.responsavel.id);
   }
 
   @override
@@ -35,7 +35,7 @@ class _ChildrenListPageState extends State<ChildrenListPage> {
         centerTitle: true,
         automaticallyImplyLeading: true,
         title: const Text(
-          'Minhas Crianças',
+          'Minhas Crianças/Adolescentes',
           style: TextStyle(
             color: AppColors.darkBlue,
             fontWeight: FontWeight.bold,
@@ -51,7 +51,7 @@ class _ChildrenListPageState extends State<ChildrenListPage> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Erro: \\${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Nenhuma criança encontrada.'));
+            return const Center(child: Text('Nenhuma criança/adolescente encontrada.'));
           }
           final children = snapshot.data!;
           return ListView.builder(
@@ -122,4 +122,4 @@ class _ChildInfo {
       nome: json['usuario']?['nomeCompleto'] ?? '',
     );
   }
-} 
+}

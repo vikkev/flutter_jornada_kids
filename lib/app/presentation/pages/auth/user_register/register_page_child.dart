@@ -235,268 +235,305 @@ class _RegisterPageChildState extends State<RegisterPageChild> with TickerProvid
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
-          onPressed: () => Navigator.pop(context),
-        ).animate()
-         .fadeIn(duration: 300.ms)
-         .slideX(begin: -0.3)
-         .scale(begin: const Offset(0.8, 0.8)),
-        title: const Text(
-          'Código de autenticação',
-          style: TextStyle(
-            color: Colors.white, 
-            fontSize: 20, 
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.5,
-          ),
-        ).animate()
-         .fadeIn(delay: 100.ms, duration: 400.ms)
-         .slideX(begin: 0.3),
-      ),
-      body: Column(
+      // Troque o backgroundColor pelo Container com gradient
+      body: Stack(
         children: [
-          const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
-            child: Image.asset('assets/images/app_logo.png', height: 280)
-                .animate()
-                .fadeIn(duration: 800.ms)
-                .scale(
-                  begin: const Offset(0.6, 0.6), 
-                  duration: 800.ms, 
-                  curve: Curves.elasticOut,
-                )
-                .then()
-                .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                .scale(
-                  begin: const Offset(1.0, 1.0),
-                  end: const Offset(1.02, 1.02),
-                  duration: 2000.ms,
-                  curve: Curves.easeInOut,
-                ),
-          ),
-          
-          // Container principal com animação
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, -5),
-                  ),
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppColors.primary,
+                  AppColors.secondary,
+                  AppColors.darkBlue,
                 ],
+                stops: const [0.0, 0.7, 1.0],
               ),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    
-                    // Título com animação melhorada
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Digite o código de identificação',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.darkText,
-                              letterSpacing: 0.3,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Insira o código fornecido pelo responsável',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey.shade600,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 50),
+                  child: Image.asset('assets/images/app_logo.png', height: 280)
+                      .animate()
+                      .fadeIn(duration: 800.ms)
+                      .scale(
+                        begin: const Offset(0.6, 0.6), 
+                        duration: 800.ms, 
+                        curve: Curves.elasticOut,
+                      )
+                      .then()
+                      .animate(onPlay: (controller) => controller.repeat(reverse: true))
+                      .scale(
+                        begin: const Offset(1.0, 1.0),
+                        end: const Offset(1.02, 1.02),
+                        duration: 2000.ms,
+                        curve: Curves.easeInOut,
                       ),
-                    ).animate()
-                     .fadeIn(delay: 300.ms, duration: 600.ms)
-                     .slideY(begin: 0.3, duration: 600.ms, curve: Curves.easeOutBack),
-                    
-                    const SizedBox(height: 40),
-                    
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: List.generate(
-                          6,
-                          (index) => _buildPinInput(index)
-                              .animate()
-                              .fadeIn(
-                                delay: Duration(milliseconds: 400 + (index * 100)), 
-                                duration: 500.ms,
-                              )
-                              .slideY(
-                                begin: 0.5, 
-                                duration: 500.ms, 
-                                curve: Curves.easeOutBack,
-                              )
-                              .then()
-                              .animate(
-                                onPlay: (controller) {
-                                  if (_hasError) {
-                                    controller.forward();
-                                  }
-                                },
-                              )
-                              .shake(
-                                duration: _hasError ? 600.ms : 0.ms,
-                                hz: 4,
-                                curve: Curves.easeInOut,
-                              ),
+                ),
+                
+                // Container principal com animação
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 20,
+                          offset: const Offset(0, -5),
                         ),
-                      ),
+                      ],
                     ),
-                    if (_hasError)
-                      Container(
-                        margin: const EdgeInsets.only(top: 16),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade50,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.red.shade200,
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              color: Colors.red.shade600,
-                              size: 22,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          
+                          // Título com animação melhorada
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Column(
+                              children: [
+                                const Text(
+                                  'Digite o código de identificação',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.darkText,
+                                    letterSpacing: 0.3,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Insira o código fornecido pelo responsável',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey.shade600,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                _errorMessage,
-                                style: TextStyle(
-                                  color: Colors.red.shade700,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                          ).animate()
+                           .fadeIn(delay: 300.ms, duration: 600.ms)
+                           .slideY(begin: 0.3, duration: 600.ms, curve: Curves.easeOutBack),
+                          
+                          const SizedBox(height: 40),
+                          
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: List.generate(
+                                6,
+                                (index) => _buildPinInput(index)
+                                    .animate()
+                                    .fadeIn(
+                                      delay: Duration(milliseconds: 400 + (index * 100)), 
+                                      duration: 500.ms,
+                                    )
+                                    .slideY(
+                                      begin: 0.5, 
+                                      duration: 500.ms, 
+                                      curve: Curves.easeOutBack,
+                                    )
+                                    .then()
+                                    .animate(
+                                      onPlay: (controller) {
+                                        if (_hasError) {
+                                          controller.forward();
+                                        }
+                                      },
+                                    )
+                                    .shake(
+                                      duration: _hasError ? 600.ms : 0.ms,
+                                      hz: 4,
+                                      curve: Curves.easeInOut,
+                                    ),
+                              ),
+                            ),
+                          ),
+                          if (_hasError)
+                            Container(
+                              margin: const EdgeInsets.only(top: 16),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade50,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.red.shade200,
+                                  width: 1,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ).animate()
-                       .fadeIn(duration: 400.ms)
-                       .slideY(begin: -0.3, duration: 400.ms)
-                       .scale(begin: const Offset(0.9, 0.9)),
-                    
-                    const SizedBox(height: 50),
-                   
-                    Container(
-                      height: 56,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        gradient: _isFormValid 
-                          ? LinearGradient(
-                              colors: [AppColors.darkBlue, AppColors.primary],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            )
-                          : null,
-                        boxShadow: _isFormValid ? [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.18),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                            spreadRadius: 0,
-                          ),
-                        ] : null,
-                      ),
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : (_isFormValid ? _validateResponsibleCode : null),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _isFormValid ? Colors.transparent : AppColors.gray200,
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor: AppColors.gray200,
-                          disabledForegroundColor: Colors.white.withOpacity(0.7),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 0,
-                          shadowColor: Colors.transparent,
-                        ),
-                        child: SizedBox(
-                          height: 24,
-                          child: _isLoading
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                              child: Row(
                                 children: [
-                                  const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                    ),
+                                  Icon(
+                                    Icons.error_outline,
+                                    color: Colors.red.shade600,
+                                    size: 22,
                                   ),
                                   const SizedBox(width: 12),
-                                  const Text(
-                                    'Validando...',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                  Expanded(
+                                    child: Text(
+                                      _errorMessage,
+                                      style: TextStyle(
+                                        color: Colors.red.shade700,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                 ],
-                              ).animate(onPlay: (controller) => controller.repeat())
-                               .fadeIn(duration: 300.ms)
-                            : const Text(
-                                'Confirmar Código',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.5,
-                                ),
                               ),
+                            ).animate()
+                             .fadeIn(duration: 400.ms)
+                             .slideY(begin: -0.3, duration: 400.ms)
+                             .scale(begin: const Offset(0.9, 0.9)),
+                          
+                          const SizedBox(height: 50),
+                         
+                          Container(
+                            height: 56,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              gradient: _isFormValid 
+                                ? LinearGradient(
+                                    colors: [AppColors.darkBlue, AppColors.primary],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                  )
+                                : null,
+                              boxShadow: _isFormValid ? [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.18),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                  spreadRadius: 0,
+                                ),
+                              ] : null,
+                            ),
+                            child: ElevatedButton(
+                              onPressed: _isLoading ? null : (_isFormValid ? _validateResponsibleCode : null),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _isFormValid ? Colors.transparent : AppColors.gray200,
+                                foregroundColor: Colors.white,
+                                disabledBackgroundColor: AppColors.gray200,
+                                disabledForegroundColor: Colors.white.withOpacity(0.7),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                elevation: 0,
+                                shadowColor: Colors.transparent,
+                              ),
+                              child: SizedBox(
+                                height: 24,
+                                child: _isLoading
+                                  ? Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.5,
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        const Text(
+                                          'Validando...',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ).animate(onPlay: (controller) => controller.repeat())
+                                     .fadeIn(duration: 300.ms)
+                                  : const Text(
+                                      'Confirmar Código',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                              ),
+                            ),
+                          ).animate()
+                           .fadeIn(delay: 1100.ms, duration: 600.ms)
+                           .slideY(begin: 0.3, duration: 600.ms, curve: Curves.easeOutBack)
+                           .then()
+                           .animate(
+                             onPlay: (controller) {
+                               if (_isFormValid && !_isLoading) {
+                                 controller.repeat(reverse: true);
+                               }
+                             },
+                           )
+                           .shimmer(
+                             duration: _isFormValid && !_isLoading ? 2000.ms : 0.ms,
+                             color: Colors.white.withOpacity(0.3),
+                             size: 0.8,
+                           ),
+                        ],
+                      ),
+                    ),
+                  ).animate()
+                   .slideY(begin: 0.4, duration: 800.ms, curve: Curves.easeOutCubic)
+                   .fadeIn(delay: 200.ms, duration: 800.ms),
+                   ),
+              ],
+            ),
+          ),
+          // Botão de voltar estilizado
+          Positioned(
+            top: 36,
+            left: 16,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(30),
+                onTap: () => Navigator.of(context).maybePop(),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.85),
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withOpacity(0.18),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  child: Row(
+                    children: [
+                      Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Voltar',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          letterSpacing: 0.2,
                         ),
                       ),
-                    ).animate()
-                     .fadeIn(delay: 1100.ms, duration: 600.ms)
-                     .slideY(begin: 0.3, duration: 600.ms, curve: Curves.easeOutBack)
-                     .then()
-                     .animate(
-                       onPlay: (controller) {
-                         if (_isFormValid && !_isLoading) {
-                           controller.repeat(reverse: true);
-                         }
-                       },
-                     )
-                     .shimmer(
-                       duration: _isFormValid && !_isLoading ? 2000.ms : 0.ms,
-                       color: Colors.white.withOpacity(0.3),
-                       size: 0.8,
-                     ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ).animate()
-             .slideY(begin: 0.4, duration: 800.ms, curve: Curves.easeOutCubic)
-             .fadeIn(delay: 200.ms, duration: 800.ms),
+            ),
           ),
         ],
       ),

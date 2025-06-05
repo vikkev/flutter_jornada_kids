@@ -159,7 +159,7 @@ class SettingsPage extends StatelessWidget {
                     _buildOption(
                       icon: Icons.vpn_key,
                       title: 'Código PIN',
-                      subtitle: 'Ver código para cadastro de criança',
+                      subtitle: 'Ver código para cadastro de criança/adolescente',
                       onTap: () {
                         Navigator.push(
                           context,
