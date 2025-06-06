@@ -8,7 +8,11 @@ import 'package:flutter_jornadakids/app/services/responsible_service.dart';
 class TaskAssignmentScreen extends StatefulWidget {
   final int responsavelId;
   final Usuario usuarioResponsavel;
-  const TaskAssignmentScreen({super.key, required this.responsavelId, required this.usuarioResponsavel});
+  const TaskAssignmentScreen({
+    super.key,
+    required this.responsavelId,
+    required this.usuarioResponsavel,
+  });
 
   @override
   State<TaskAssignmentScreen> createState() => _TaskAssignmentScreenState();
@@ -21,7 +25,9 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
   @override
   void initState() {
     super.initState();
-    _childrenFuture = ResponsibleService().fetchChildren(widget.usuarioResponsavel.idExterno ?? widget.usuarioResponsavel.id);
+    _childrenFuture = ResponsibleService().fetchChildren(
+      widget.usuarioResponsavel.idExterno ?? widget.usuarioResponsavel.id,
+    );
   }
 
   @override
@@ -70,11 +76,16 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
                       } else if (snapshot.hasError) {
                         return Center(child: Text('Erro: \\${snapshot.error}'));
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(child: Text('Nenhuma criança/adolescente encontrada.'));
+                        return const Center(
+                          child: Text(
+                            'Nenhuma criança/adolescente encontrada.',
+                          ),
+                        );
                       }
                       final users = snapshot.data!;
                       return ListView(
-                        children: users.map((user) => _buildUserTile(user)).toList(),
+                        children:
+                            users.map((user) => _buildUserTile(user)).toList(),
                       );
                     },
                   ),
@@ -82,20 +93,27 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: selectedUser != null
-                    ? () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TaskDescriptionPage(
-                              idResponsavel: widget.usuarioResponsavel.idExterno ?? widget.usuarioResponsavel.id, // <-- use idExterno
-                              idCrianca: selectedUser!.id,
-                              usuarioResponsavel: widget.usuarioResponsavel,
+                onPressed:
+                    selectedUser != null
+                        ? () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => TaskDescriptionPage(
+                                    idResponsavel:
+                                        widget.usuarioResponsavel.idExterno ??
+                                        widget
+                                            .usuarioResponsavel
+                                            .id, // <-- use idExterno
+                                    idCrianca: selectedUser!.id,
+                                    usuarioResponsavel:
+                                        widget.usuarioResponsavel,
+                                  ),
                             ),
-                          ),
-                        );
-                      }
-                    : null,
+                          );
+                        }
+                        : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.darkBlue,
                   disabledBackgroundColor: AppColors.grey.withOpacity(1),
@@ -160,6 +178,8 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
                     fontWeight: FontWeight.bold,
                     color: AppColors.darkText,
                   ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
                 const Text(
                   'Criança',

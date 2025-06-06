@@ -19,7 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _authService = AuthService();
-  
+
   bool _isFormValid = false;
   bool _isPasswordVisible = false;
   bool _isLoading = false;
@@ -56,9 +56,9 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     final result = await _authService.login(
-      _usernameController.text, 
+      _usernameController.text,
       _passwordController.text,
-      widget.userType
+      widget.userType,
     );
 
     if (result.success) {
@@ -73,27 +73,30 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomePage(
-              usuario: result.user!,
-            ),
+            builder: (context) => HomePage(usuario: result.user!),
           ),
         );
       }
     } else {
       // Se for erro de tipo de usuário, mostrar dialog especial
-      if (result.message != null && result.message!.contains('Tipo de usuário incorreto')) {
+      if (result.message != null &&
+          result.message!.contains('Tipo de usuário incorreto')) {
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Tipo de usuário incorreto'),
-            content: Text(result.message ?? 'Você está tentando acessar a área errada. Verifique se está na tela correta para seu tipo de conta.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Tipo de usuário incorreto'),
+                content: Text(
+                  result.message ??
+                      'Você está tentando acessar a área errada. Verifique se está na tela correta para seu tipo de conta.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('OK'),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
       }
       setState(() {
@@ -110,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.centerLeft,
-            end: Alignment.centerRight,  
+            end: Alignment.centerRight,
             colors: [
               constants.AppColors.darkBlue,
               constants.AppColors.secondary,
@@ -127,22 +130,27 @@ class _LoginPageState extends State<LoginPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 50),
                   child: Image.asset('assets/images/app_logo.png', height: 250)
-                    .animate()
-                    .fadeIn(duration: 600.ms)
-                    .scale(
-                      begin: const Offset(0.8, 0.8),
-                      end: const Offset(1.0, 1.0),
-                      duration: 500.ms,
-                      curve: Curves.easeOutBack,
-                    ),
+                      .animate()
+                      .fadeIn(duration: 600.ms)
+                      .scale(
+                        begin: const Offset(0.8, 0.8),
+                        end: const Offset(1.0, 1.0),
+                        duration: 500.ms,
+                        curve: Curves.easeOutBack,
+                      ),
                 ),
                 Expanded(
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 20,
+                    ),
                     decoration: const BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(32),
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black26,
@@ -158,36 +166,46 @@ class _LoginPageState extends State<LoginPage> {
                         children: [
                           // Título Bem-Vindo com ShaderMask
                           ShaderMask(
-                            shaderCallback: (bounds) => LinearGradient(
-                              colors: [constants.AppColors.primary, constants.AppColors.secondary],
-                            ).createShader(bounds),
-                            child: const Text(
-                              'Bem-Vindo',
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white, // será sobrescrito pelo ShaderMask
+                                shaderCallback:
+                                    (bounds) => LinearGradient(
+                                      colors: [
+                                        constants.AppColors.primary,
+                                        constants.AppColors.secondary,
+                                      ],
+                                    ).createShader(bounds),
+                                child: const Text(
+                                  'Bem-Vindo',
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Colors
+                                            .white, // será sobrescrito pelo ShaderMask
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              )
+                              .animate()
+                              .fadeIn(delay: 300.ms, duration: 500.ms)
+                              .slideY(
+                                begin: 0.2,
+                                end: 0,
+                                delay: 300.ms,
+                                duration: 500.ms,
+                                curve: Curves.easeOut,
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                          )
-                          .animate()
-                          .fadeIn(delay: 300.ms, duration: 500.ms)
-                          .slideY(begin: 0.2, end: 0, delay: 300.ms, duration: 500.ms, curve: Curves.easeOut),
-                          
+
                           if (widget.userType == TipoUsuario.crianca)
                             const Text(
                               '(Área da Criança/Adolescente)',
                               style: TextStyle(
-                                fontSize: 16, 
+                                fontSize: 16,
                                 color: constants.AppColors.gray400,
                                 fontWeight: FontWeight.w500,
                               ),
                               textAlign: TextAlign.center,
-                            )
-                            .animate()
-                            .fadeIn(delay: 300.ms, duration: 500.ms),
-                            
+                            ).animate().fadeIn(delay: 300.ms, duration: 500.ms),
+
                           if (widget.userType == TipoUsuario.responsavel)
                             const Text(
                               '(Área do Responsável)',
@@ -196,218 +214,267 @@ class _LoginPageState extends State<LoginPage> {
                                 color: constants.AppColors.gray400,
                               ),
                               textAlign: TextAlign.center,
-                            )
-                            .animate()
-                            .fadeIn(delay: 300.ms, duration: 500.ms),
+                            ).animate().fadeIn(delay: 300.ms, duration: 500.ms),
 
                           const SizedBox(height: 24),
-                          
+
                           // Display error message if present
                           if (_errorMessage != null)
                             Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.red.shade200),
-                              ),
-                              child: Text(
-                                _errorMessage!,
-                                style: TextStyle(
-                                  color: Colors.red[700],
-                                  fontSize: 14,
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade50,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Colors.red.shade200,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    _errorMessage!,
+                                    style: TextStyle(
+                                      color: Colors.red[700],
+                                      fontSize: 14,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                )
+                                .animate()
+                                .fadeIn(duration: 300.ms)
+                                .shakeX(
+                                  duration: 500.ms,
+                                  curve: Curves.elasticOut,
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                            )
-                            .animate()
-                            .fadeIn(duration: 300.ms)
-                            .shakeX(duration: 500.ms, curve: Curves.elasticOut),
 
-                          const SizedBox(height: 16),                    
+                          const SizedBox(height: 16),
                           Align(
-                            alignment: Alignment.center,
-                            child: SizedBox(
-                              width: 320,
-                              child: TextField(
-                                controller: _usernameController,
-                                style: const TextStyle(
-                                  color: constants.AppColors.darkText,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 16,
+                                alignment: Alignment.center,
+                                child: SizedBox(
+                                  width: 320,
+                                  child: TextField(
+                                    controller: _usernameController,
+                                    style: const TextStyle(
+                                      color: constants.AppColors.darkText,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16,
+                                    ),
+                                    decoration: InputDecoration(
+                                      labelText: 'Nome do usuário',
+                                      labelStyle: TextStyle(
+                                        color: constants.AppColors.primary,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+                                      // Remover hintText/hintStyle
+                                      prefixIcon: ShaderMask(
+                                        shaderCallback:
+                                            (bounds) => LinearGradient(
+                                              colors: [
+                                                constants.AppColors.primary,
+                                                constants.AppColors.secondary,
+                                              ],
+                                            ).createShader(bounds),
+                                        child: Icon(
+                                          Icons.person,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      border: const UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: constants.AppColors.primary,
+                                          width: 1.7,
+                                        ),
+                                      ),
+                                      enabledBorder: const UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: constants.AppColors.gray300,
+                                          width: 1.2,
+                                        ),
+                                      ),
+                                      focusedBorder: const UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: constants.AppColors.primary,
+                                          width: 1.7,
+                                        ),
+                                      ),
+                                      filled: false,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 0,
+                                            vertical: 18,
+                                          ),
+                                    ),
+                                  ),
                                 ),
-                                decoration: InputDecoration(
-                                  labelText: 'Nome do usuário',
-                                  labelStyle: TextStyle(
-                                    color: constants.AppColors.primary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                  ),
-                                  // Remover hintText/hintStyle
-                                  prefixIcon: ShaderMask(
-                                    shaderCallback: (bounds) => LinearGradient(
-                                      colors: [constants.AppColors.primary, constants.AppColors.secondary],
-                                    ).createShader(bounds),
-                                    child: Icon(Icons.person, color: Colors.white),
-                                  ),
-                                  border: const UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: constants.AppColors.primary,
-                                      width: 1.7,
-                                    ),
-                                  ),
-                                  enabledBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: constants.AppColors.gray300,
-                                      width: 1.2,
-                                    ),
-                                  ),
-                                  focusedBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: constants.AppColors.primary,
-                                      width: 1.7,
-                                    ),
-                                  ),
-                                  filled: false,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 0,
-                                    vertical: 18,
-                                  ),
-                                ),
+                              )
+                              .animate()
+                              .fadeIn(delay: 400.ms, duration: 500.ms)
+                              .slideX(
+                                begin: -0.2,
+                                end: 0,
+                                delay: 400.ms,
+                                duration: 500.ms,
+                                curve: Curves.easeOut,
                               ),
-                            ),
-                          )
-                          .animate()
-                          .fadeIn(delay: 400.ms, duration: 500.ms)
-                          .slideX(begin: -0.2, end: 0, delay: 400.ms, duration: 500.ms, curve: Curves.easeOut),
                           const SizedBox(height: 20),
                           Align(
-                            alignment: Alignment.center,
-                            child: SizedBox(
-                              width: 320,
-                              child: TextField(
-                                controller: _passwordController,
-                                obscureText: !_isPasswordVisible,
-                                style: const TextStyle(
-                                  color: constants.AppColors.darkText,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 16,
+                                alignment: Alignment.center,
+                                child: SizedBox(
+                                  width: 320,
+                                  child: TextField(
+                                    controller: _passwordController,
+                                    obscureText: !_isPasswordVisible,
+                                    style: const TextStyle(
+                                      color: constants.AppColors.darkText,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16,
+                                    ),
+                                    decoration: InputDecoration(
+                                      labelText: 'Senha',
+                                      labelStyle: TextStyle(
+                                        color: constants.AppColors.primary,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+                                      // Remover hintText/hintStyle
+                                      prefixIcon: ShaderMask(
+                                        shaderCallback:
+                                            (bounds) => LinearGradient(
+                                              colors: [
+                                                constants.AppColors.primary,
+                                                constants.AppColors.secondary,
+                                              ],
+                                            ).createShader(bounds),
+                                        child: Icon(
+                                          Icons.lock,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      suffixIcon: IconButton(
+                                        icon: Icon(
+                                          _isPasswordVisible
+                                              ? Icons.visibility_off
+                                              : Icons.visibility,
+                                          color: constants.AppColors.primary,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            _isPasswordVisible =
+                                                !_isPasswordVisible;
+                                          });
+                                        },
+                                      ),
+                                      border: const UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: constants.AppColors.primary,
+                                          width: 1.7,
+                                        ),
+                                      ),
+                                      enabledBorder: const UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: constants.AppColors.gray300,
+                                          width: 1.2,
+                                        ),
+                                      ),
+                                      focusedBorder: const UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: constants.AppColors.primary,
+                                          width: 1.7,
+                                        ),
+                                      ),
+                                      filled: false,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 0,
+                                            vertical: 18,
+                                          ),
+                                    ),
+                                  ),
                                 ),
-                                decoration: InputDecoration(
-                                  labelText: 'Senha',
-                                  labelStyle: TextStyle(
-                                    color: constants.AppColors.primary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                  ),
-                                  // Remover hintText/hintStyle
-                                  prefixIcon: ShaderMask(
-                                    shaderCallback: (bounds) => LinearGradient(
-                                      colors: [constants.AppColors.primary, constants.AppColors.secondary],
-                                    ).createShader(bounds),
-                                    child: Icon(Icons.lock, color: Colors.white),
-                                  ),
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                                      color: constants.AppColors.primary,
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        _isPasswordVisible = !_isPasswordVisible;
-                                      });
-                                    },
-                                  ),
-                                  border: const UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: constants.AppColors.primary,
-                                      width: 1.7,
-                                    ),
-                                  ),
-                                  enabledBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: constants.AppColors.gray300,
-                                      width: 1.2,
-                                    ),
-                                  ),
-                                  focusedBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: constants.AppColors.primary,
-                                      width: 1.7,
-                                    ),
-                                  ),
-                                  filled: false,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 0,
-                                    vertical: 18,
-                                  ),
-                                ),
+                              )
+                              .animate()
+                              .fadeIn(delay: 500.ms, duration: 500.ms)
+                              .slideX(
+                                begin: 0.2,
+                                end: 0,
+                                delay: 500.ms,
+                                duration: 500.ms,
+                                curve: Curves.easeOut,
                               ),
-                            ),
-                          )
-                          .animate()
-                          .fadeIn(delay: 500.ms, duration: 500.ms)
-                          .slideX(begin: 0.2, end: 0, delay: 500.ms, duration: 500.ms, curve: Curves.easeOut),      
 
                           const SizedBox(height: 32),
                           Align(
-                            alignment: Alignment.center,
-                            child: SizedBox(
-                              width: 250,
-                              child: ElevatedButton(
-                                onPressed: _isFormValid && !_isLoading ? _handleLogin : null,
-                                style: ElevatedButton.styleFrom(
-                                  // Remover backgroundColor para usar Ink com gradient
-                                  foregroundColor: Colors.white,
-                                  disabledBackgroundColor: constants.AppColors.gray200,
-                                  disabledForegroundColor: Colors.white.withAlpha(204),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(vertical: 0),
-                                  elevation: 0,
-                                  shadowColor: Colors.transparent,
-                                ),
-                                child: Ink(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        constants.AppColors.darkBlue,
-                                        constants.AppColors.secondary,
-                                      ],
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
+                                alignment: Alignment.center,
+                                child: SizedBox(
+                                  width: 250,
+                                  child: ElevatedButton(
+                                    onPressed:
+                                        _isFormValid && !_isLoading
+                                            ? _handleLogin
+                                            : null,
+                                    style: ElevatedButton.styleFrom(
+                                      // Remover backgroundColor para usar Ink com gradient
+                                      foregroundColor: Colors.white,
+                                      disabledBackgroundColor:
+                                          constants.AppColors.gray200,
+                                      disabledForegroundColor: Colors.white
+                                          .withAlpha(204),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 0,
+                                      ),
+                                      elevation: 0,
+                                      shadowColor: Colors.transparent,
                                     ),
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    height: 48,
-                                    child: _isLoading 
-                                      ? const SizedBox(
-                                          height: 20,
-                                          width: 20,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 2.5,
-                                          ),
-                                        )
-                                      : const Text(
-                                          'Entrar',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            letterSpacing: 0.5,
-                                          ),
+                                    child: Ink(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            constants.AppColors.darkBlue,
+                                            constants.AppColors.secondary,
+                                          ],
+                                          begin: Alignment.centerLeft,
+                                          end: Alignment.centerRight,
                                         ),
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        height: 48,
+                                        child:
+                                            _isLoading
+                                                ? const SizedBox(
+                                                  height: 20,
+                                                  width: 20,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                        color: Colors.white,
+                                                        strokeWidth: 2.5,
+                                                      ),
+                                                )
+                                                : const Text(
+                                                  'Entrar',
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    letterSpacing: 0.5,
+                                                  ),
+                                                ),
+                                      ),
+                                    ),
                                   ),
                                 ),
+                              )
+                              .animate()
+                              .fadeIn(delay: 600.ms, duration: 500.ms)
+                              .scaleXY(
+                                begin: 0.9,
+                                end: 1.0,
+                                delay: 600.ms,
+                                duration: 800.ms,
+                                curve: Curves.elasticOut,
                               ),
-                            ),
-                          )
-                          .animate()
-                          .fadeIn(delay: 600.ms, duration: 500.ms)
-                          .scaleXY(begin: 0.9, end: 1.0, delay: 600.ms, duration: 800.ms, curve: Curves.elasticOut),
                           const SizedBox(height: 24),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -420,12 +487,15 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  if (widget.userType == TipoUsuario.responsavel) {
+                                  if (widget.userType ==
+                                      TipoUsuario.responsavel) {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (context) => RegisterPage(isResponsible: true),
+                                            (context) => RegisterPage(
+                                              isResponsible: true,
+                                            ),
                                       ),
                                     );
                                   } else {
@@ -433,13 +503,15 @@ class _LoginPageState extends State<LoginPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (context) => const RegisterPageChild(),
+                                            (context) =>
+                                                const RegisterPageChild(),
                                       ),
                                     );
                                   }
                                 },
                                 style: TextButton.styleFrom(
-                                  foregroundColor: constants.AppColors.secondary,
+                                  foregroundColor:
+                                      constants.AppColors.secondary,
                                   textStyle: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -447,14 +519,17 @@ class _LoginPageState extends State<LoginPage> {
                                 child: const Text('Crie uma'),
                               ),
                             ],
-                          )
-                          .animate()
-                          .fadeIn(delay: 700.ms, duration: 500.ms),
+                          ).animate().fadeIn(delay: 700.ms, duration: 500.ms),
                         ],
                       ),
                     ),
                   ),
-                ).animate().slideY(begin: 0.1, end: 0, duration: 600.ms, curve: Curves.easeOutQuint),
+                ).animate().slideY(
+                  begin: 0.1,
+                  end: 0,
+                  duration: 600.ms,
+                  curve: Curves.easeOutQuint,
+                ),
               ],
             ),
             // Botão de voltar estilizado
@@ -478,10 +553,17 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
                     child: Row(
                       children: [
-                        Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                        Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           'Voltar',

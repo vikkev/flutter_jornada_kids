@@ -57,7 +57,9 @@ class TaskService {
     final url = '${ApiConfig.api}/tarefas';
     final response = await _dio.get(url);
     if (response.statusCode == 200 && response.data is List) {
-      return (response.data as List).map((item) => TaskResponse.fromJson(item)).toList();
+      return (response.data as List)
+          .map((item) => TaskResponse.fromJson(item))
+          .toList();
     } else {
       throw Exception('Erro ao buscar todas as tarefas');
     }
@@ -70,13 +72,20 @@ class TaskService {
   }) async {
     final url = '${ApiConfig.api}/responsaveis/$responsavelId/tarefas';
     final queryParams = <String, dynamic>{};
-    if (criancaId != null) queryParams['criancaId'] = criancaId;
-    if (status != null) queryParams['status'] = status;
-    final response = await _dio.get(url, queryParameters: queryParams);
-    if (response.statusCode == 200 && response.data is List) {
-      return (response.data as List).map((item) => TaskResponse.fromJson(item)).toList();
-    } else {
-      throw Exception('Erro ao buscar tarefas do responsável');
+    if (criancaId != null) queryParams['idCrianca'] = criancaId;
+    if (status != null) queryParams['situacao'] = status;
+
+    try {
+      final response = await _dio.get(url, queryParameters: queryParams);
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List)
+            .map((item) => TaskResponse.fromJson(item))
+            .toList();
+      } else {
+        throw Exception('Erro ao buscar tarefas do responsável');
+      }
+    } catch (e) {
+      throw Exception('Erro ao buscar tarefas do responsável: ${e.toString()}');
     }
   }
 
@@ -84,7 +93,9 @@ class TaskService {
     final url = '${ApiConfig.api}/criancas/$criancaId/tarefas';
     final response = await _dio.get(url);
     if (response.statusCode == 200 && response.data is List) {
-      return (response.data as List).map((item) => TaskResponse.fromJson(item)).toList();
+      return (response.data as List)
+          .map((item) => TaskResponse.fromJson(item))
+          .toList();
     } else {
       throw Exception('Erro ao buscar tarefas da criança/adolescente');
     }
