@@ -11,7 +11,9 @@ class AchievementsService {
     try {
       int? idParaBuscar = responsavelId;
       // Se for criança, buscar o id do responsável via API se necessário
-      if ((responsavelId == null || responsavelId == 0) && criancaId != null && criancaId > 0) {
+      if ((responsavelId == null || responsavelId == 0) &&
+          criancaId != null &&
+          criancaId > 0) {
         final dio = Dio();
         final url = '${ApiConfig.api}/criancas/$criancaId';
         final response = await dio.get(url);
@@ -140,19 +142,28 @@ class AchievementsService {
 
   Future<void> deleteRecompensa(int responsavelId, int recompensaId) async {
     try {
-      final url =
-          '${ApiConfig.api}/recompensas/$recompensaId';
+      final url = '${ApiConfig.api}/recompensas/$recompensaId';
       final response = await _dio.delete(
         url,
         options: Options(
+          validateStatus: (status) => true,
           sendTimeout: const Duration(seconds: 30),
           receiveTimeout: const Duration(seconds: 30),
         ),
       );
-      if (response.statusCode != 200 && response.statusCode != 204) {
+
+      if (response.statusCode == 404) {
         throw Exception(
-          'Erro ao excluir recompensa: resposta inválida do servidor',
+          'Recompensa não encontrada. Ela pode já ter sido deletada.',
         );
+      }
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        final errorMessage =
+            response.data is Map
+                ? response.data['detail'] ?? 'Erro desconhecido'
+                : 'Erro desconhecido';
+        throw Exception('Erro ao excluir recompensa: $errorMessage');
       }
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionError) {

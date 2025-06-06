@@ -22,30 +22,63 @@ class AuthUserRegisterService {
           "email": email,
           "telefone": telefone,
           "senha": senha,
-          "tipo": tipoUsuario
-        }
+          "tipo": tipoUsuario,
+        },
       };
-      
+
       final url = '${ApiConfig.api}/responsaveis';
-      
+
       final response = await _dio.post(
-        url, 
+        url,
         data: data,
         options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: {'Content-Type': 'application/json'},
+          validateStatus:
+              (status) =>
+                  true, // Aceita qualquer status code para tratar manualmente
         ),
       );
-      
+
+      // Tratamento específico para diferentes status codes
+      if (response.statusCode == 404) {
+        throw Exception(
+          'Erro no cadastro: endpoint não encontrado. Por favor, tente novamente mais tarde.',
+        );
+      }
+
+      if (response.statusCode == 400) {
+        final errorMessage =
+            response.data is Map
+                ? response.data['message'] ?? 'Dados inválidos'
+                : 'Dados inválidos';
+        throw Exception('Erro no cadastro: $errorMessage');
+      }
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception(
+          'Erro no cadastro: ${response.statusCode}. Por favor, tente novamente mais tarde.',
+        );
+      }
+
       return response;
     } on DioException catch (e) {
-      throw Exception('Erro ao registrar responsável: ${e.message}');
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        throw Exception(
+          'Erro de conexão: verifique sua internet e tente novamente',
+        );
+      }
+      throw Exception(
+        'Erro ao registrar responsável: ${e.message ?? "Erro desconhecido"}',
+      );
+    } catch (e) {
+      throw Exception('Erro inesperado ao registrar: $e');
     }
   }
 
   /// Valida o código do responsável
-  /// 
+  ///
   /// Retorna os dados do responsável se o código for válido
   /// Lança uma exceção se o código for inválido ou se houver erro na requisição
   Future<Map<String, dynamic>> validateResponsibleCode(String codigo) async {
@@ -55,14 +88,10 @@ class AuthUserRegisterService {
       }
 
       final url = '${ApiConfig.api}/responsaveis/codigo/$codigo';
-      
+
       final response = await _dio.get(
         url,
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        ),
+        options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
       if (response.statusCode == 200 && response.data != null) {
@@ -85,7 +114,7 @@ class AuthUserRegisterService {
   ResponsibleInfo? extractResponsibleInfo(Map<String, dynamic> data) {
     try {
       final usuario = data['usuario'] as Map<String, dynamic>?;
-      
+
       if (usuario != null) {
         return ResponsibleInfo(
           id: data['id']?.toString() ?? '',
@@ -122,7 +151,7 @@ class AuthUserRegisterService {
           "email": email,
           "telefone": telefone,
           "senha": senha,
-          "tipo": tipoUsuario
+          "tipo": tipoUsuario,
         },
         "dataNascimento": dataNascimento.toIso8601String(),
         "idResponsavel": idResponsavel,
@@ -131,11 +160,7 @@ class AuthUserRegisterService {
       final response = await _dio.post(
         url,
         data: data,
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        ),
+        options: Options(headers: {'Content-Type': 'application/json'}),
       );
       return response;
     } on DioException catch (e) {
