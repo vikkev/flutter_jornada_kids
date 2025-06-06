@@ -257,7 +257,7 @@ class _TasksPageState extends State<TasksPage> {
           title: const Text(
             'Tarefas',
             style: TextStyle(
-              color: AppColors.darkText,
+              color: AppColors.secondary,
               fontWeight: FontWeight.bold,
               fontSize: 24,
             ),

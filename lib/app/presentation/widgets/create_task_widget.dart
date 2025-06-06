@@ -55,7 +55,7 @@ class CreateTaskWidget extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkText,
+              color: AppColors.secondary,
             ),
           )
               .animate()
@@ -70,7 +70,6 @@ class CreateTaskWidget extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               color: AppColors.darkText.withOpacity(0.6),
-              fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
           )
@@ -79,58 +78,89 @@ class CreateTaskWidget extends StatelessWidget {
               .slideY(begin: 0.2, end: 0),
           
           const SizedBox(height: 20),
-          
-          // Botão melhorado
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) => 
-                        TaskAssignmentScreen(
-                          responsavelId: responsavelId,
-                          usuarioResponsavel: usuarioResponsavel,
-                        ),
-                    transitionDuration: const Duration(milliseconds: 300),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      return SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(1.0, 0.0),
-                          end: Offset.zero,
-                        ).animate(CurvedAnimation(
-                          parent: animation,
-                          curve: Curves.easeInOut,
-                        )),
-                        child: child,
-                      );
-                    },
+          Align(
+            alignment: Alignment.center,
+            child: SizedBox(
+              width: 250,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          TaskAssignmentScreen(
+                            responsavelId: responsavelId,
+                            usuarioResponsavel: usuarioResponsavel,
+                          ),
+                      transitionDuration: const Duration(milliseconds: 300),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(1.0, 0.0),
+                            end: Offset.zero,
+                          ).animate(CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.easeInOut,
+                          )),
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32), // mais arredondado
                   ),
-                );
-              },
-              icon: const Icon(
-                Icons.add_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
-              label: const Text(
-                'Criar Tarefa',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  padding: const EdgeInsets.symmetric(vertical: 0),
+                ).copyWith(
+                  backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                  overlayColor: MaterialStateProperty.all(Colors.transparent),
                 ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.darkBlue,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                child: Ink(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.topRight,
+                      colors: [
+                        AppColors.darkBlue,
+                        AppColors.secondary,
+                        AppColors.primary,
+                      ],
+                      stops: const [0.0, 0.5, 0.7],
+                    ),
+                    borderRadius: BorderRadius.circular(32),
+                  ),
+                  child: Container(
+                    alignment: Alignment.center,
+                    height: 50,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(
+                          Icons.add_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Criar Tarefa',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                elevation: 3,
-                shadowColor: AppColors.darkBlue.withOpacity(0.3),
               ),
             ),
           )

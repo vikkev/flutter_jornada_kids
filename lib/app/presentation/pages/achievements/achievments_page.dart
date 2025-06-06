@@ -493,7 +493,10 @@ class _AchievementsPageState extends State<AchievementsPage>
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.secondary],
+          colors: [
+            AppColors.primary,
+           AppColors.secondary,
+            AppColors.darkBlue],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

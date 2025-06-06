@@ -41,8 +41,17 @@ class _SelectResponsiblePageState extends State<SelectResponsiblePage> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          color: AppColors.primary,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.topRight,
+            colors: [
+              AppColors.darkBlue,
+              AppColors.secondary,
+              AppColors.primary,
+            ],
+            stops: const [0.0, 0.3, 1.0],
+          ),
         ),
         child: Column(
           children: [
@@ -73,7 +82,7 @@ class _SelectResponsiblePageState extends State<SelectResponsiblePage> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.darkText,
+                            color: AppColors.secondary,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -94,48 +103,73 @@ class _SelectResponsiblePageState extends State<SelectResponsiblePage> {
                         AnimatedScale(
                           scale: _isLoading ? 0.95 : 1.0,
                           duration: const Duration(milliseconds: 150),
-                          child: ElevatedButton(
-                            onPressed: _isLoading
-                                ? null
-                                : () {
-                                    setState(() => _isLoading = true);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => RegisterPage(
-                                          isResponsible: false,
-                                          responsibleId: widget.responsibleId,
-                                          responsibleName: widget.responsibleName,
-                                        ),
-                                      ),
-                                    ).then((_) => setState(() => _isLoading = false));
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.darkBlue,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              elevation: 4,
-                              shadowColor: AppColors.darkBlue.withOpacity(0.3),
-                            ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                    ),
-                                  )
-                                : const Text(
-                                    'Confirmar',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: SizedBox(
+                              width: 225, // largura menor
+                              child: ElevatedButton(
+                                onPressed: _isLoading
+                                    ? null
+                                    : () {
+                                        setState(() => _isLoading = true);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => RegisterPage(
+                                              isResponsible: false,
+                                              responsibleId: widget.responsibleId,
+                                              responsibleName: widget.responsibleName,
+                                            ),
+                                          ),
+                                        ).then((_) => setState(() => _isLoading = false));
+                                      },
+                                style: ElevatedButton.styleFrom(
+                                  // Remover backgroundColor para usar Ink com gradient
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(32), // mais arredondado
                                   ),
+                                  padding: const EdgeInsets.symmetric(vertical: 0),
+                                  elevation: 0,
+                                  shadowColor: Colors.transparent,
+                                  disabledBackgroundColor: AppColors.gray200,
+                                  disabledForegroundColor: Colors.white.withAlpha(204),
+                                ),
+                                child: Ink(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        AppColors.darkBlue,
+                                        AppColors.secondary,
+                                      ],
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(32),
+                                  ),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    height: 48,
+                                    child: _isLoading
+                                        ? const SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                            ),
+                                          )
+                                        : const Text(
+                                            'Confirmar',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -149,4 +183,4 @@ class _SelectResponsiblePageState extends State<SelectResponsiblePage> {
       ),
     );
   }
-} 
+}

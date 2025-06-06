@@ -170,9 +170,9 @@ class _RegisterPageChildState extends State<RegisterPageChild> with TickerProvid
           colors: _hasError
               ? [Colors.red.shade50, Colors.red.shade100]
               : isFocused
-                  ? [AppColors.primary.withOpacity(0.25), AppColors.darkBlue.withOpacity(0.18)]
+                  ? [AppColors.gray400.withOpacity(0.25), AppColors.secondary.withOpacity(0.18)]
                   : hasContent
-                      ? [AppColors.primary.withOpacity(0.18), AppColors.darkBlue.withOpacity(0.12)]
+                      ? [AppColors.gray400.withOpacity(0.18), AppColors.secondary.withOpacity(0.12)]
                       : [Colors.grey.shade50, Colors.grey.shade100],
         ),
         border: Border.all(
@@ -181,17 +181,7 @@ class _RegisterPageChildState extends State<RegisterPageChild> with TickerProvid
               : Colors.grey.shade300,
           width: 1.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: isFocused
-                ? AppColors.primary.withOpacity(0.18)
-                : hasContent
-                    ? AppColors.darkBlue.withOpacity(0.10)
-                    : Colors.black.withOpacity(0.06),
-            blurRadius: isFocused ? 12 : 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
+
       ),
       child: TextField(
         controller: _codeControllers[index],
@@ -205,8 +195,8 @@ class _RegisterPageChildState extends State<RegisterPageChild> with TickerProvid
           color: _hasError
               ? Colors.red
               : hasContent
-                  ? AppColors.darkBlue
-                  : AppColors.darkText,
+                  ? AppColors.secondary
+                  : AppColors.secondary,
         ),
         onChanged: (value) {
           if (value.isNotEmpty && index < 5) {
@@ -241,14 +231,14 @@ class _RegisterPageChildState extends State<RegisterPageChild> with TickerProvid
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+                begin: Alignment.topLeft,
+                end: Alignment.topRight,
                 colors: [
-                  AppColors.primary,
-                  AppColors.secondary,
                   AppColors.darkBlue,
+                  AppColors.secondary,
+                  AppColors.primary,
                 ],
-                stops: const [0.0, 0.7, 1.0],
+                stops: const [0.0, 0.3, 1.0],
               ),
             ),
             child: Column(
@@ -303,10 +293,10 @@ class _RegisterPageChildState extends State<RegisterPageChild> with TickerProvid
                                 const Text(
                                   'Digite o código de identificação',
                                   style: TextStyle(
-                                    fontSize: 20,
+                                    fontSize: 22,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.darkText,
-                                    letterSpacing: 0.3,
+                                    color: AppColors.secondary,
+                                    letterSpacing: 0.1,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -314,9 +304,8 @@ class _RegisterPageChildState extends State<RegisterPageChild> with TickerProvid
                                 Text(
                                   'Insira o código fornecido pelo responsável',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 16,
                                     color: Colors.grey.shade600,
-                                    fontWeight: FontWeight.w500,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -402,88 +391,138 @@ class _RegisterPageChildState extends State<RegisterPageChild> with TickerProvid
                          
                           Container(
                             height: 56,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              gradient: _isFormValid 
-                                ? LinearGradient(
-                                    colors: [AppColors.darkBlue, AppColors.primary],
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                  )
-                                : null,
-                              boxShadow: _isFormValid ? [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.18),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                  spreadRadius: 0,
-                                ),
-                              ] : null,
-                            ),
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : (_isFormValid ? _validateResponsibleCode : null),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _isFormValid ? Colors.transparent : AppColors.gray200,
-                                foregroundColor: Colors.white,
-                                disabledBackgroundColor: AppColors.gray200,
-                                disabledForegroundColor: Colors.white.withOpacity(0.7),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                elevation: 0,
-                                shadowColor: Colors.transparent,
-                              ),
+                            // Remova o gradient e boxShadow daqui, deixe só no Ink
+                            child: Align(
+                              alignment: Alignment.center,
                               child: SizedBox(
-                                height: 24,
-                                child: _isLoading
-                                  ? Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2.5,
-                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        const Text(
-                                          'Validando...',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ).animate(onPlay: (controller) => controller.repeat())
-                                     .fadeIn(duration: 300.ms)
-                                  : const Text(
-                                      'Confirmar Código',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                        letterSpacing: 0.5,
-                                      ),
+                                width: 200,
+                                child: ElevatedButton(
+                                  onPressed: _isLoading ? null : (_isFormValid ? _validateResponsibleCode : null),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.transparent, // sempre transparente
+                                    foregroundColor: Colors.white,
+                                    disabledBackgroundColor: AppColors.gray200,
+                                    disabledForegroundColor: Colors.white.withOpacity(0.7),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(40),
                                     ),
+                                    elevation: 0,
+                                    shadowColor: Colors.transparent,
+                                    padding: const EdgeInsets.symmetric(vertical: 0),
+                                  ),
+                                  child: _isFormValid
+                                      ? Ink(
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [AppColors.darkBlue, AppColors.primary],
+                                              begin: Alignment.centerLeft,
+                                              end: Alignment.centerRight,
+                                            ),
+                                            borderRadius: BorderRadius.circular(40),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(0.18),
+                                                blurRadius: 10,
+                                                offset: const Offset(0, 4),
+                                                spreadRadius: 0,
+                                              ),
+                                            ],
+                                          ),
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            height: 48,
+                                            child: _isLoading
+                                                ? Row(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      const SizedBox(
+                                                        width: 20,
+                                                        height: 20,
+                                                        child: CircularProgressIndicator(
+                                                          strokeWidth: 2.5,
+                                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 12),
+                                                      const Text(
+                                                        'Validando...',
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ).animate(onPlay: (controller) => controller.repeat())
+                                                   .fadeIn(duration: 300.ms)
+                                                : const Text(
+                                                    'Confirmar Código',
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w700,
+                                                      letterSpacing: 0.5,
+                                                    ),
+                                                  ),
+                                          ),
+                                        )
+                                      : Container(
+                                          alignment: Alignment.center,
+                                          height: 48,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.gray200,
+                                            borderRadius: BorderRadius.circular(40),
+                                          ),
+                                          child: _isLoading
+                                              ? Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    const SizedBox(
+                                                      width: 20,
+                                                      height: 20,
+                                                      child: CircularProgressIndicator(
+                                                        strokeWidth: 2.5,
+                                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                    const Text(
+                                                      'Validando...',
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ).animate(onPlay: (controller) => controller.repeat())
+                                                 .fadeIn(duration: 300.ms)
+                                              : const Text(
+                                                  'Confirmar Código',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w700,
+                                                    letterSpacing: 0.5,
+                                                  ),
+                                                ),
+                                        ),
+                                ),
                               ),
                             ),
-                          ).animate()
-                           .fadeIn(delay: 1100.ms, duration: 600.ms)
-                           .slideY(begin: 0.3, duration: 600.ms, curve: Curves.easeOutBack)
-                           .then()
-                           .animate(
-                             onPlay: (controller) {
-                               if (_isFormValid && !_isLoading) {
-                                 controller.repeat(reverse: true);
-                               }
-                             },
-                           )
-                           .shimmer(
-                             duration: _isFormValid && !_isLoading ? 2000.ms : 0.ms,
-                             color: Colors.white.withOpacity(0.3),
-                             size: 0.8,
-                           ),
+                          )
+                          .animate()
+                          .fadeIn(delay: 1100.ms, duration: 600.ms)
+                          .slideY(begin: 0.3, duration: 600.ms, curve: Curves.easeOutBack)
+                          .then()
+                          .animate(
+                            onPlay: (controller) {
+                              if (_isFormValid && !_isLoading) {
+                                controller.repeat(reverse: true);
+                              }
+                            },
+                          )
+                          .shimmer(
+                            duration: _isFormValid && !_isLoading ? 2000.ms : 0.ms,
+                            color: Colors.white.withOpacity(0.3),
+                            size: 0.8,
+                          ),
                         ],
                       ),
                     ),

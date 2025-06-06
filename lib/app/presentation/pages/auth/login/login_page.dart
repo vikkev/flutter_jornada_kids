@@ -109,14 +109,14 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,  
             colors: [
-              constants.AppColors.primary,
-              constants.AppColors.secondary,
               constants.AppColors.darkBlue,
+              constants.AppColors.secondary,
+              constants.AppColors.primary,
             ],
-            stops: const [0.0, 0.7, 1.0],
+            stops: const [0.0, 0.3, 1.0],
           ),
         ),
         child: Stack(
@@ -194,7 +194,6 @@ class _LoginPageState extends State<LoginPage> {
                               style: TextStyle(
                                 fontSize: 16,
                                 color: constants.AppColors.gray400,
-                                fontWeight: FontWeight.w500,
                               ),
                               textAlign: TextAlign.center,
                             )
@@ -226,56 +225,53 @@ class _LoginPageState extends State<LoginPage> {
                             .shakeX(duration: 500.ms, curve: Curves.elasticOut),
 
                           const SizedBox(height: 16),                    
-                          Container(
-                            decoration: BoxDecoration(
-                              color: constants.AppColors.gray100.withOpacity(0.03),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: constants.AppColors.gray300.withOpacity(0.3),
-                                width: 1.2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 1,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: TextField(
-                              controller: _usernameController,
-                              style: const TextStyle(
-                                color: constants.AppColors.darkText,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: 'Nome do usuário',
-                                hintStyle: TextStyle(
-                                  color: constants.AppColors.gray300,
+                          Align(
+                            alignment: Alignment.center,
+                            child: SizedBox(
+                              width: 320,
+                              child: TextField(
+                                controller: _usernameController,
+                                style: const TextStyle(
+                                  color: constants.AppColors.darkText,
                                   fontWeight: FontWeight.w500,
+                                  fontSize: 16,
                                 ),
-                                prefixIcon: ShaderMask(
-                                  shaderCallback: (bounds) => LinearGradient(
-                                    colors: [constants.AppColors.primary, constants.AppColors.secondary],
-                                  ).createShader(bounds),
-                                  child: Icon(Icons.person, color: Colors.white),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide.none,
-                                ),
-                                filled: true,
-                                fillColor: Colors.transparent,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 18,
-                                  vertical: 18,
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(
+                                decoration: InputDecoration(
+                                  labelText: 'Nome do usuário',
+                                  labelStyle: TextStyle(
                                     color: constants.AppColors.primary,
-                                    width: 1.7,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                  // Remover hintText/hintStyle
+                                  prefixIcon: ShaderMask(
+                                    shaderCallback: (bounds) => LinearGradient(
+                                      colors: [constants.AppColors.primary, constants.AppColors.secondary],
+                                    ).createShader(bounds),
+                                    child: Icon(Icons.person, color: Colors.white),
+                                  ),
+                                  border: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: constants.AppColors.primary,
+                                      width: 1.7,
+                                    ),
+                                  ),
+                                  enabledBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: constants.AppColors.gray300,
+                                      width: 1.2,
+                                    ),
+                                  ),
+                                  focusedBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: constants.AppColors.primary,
+                                      width: 1.7,
+                                    ),
+                                  ),
+                                  filled: false,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 0,
+                                    vertical: 18,
                                   ),
                                 ),
                               ),
@@ -285,68 +281,65 @@ class _LoginPageState extends State<LoginPage> {
                           .fadeIn(delay: 400.ms, duration: 500.ms)
                           .slideX(begin: -0.2, end: 0, delay: 400.ms, duration: 500.ms, curve: Curves.easeOut),
                           const SizedBox(height: 20),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: constants.AppColors.gray100.withOpacity(0.03),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: constants.AppColors.gray300.withOpacity(0.3),
-                                width: 1.2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 1,
-                                  offset: const Offset(0, 1),
-                                ),
-                              ],
-                            ),
-                            child: TextField(
-                              controller: _passwordController,
-                              obscureText: !_isPasswordVisible,
-                              style: const TextStyle(
-                                color: constants.AppColors.darkText,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: 'Senha',
-                                hintStyle: TextStyle(
-                                  color: constants.AppColors.gray300,
+                          Align(
+                            alignment: Alignment.center,
+                            child: SizedBox(
+                              width: 320,
+                              child: TextField(
+                                controller: _passwordController,
+                                obscureText: !_isPasswordVisible,
+                                style: const TextStyle(
+                                  color: constants.AppColors.darkText,
                                   fontWeight: FontWeight.w500,
+                                  fontSize: 16,
                                 ),
-                                prefixIcon: ShaderMask(
-                                  shaderCallback: (bounds) => LinearGradient(
-                                    colors: [constants.AppColors.primary, constants.AppColors.secondary],
-                                  ).createShader(bounds),
-                                  child: Icon(Icons.lock, color: Colors.white),
-                                ),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                                decoration: InputDecoration(
+                                  labelText: 'Senha',
+                                  labelStyle: TextStyle(
                                     color: constants.AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
                                   ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _isPasswordVisible = !_isPasswordVisible;
-                                    });
-                                  },
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide.none,
-                                ),
-                                filled: true,
-                                fillColor: Colors.transparent,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 18,
-                                  vertical: 18,
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(
-                                    color: constants.AppColors.primary,
-                                    width: 1.7,
+                                  // Remover hintText/hintStyle
+                                  prefixIcon: ShaderMask(
+                                    shaderCallback: (bounds) => LinearGradient(
+                                      colors: [constants.AppColors.primary, constants.AppColors.secondary],
+                                    ).createShader(bounds),
+                                    child: Icon(Icons.lock, color: Colors.white),
+                                  ),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                                      color: constants.AppColors.primary,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _isPasswordVisible = !_isPasswordVisible;
+                                      });
+                                    },
+                                  ),
+                                  border: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: constants.AppColors.primary,
+                                      width: 1.7,
+                                    ),
+                                  ),
+                                  enabledBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: constants.AppColors.gray300,
+                                      width: 1.2,
+                                    ),
+                                  ),
+                                  focusedBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: constants.AppColors.primary,
+                                      width: 1.7,
+                                    ),
+                                  ),
+                                  filled: false,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 0,
+                                    vertical: 18,
                                   ),
                                 ),
                               ),
@@ -357,42 +350,60 @@ class _LoginPageState extends State<LoginPage> {
                           .slideX(begin: 0.2, end: 0, delay: 500.ms, duration: 500.ms, curve: Curves.easeOut),      
 
                           const SizedBox(height: 32),
-                          ElevatedButton(
-                            onPressed: _isFormValid && !_isLoading ? _handleLogin : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  _isFormValid
-                                      ? const Color(0xFF000957)
-                                      : constants.AppColors.primary,
-                              foregroundColor: Colors.white,
-                              disabledBackgroundColor: constants.AppColors.gray200,
-                              disabledForegroundColor: Colors.white.withAlpha(204),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              elevation: 5,
-                              shadowColor: _isFormValid 
-                                  ? const Color(0xFF000957).withOpacity(0.5)
-                                  : constants.AppColors.primary.withOpacity(0.5),
-                            ),
-                            child: _isLoading 
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2.5,
+                          Align(
+                            alignment: Alignment.center,
+                            child: SizedBox(
+                              width: 250,
+                              child: ElevatedButton(
+                                onPressed: _isFormValid && !_isLoading ? _handleLogin : null,
+                                style: ElevatedButton.styleFrom(
+                                  // Remover backgroundColor para usar Ink com gradient
+                                  foregroundColor: Colors.white,
+                                  disabledBackgroundColor: constants.AppColors.gray200,
+                                  disabledForegroundColor: Colors.white.withAlpha(204),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
                                   ),
-                                )
-                              : const Text(
-                                  'Entrar',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.5,
+                                  padding: const EdgeInsets.symmetric(vertical: 0),
+                                  elevation: 0,
+                                  shadowColor: Colors.transparent,
+                                ),
+                                child: Ink(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        constants.AppColors.darkBlue,
+                                        constants.AppColors.secondary,
+                                      ],
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    height: 48,
+                                    child: _isLoading 
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2.5,
+                                          ),
+                                        )
+                                      : const Text(
+                                          'Entrar',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
                                   ),
                                 ),
+                              ),
+                            ),
                           )
                           .animate()
                           .fadeIn(delay: 600.ms, duration: 500.ms)

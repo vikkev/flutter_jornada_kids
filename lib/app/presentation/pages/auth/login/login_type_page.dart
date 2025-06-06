@@ -21,12 +21,12 @@ class _LoginTypePageState extends State<LoginTypePage>
   @override
   void initState() {
     super.initState();
-    
+
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -56,7 +56,6 @@ class _LoginTypePageState extends State<LoginTypePage>
       curve: Curves.elasticOut,
     ));
 
-    // Inicia as animações
     _fadeController.forward();
     Future.delayed(const Duration(milliseconds: 300), () {
       _slideController.forward();
@@ -76,20 +75,19 @@ class _LoginTypePageState extends State<LoginTypePage>
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.topRight,
             colors: [
-              AppColors.primary,
-              AppColors.secondary,
               AppColors.darkBlue,
+              AppColors.secondary,
+              AppColors.primary,
             ],
-            stops: const [0.0, 0.7, 1.0],
+            stops: const [0.0, 0.3, 1.0],
           ),
         ),
         child: Column(
           children: [
             const Spacer(flex: 2),
-            // Logo com animação de fade
             FadeTransition(
               opacity: _fadeAnimation,
               child: Container(
@@ -99,16 +97,9 @@ class _LoginTypePageState extends State<LoginTypePage>
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      // boxShadow: [
-                      //   BoxShadow(
-                      //     color: Colors.black.withOpacity(0.1),
-                      //     blurRadius: 20,
-                      //     offset: const Offset(0, 10),
-                      //   ),
-                      // ],
                     ),
                     child: Image.asset(
-                      'assets/images/app_logo.png', 
+                      'assets/images/app_logo.png',
                       height: 280,
                     ),
                   ),
@@ -117,7 +108,6 @@ class _LoginTypePageState extends State<LoginTypePage>
             ),
             const SizedBox(height: 16),
             const Spacer(),
-            // Container com animações
             SlideTransition(
               position: _slideAnimation,
               child: ScaleTransition(
@@ -146,7 +136,6 @@ class _LoginTypePageState extends State<LoginTypePage>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Indicador visual no topo
                       Center(
                         child: Container(
                           width: 50,
@@ -158,7 +147,6 @@ class _LoginTypePageState extends State<LoginTypePage>
                         ),
                       ),
                       const SizedBox(height: 30),
-                      // Título com estilo melhorado
                       ShaderMask(
                         shaderCallback: (bounds) => LinearGradient(
                           colors: [AppColors.primary, AppColors.secondary],
@@ -180,12 +168,10 @@ class _LoginTypePageState extends State<LoginTypePage>
                         style: TextStyle(
                           fontSize: 16,
                           color: AppColors.gray400,
-                          fontWeight: FontWeight.w500,
                         ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 32),
-                      // Botão Responsável
                       _buildAnimatedButton(
                         context: context,
                         text: 'Responsável',
@@ -211,7 +197,6 @@ class _LoginTypePageState extends State<LoginTypePage>
                         delay: 100,
                       ),
                       const SizedBox(height: 16),
-                      // Botão Criança/Adolescente
                       _buildAnimatedButton(
                         context: context,
                         text: 'Criança / Adolescente',
@@ -259,54 +244,113 @@ class _LoginTypePageState extends State<LoginTypePage>
       tween: Tween(begin: 0.0, end: 1.0),
       curve: Curves.easeOutBack,
       builder: (context, value, child) {
-        // Corrigido: clamp o valor de opacity para evitar erro de assertion
         var safeValue = value.clamp(0.0, 1.0);
+
+        if (text == 'Responsável') {
+          return Transform.scale(
+            scale: safeValue,
+            child: Opacity(
+              opacity: safeValue,
+              child: Center(
+                child: SizedBox(
+                  width: 250,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(32),
+                      gradient: LinearGradient(
+                        colors: [AppColors.primary, AppColors.secondary, AppColors.darkBlue],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withOpacity(0.3),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: onPressed,
+                        borderRadius: BorderRadius.circular(32),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(icon, color: Colors.white, size: 22),
+                              const SizedBox(width: 12),
+                              Text(
+                                text,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
         return Transform.scale(
           scale: safeValue,
           child: Opacity(
             opacity: safeValue,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18),
-                gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.secondary],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: onPressed,
-                  borderRadius: BorderRadius.circular(18),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          icon,
-                          color: Colors.white,
-                          size: 22,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          text,
-                          style: const TextStyle(
+            child: Center(
+              child: SizedBox(
+                width: 250,
+                child: ShaderMask(
+                  shaderCallback: (Rect bounds) {
+                    return LinearGradient(
+                      colors: [AppColors.primary, AppColors.secondary, AppColors.darkBlue],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ).createShader(bounds);
+                  },
+                  blendMode: BlendMode.srcATop,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: onPressed,
+                      borderRadius: BorderRadius.circular(32),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(32),
+                          border: Border.all(
+                            width: 1.5,
                             color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
                           ),
                         ),
-                      ],
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(icon, color: AppColors.primary, size: 22),
+                            const SizedBox(width: 12),
+                            Text(
+                              text,
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),

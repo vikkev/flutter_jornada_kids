@@ -35,7 +35,7 @@ class SettingsPage extends StatelessWidget {
         title: const Text(
           'Configurações',
           style: TextStyle(
-            color: AppColors.darkBlue,
+            color: AppColors.secondary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -82,7 +82,7 @@ class SettingsPage extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.darkText,
+                            color: AppColors.secondary,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -206,7 +206,7 @@ class SettingsPage extends StatelessWidget {
   }) {
     return ListTile(
       leading: Icon(icon, color: color ?? AppColors.primary, size: 28),
-      title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: color ?? AppColors.darkText)),
+      title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: color ?? AppColors.secondary)),
       subtitle: Text(subtitle, style: TextStyle(color: color ?? AppColors.gray400)),
       onTap: onTap,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

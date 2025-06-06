@@ -30,11 +30,24 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: constants.AppColors.secondary,
-      body: PageView(
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    // resizeToAvoidBottomInset: false, // evita deslocar conteúdo com teclado ou sistema
+    body: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.topRight,
+          colors: [
+            constants.AppColors.darkBlue,
+            constants.AppColors.secondary,
+            constants.AppColors.primary,
+          ],
+          stops: const [0.0, 0.5, 1],
+        ),
+      ),
+      child: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         onPageChanged: (index) {
@@ -64,18 +77,20 @@ class _HomePageState extends State<HomePage> {
           SettingsPage(usuario: widget.usuario),
         ],
       ),
-      bottomNavigationBar: AppBottomNavbar(
-        currentIndex: _currentIndex,
-        onPageChanged: (index) {
-          _pageController.animateToPage(
-            index,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        },
-      ),
-    );
-  }
+    ),
+    bottomNavigationBar: AppBottomNavbar(
+      currentIndex: _currentIndex,
+      onPageChanged: (index) {
+        _pageController.animateToPage(
+          index,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      },
+    ),
+  );
+}
+
 
   Widget _buildMainPage() {
     return SafeArea(
@@ -86,12 +101,14 @@ class _HomePageState extends State<HomePage> {
             height: 40,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+                begin: Alignment.topLeft,
+                end: Alignment.topRight,
                 colors: [
+                  constants.AppColors.darkBlue,
+                  constants.AppColors.secondary,
                   constants.AppColors.primary,
                 ],
-                stops: const [0.0, 0.7],
+                stops: const [0.0, 0.5,1],
               ),
             ),
           ),
