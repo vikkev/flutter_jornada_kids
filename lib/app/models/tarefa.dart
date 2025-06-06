@@ -13,6 +13,7 @@ class Tarefa {
   DateTime dataLimite;
   DateTime criadoEm;
   DateTime atualizadoEm;
+  Map<String, dynamic>? crianca;
 
   Tarefa({
     required this.id,
@@ -26,6 +27,7 @@ class Tarefa {
     required this.dataLimite,
     required this.criadoEm,
     required this.atualizadoEm,
+    this.crianca,
   });
 
   Tarefa copyWith({
@@ -40,6 +42,7 @@ class Tarefa {
     DateTime? dataLimite,
     DateTime? criadoEm,
     DateTime? atualizadoEm,
+    Map<String, dynamic>? crianca,
   }) {
     return Tarefa(
       id: id ?? this.id,
@@ -53,6 +56,7 @@ class Tarefa {
       dataLimite: dataLimite ?? this.dataLimite,
       criadoEm: criadoEm ?? this.criadoEm,
       atualizadoEm: atualizadoEm ?? this.atualizadoEm,
+      crianca: crianca ?? this.crianca,
     );
   }
 }

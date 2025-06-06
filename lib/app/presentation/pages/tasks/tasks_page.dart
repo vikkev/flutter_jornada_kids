@@ -85,8 +85,7 @@ class _TasksPageState extends State<TasksPage> {
             orElse:
                 () => ChildInfo(id: 0, idade: 0, nivel: 0, nome: '', ponto: 0),
           );
-          // Só define o ID se encontrou a criança
-          if (childFound.id != 0) {
+          if (childFound.id != 0 && selectedChild != '') {
             criancaId = childFound.id;
           }
         }
@@ -123,17 +122,29 @@ class _TasksPageState extends State<TasksPage> {
   }
 
   Tarefa _taskResponseToTarefa(TaskResponse response) {
-    int responsavelId = 0;
-    String nomeResponsavelOuCrianca = '';
-    if (widget.userType == TipoUsuario.crianca) {
+    int responsavelId;
+    Map<String, dynamic>? criancaData;
+
+    if (selectedChild != null && selectedChild!.isNotEmpty) {
+      // Se estamos filtrando por criança, o responsável vem na resposta
       responsavelId = response.responsavel?['id'] ?? 0;
-      nomeResponsavelOuCrianca =
-          response.responsavel?['usuario']?['nomeCompleto'] ?? '';
+      // Construímos os dados da criança com base na criança selecionada
+      final selectedChildInfo = children.firstWhere(
+        (c) => c.nome == selectedChild,
+        orElse: () => ChildInfo(id: 0, idade: 0, nivel: 0, nome: '', ponto: 0),
+      );
+      if (selectedChildInfo.id != 0) {
+        criancaData = {
+          'id': selectedChildInfo.id,
+          'usuario': {'nomeCompleto': selectedChildInfo.nome},
+        };
+      }
     } else {
+      // Se não estamos filtrando, usamos os dados da criança que vêm na resposta
       responsavelId = response.crianca?['id'] ?? 0;
-      nomeResponsavelOuCrianca =
-          response.crianca?['usuario']?['nomeCompleto'] ?? '';
+      criancaData = response.crianca;
     }
+
     return Tarefa(
       id: response.id,
       responsavelId: responsavelId,
@@ -155,6 +166,7 @@ class _TasksPageState extends State<TasksPage> {
       criadoEm: DateTime.tryParse(response.criadoEm ?? '') ?? DateTime.now(),
       atualizadoEm:
           DateTime.tryParse(response.atualizadoEm ?? '') ?? DateTime.now(),
+      crianca: criancaData,
     );
   }
 

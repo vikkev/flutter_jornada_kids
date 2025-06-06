@@ -70,9 +70,12 @@ class TaskService {
     int? criancaId,
     String? status,
   }) async {
-    final url = '${ApiConfig.api}/responsaveis/$responsavelId/tarefas';
+    final url =
+        criancaId != null
+            ? '${ApiConfig.api}/criancas/$criancaId/tarefas'
+            : '${ApiConfig.api}/responsaveis/$responsavelId/tarefas';
+
     final queryParams = <String, dynamic>{};
-    if (criancaId != null) queryParams['idCrianca'] = criancaId;
     if (status != null) queryParams['situacao'] = status;
 
     try {
@@ -82,10 +85,10 @@ class TaskService {
             .map((item) => TaskResponse.fromJson(item))
             .toList();
       } else {
-        throw Exception('Erro ao buscar tarefas do responsável');
+        throw Exception('Erro ao buscar tarefas');
       }
     } catch (e) {
-      throw Exception('Erro ao buscar tarefas do responsável: ${e.toString()}');
+      throw Exception('Erro ao buscar tarefas: ${e.toString()}');
     }
   }
 

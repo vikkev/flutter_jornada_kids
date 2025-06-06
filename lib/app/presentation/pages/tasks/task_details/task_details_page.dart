@@ -50,7 +50,9 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Quantas estrelas deseja atribuir para esta tarefa? (1 a 5)'),
+              const Text(
+                'Quantas estrelas deseja atribuir para esta tarefa? (1 a 5)',
+              ),
               const SizedBox(height: 16),
               TextField(
                 controller: controller,
@@ -100,13 +102,15 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       }
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => SuccessMessagePage(
-            message: 'Tarefa aprovada com sucesso!\nA criança/adolescente ganhou ${_tarefaAtual.ponto} pontos.',
-            buttonText: 'Voltar às tarefas',
-            onButtonPressed: () {
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
-          ),
+          builder:
+              (context) => SuccessMessagePage(
+                message:
+                    'Tarefa aprovada com sucesso!\nA criança/adolescente ganhou ${_tarefaAtual.ponto} pontos.',
+                buttonText: 'Voltar às tarefas',
+                onButtonPressed: () {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+              ),
         ),
       );
     }
@@ -115,20 +119,24 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
   Future<void> _rejectTask() async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Reprovar tarefa'),
-        content: const Text('Tem certeza que deseja reprovar esta tarefa?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Reprovar tarefa'),
+            content: const Text('Tem certeza que deseja reprovar esta tarefa?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text(
+                  'Reprovar',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Reprovar', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
     );
     if (confirm == true) {
       try {
@@ -148,13 +156,15 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       }
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => SuccessMessagePage(
-            message: 'Tarefa reprovada.\nA criança/adolescente precisará refazer a atividade.',
-            buttonText: 'Voltar às tarefas',
-            onButtonPressed: () {
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
-          ),
+          builder:
+              (context) => SuccessMessagePage(
+                message:
+                    'Tarefa reprovada.\nA criança/adolescente precisará refazer a atividade.',
+                buttonText: 'Voltar às tarefas',
+                onButtonPressed: () {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+              ),
         ),
       );
     }
@@ -164,9 +174,15 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
     final result = await showDialog<Tarefa>(
       context: context,
       builder: (context) {
-        final tituloController = TextEditingController(text: _tarefaAtual.titulo);
-        final descricaoController = TextEditingController(text: _tarefaAtual.descricao);
-        final pontoController = TextEditingController(text: _tarefaAtual.ponto.toString());
+        final tituloController = TextEditingController(
+          text: _tarefaAtual.titulo,
+        );
+        final descricaoController = TextEditingController(
+          text: _tarefaAtual.descricao,
+        );
+        final pontoController = TextEditingController(
+          text: _tarefaAtual.ponto.toString(),
+        );
         DateTime dataLimite = _tarefaAtual.dataLimite;
         return AlertDialog(
           title: const Text('Editar Tarefa'),
@@ -223,7 +239,8 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                 final novaTarefa = _tarefaAtual.copyWith(
                   titulo: tituloController.text,
                   descricao: descricaoController.text,
-                  ponto: int.tryParse(pontoController.text) ?? _tarefaAtual.ponto,
+                  ponto:
+                      int.tryParse(pontoController.text) ?? _tarefaAtual.ponto,
                   dataLimite: dataLimite,
                   atualizadoEm: DateTime.now(),
                 );
@@ -302,10 +319,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
             ),
           ),
           centerTitle: false,
-        )
-            .animate()
-            .fadeIn(duration: 400.ms)
-            .slideY(begin: -0.2),
+        ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.2),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -341,91 +355,105 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                 .fadeIn(duration: 600.ms, delay: 400.ms)
                 .scale(begin: const Offset(0.8, 0.8)),
             */
-
             const SizedBox(height: 24),
 
             // Card principal da tarefa
             Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.4),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Título e pontos
-                    Row(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.4),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Text(
-                            tarefa.titulo,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.darkText,
-                            ),
-                          ),
-                        ),
+                        // Título e pontos
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(Icons.emoji_events, color: Colors.amber, size: 20),
-                            const SizedBox(width: 4),
-                            Text(
-                              _formatPoints(tarefa.ponto),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
+                            Expanded(
+                              child: Text(
+                                tarefa.titulo,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.darkText,
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 4),
-                            const Text(
-                              'pontos',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.emoji_events,
+                                  color: Colors.amber,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _formatPoints(tarefa.ponto),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Text(
+                                  'pontos',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
 
-                    const SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
-                    // Status
-                    _buildDetailRow(
-                      'Status',
-                      _getStatusText(tarefa.situacao), // Use função para texto
-                      color: _getStatusColor(tarefa.situacao), // Use função para cor
-                    ),
+                        // Status
+                        _buildDetailRow(
+                          'Status',
+                          _getStatusText(
+                            tarefa.situacao,
+                          ), // Use função para texto
+                          color: _getStatusColor(
+                            tarefa.situacao,
+                          ), // Use função para cor
+                        ),
 
-                    const SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
-                    // Prazo
-                    _buildDetailRow('Prazo', _formatDate(tarefa.dataLimite)),
+                        // Prazo
+                        _buildDetailRow(
+                          'Prazo',
+                          _formatDate(tarefa.dataLimite),
+                        ),
 
-                    const SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
-                    // Tarefa atribuída para
-                    _buildDetailRow('Tarefa atribuída para', responsavel.nomeCompleto),
+                        // Tarefa atribuída para
+                        _buildDetailRow(
+                          'Tarefa atribuída para',
+                          tarefa.crianca?['usuario']?['nomeCompleto'] ??
+                              'Nome não disponível',
+                        ),
 
-                    const SizedBox(height: 20),
+                        const SizedBox(height: 20),
 
-                    // Fotos de comprovação (comentado)
-                    /*
+                        // Fotos de comprovação (comentado)
+                        /*
                     Text(
                       'Fotos de comprovação',
                       style: TextStyle(
@@ -477,10 +505,10 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                         .animate()
                         .fadeIn(duration: 500.ms, delay: 1000.ms),
                     */
-                  ],
-                ),
-              ),
-            )
+                      ],
+                    ),
+                  ),
+                )
                 .animate()
                 .fadeIn(duration: 800.ms, delay: 600.ms)
                 .slideY(begin: 0.3, curve: Curves.easeOut),
@@ -492,38 +520,38 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
               Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.25),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: _approveTask,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          minimumSize: const Size(0, 48),
-                          shape: RoundedRectangleBorder(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.25),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                             borderRadius: BorderRadius.circular(24),
                           ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          'Aprovar',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                          child: ElevatedButton(
+                            onPressed: _approveTask,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              minimumSize: const Size(0, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: const Text(
+                              'Aprovar',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  )
+                      )
                       .animate()
                       .fadeIn(duration: 600.ms, delay: 200.ms)
                       .slideX(begin: -0.5, curve: Curves.elasticOut),
@@ -531,38 +559,38 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                   const SizedBox(width: 16),
 
                   Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.22),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: _rejectTask,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          minimumSize: const Size(0, 48),
-                          shape: RoundedRectangleBorder(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.22),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                             borderRadius: BorderRadius.circular(24),
                           ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          'Reprovar',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                          child: ElevatedButton(
+                            onPressed: _rejectTask,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              minimumSize: const Size(0, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: const Text(
+                              'Reprovar',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  )
+                      )
                       .animate()
                       .fadeIn(duration: 600.ms, delay: 400.ms)
                       .slideX(begin: 0.5, curve: Curves.elasticOut),
@@ -582,10 +610,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       children: [
         Text(
           '$label: ',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey.shade600,
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
         ),
         Expanded(
           child: Text(
