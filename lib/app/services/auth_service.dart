@@ -75,6 +75,8 @@ class AuthService {
       final user = Usuario(
         id: usuarioData['id'] ?? 0,
         idExterno: data['id'] ?? usuarioData['id'],
+        idResponsavel: data['idResponsavel'],
+        pontos: data['ponto'] ?? data['pontos'] ?? 0,
         nomeCompleto: usuarioData['nomeCompleto'] ?? '',
         nomeUsuario: usuarioData['nomeUsuario'] ?? '',
         email: usuarioData['email'] ?? '',

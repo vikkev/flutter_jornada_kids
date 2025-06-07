@@ -573,7 +573,7 @@ class _TaskCardState extends State<TaskCard>
     final isCompleted = widget.tarefa.situacao == SituacaoTarefa.C;
     return GestureDetector(
       onTap:
-          widget.showDetails
+          widget.showDetails && widget.tarefa.situacao != SituacaoTarefa.P
               ? () {
                 Navigator.of(context).push(
                   MaterialPageRoute(

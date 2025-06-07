@@ -11,6 +11,9 @@ import 'package:flutter_jornadakids/app/presentation/widgets/ranking_widget.dart
 import 'package:flutter_jornadakids/app/presentation/widgets/score_widget.dart';
 import 'package:flutter_jornadakids/app/presentation/pages/tasks/tasks_page.dart';
 import 'package:flutter_jornadakids/app/services/responsible_service.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_jornadakids/app/services/api_config.dart';
+import 'dart:async';
 
 class HomePage extends StatefulWidget {
   final Usuario usuario;
@@ -24,10 +27,56 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
+  late StreamController<int> _pontosController;
+  Timer? _pontosTimer;
+  int pontosAtuais = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pontosController = StreamController<int>.broadcast();
+    pontosAtuais = widget.usuario.pontos ?? 0;
+    if (widget.usuario.tipoUsuario == TipoUsuario.crianca) {
+      _iniciarAtualizacaoPontos();
+    }
+  }
+
+  void _iniciarAtualizacaoPontos() {
+    // Atualiza imediatamente
+    _atualizarPontos();
+    
+    // Configura o timer para atualizar a cada 5 segundos
+    _pontosTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      _atualizarPontos();
+    });
+  }
+
+  Future<void> _atualizarPontos() async {
+    if (widget.usuario.tipoUsuario != TipoUsuario.crianca) return;
+    
+    try {
+      final dio = Dio();
+      final url = '${ApiConfig.api}/criancas/${widget.usuario.idExterno ?? widget.usuario.id}';
+      final response = await dio.get(url);
+      
+      if (response.statusCode == 200 && response.data != null) {
+        final novoPonto = response.data['ponto'] ?? 0;
+        if (novoPonto != pontosAtuais) {
+          pontosAtuais = novoPonto;
+          widget.usuario.pontos = novoPonto;
+          _pontosController.add(novoPonto);
+        }
+      }
+    } catch (e) {
+      // Ignora erros para não interromper a experiência do usuário
+    }
+  }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _pontosController.close();
+    _pontosTimer?.cancel();
     super.dispose();
   }
 
@@ -38,9 +87,7 @@ class _HomePageState extends State<HomePage> {
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          setState(() => _currentIndex = index);
         },
         children: [
           // Home
@@ -87,25 +134,6 @@ class _HomePageState extends State<HomePage> {
                                   .slideX(begin: -0.2),
                             ],
                           ),
-                          // Botão de configurações
-                          IconButton(
-                                icon: const Icon(Icons.settings_outlined),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => SettingsPage(
-                                            usuario: widget.usuario,
-                                          ),
-                                    ),
-                                  );
-                                },
-                                color: constants.AppColors.darkText,
-                              )
-                              .animate()
-                              .fadeIn(duration: 500.ms)
-                              .slideX(begin: 0.2),
                         ],
                       ),
                       const SizedBox(height: 24),
@@ -120,10 +148,26 @@ class _HomePageState extends State<HomePage> {
                             .fadeIn(delay: 700.ms, duration: 600.ms)
                             .slideY(begin: 0.3, end: 0)
                       else
-                        ScoreWidget(usuario: widget.usuario)
-                            .animate()
-                            .fadeIn(delay: 700.ms, duration: 600.ms)
-                            .slideY(begin: 0.3, end: 0),
+                        StreamBuilder<int>(
+                          stream: _pontosController.stream,
+                          initialData: widget.usuario.pontos ?? 0,
+                          builder: (context, snapshot) {
+                            return ScoreWidget(
+                              usuario: Usuario(
+                                id: widget.usuario.id,
+                                nomeCompleto: widget.usuario.nomeCompleto,
+                                nomeUsuario: widget.usuario.nomeUsuario,
+                                email: widget.usuario.email,
+                                telefone: widget.usuario.telefone,
+                                senha: widget.usuario.senha,
+                                tipoUsuario: widget.usuario.tipoUsuario,
+                                criadoEm: widget.usuario.criadoEm,
+                                atualizadoEm: widget.usuario.atualizadoEm,
+                                pontos: snapshot.data,
+                              ),
+                            ).animate().fadeIn(delay: 700.ms, duration: 600.ms).slideY(begin: 0.3, end: 0);
+                          },
+                        ),
                       const SizedBox(height: 20),
                       // Lista de crianças (apenas para responsável)
                       if (widget.usuario.tipoUsuario == TipoUsuario.responsavel)
@@ -274,13 +318,17 @@ class _HomePageState extends State<HomePage> {
           // Recompensas
           AchievementsPage(
             userType: widget.usuario.tipoUsuario,
-            pontosDisponiveis: 100,
-            idResponsavel: widget.usuario.idExterno ?? widget.usuario.id,
+            pontosDisponiveis: pontosAtuais,
+            idResponsavel: widget.usuario.tipoUsuario == TipoUsuario.crianca
+                ? widget.usuario.idResponsavel ?? 0
+                : widget.usuario.idExterno ?? widget.usuario.id,
             idCrianca:
                 widget.usuario.tipoUsuario == TipoUsuario.crianca
                     ? widget.usuario.idExterno ?? widget.usuario.id
                     : null,
           ),
+          // Configurações
+          SettingsPage(usuario: widget.usuario),
         ],
       ),
       bottomNavigationBar: AppBottomNavbar(

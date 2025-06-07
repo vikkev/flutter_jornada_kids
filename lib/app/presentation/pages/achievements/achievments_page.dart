@@ -30,6 +30,8 @@ class _AchievementsPageState extends State<AchievementsPage>
   bool isLoading = true;
   late AnimationController _shimmerController;
   late AnimationController _headerController;
+  // Lista de IDs de recompensas resgatadas localmente
+  Set<int> recompensasResgatadas = {};
 
   @override
   void initState() {
@@ -104,6 +106,7 @@ class _AchievementsPageState extends State<AchievementsPage>
         final tituloController = TextEditingController();
         final obsController = TextEditingController();
         final pontosController = TextEditingController();
+        final quantidadeController = TextEditingController();
         return Dialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: Container(
@@ -148,6 +151,8 @@ class _AchievementsPageState extends State<AchievementsPage>
                 _buildTextField(obsController, 'Descrição', Icons.description),
                 const SizedBox(height: 16),
                 _buildTextField(pontosController, 'Pontos necessários', Icons.emoji_events, isNumber: true),
+                const SizedBox(height: 16),
+                _buildTextField(quantidadeController, 'Quantidade disponível', Icons.confirmation_num, isNumber: true),
                 const SizedBox(height: 24),
                 Row(
                   children: [
@@ -178,6 +183,7 @@ class _AchievementsPageState extends State<AchievementsPage>
                           tituloController,
                           obsController,
                           pontosController,
+                          quantidadeController,
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
@@ -210,6 +216,7 @@ class _AchievementsPageState extends State<AchievementsPage>
           titulo: result['titulo'],
           observacao: result['observacao'],
           pontuacaoNecessaria: result['pontuacaoNecessaria'],
+          quantidade: result['quantidade'],
         );
         _carregarRecompensas();
         if (mounted) {
@@ -249,15 +256,21 @@ class _AchievementsPageState extends State<AchievementsPage>
     TextEditingController tituloController,
     TextEditingController obsController,
     TextEditingController pontosController,
+    TextEditingController quantidadeController,
   ) {
-    if (tituloController.text.isEmpty || pontosController.text.isEmpty) {
+    if (tituloController.text.isEmpty || pontosController.text.isEmpty || quantidadeController.text.isEmpty) {
       _showCustomSnackBar('Preencha todos os campos obrigatórios!', isError: true);
       return;
     }
 
     final pontuacao = int.tryParse(pontosController.text) ?? 0;
+    final quantidade = int.tryParse(quantidadeController.text) ?? 0;
     if (pontuacao <= 0) {
       _showCustomSnackBar('A pontuação necessária deve ser maior que zero!', isError: true);
+      return;
+    }
+    if (quantidade <= 0) {
+      _showCustomSnackBar('A quantidade deve ser maior que zero!', isError: true);
       return;
     }
 
@@ -265,6 +278,7 @@ class _AchievementsPageState extends State<AchievementsPage>
       'titulo': tituloController.text,
       'observacao': obsController.text,
       'pontuacaoNecessaria': pontuacao,
+      'quantidade': quantidade,
     });
   }
 
@@ -378,7 +392,7 @@ class _AchievementsPageState extends State<AchievementsPage>
     }
   }
 
-  void _resgatarRecompensa(RecompensaResponse recompensa) {
+  void _resgatarRecompensa(RecompensaResponse recompensa) async {
     if (widget.pontosDisponiveis >= recompensa.pontuacaoNecessaria) {
       showDialog(
         context: context,
@@ -456,10 +470,18 @@ class _AchievementsPageState extends State<AchievementsPage>
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           Navigator.of(context).pop();
-                          _showCustomSnackBar('Recompensa "${recompensa.titulo}" resgatada!');
-                          // TODO: Implementar lógica de resgate na API
+                          try {
+                            await _achievementsService.resgatarRecompensa(
+                              recompensaId: recompensa.id,
+                              idCrianca: widget.idCrianca!,
+                            );
+                            await _carregarRecompensas();
+                            _showCustomSnackBar('Recompensa "${recompensa.titulo}" resgatada com sucesso!');
+                          } catch (e) {
+                            _showCustomSnackBar('Erro ao resgatar recompensa: $e', isError: true);
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.amber.shade600,
@@ -543,14 +565,15 @@ class _AchievementsPageState extends State<AchievementsPage>
                           color: Colors.white,
                         ),
                       ),
-                      Text(
-                        '${widget.pontosDisponiveis} pontos disponíveis',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white.withOpacity(0.9),
-                          fontWeight: FontWeight.w500,
+                      if (widget.userType == TipoUsuario.crianca)
+                        Text(
+                          '${widget.pontosDisponiveis} pontos disponíveis',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white.withOpacity(0.9),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ],
@@ -593,6 +616,7 @@ class _AchievementsPageState extends State<AchievementsPage>
 
   Widget _buildRecompensaCard(RecompensaResponse recompensa, int index) {
     final canRedeem = widget.pontosDisponiveis >= recompensa.pontuacaoNecessaria;
+    final isResgatada = recompensasResgatadas.contains(recompensa.id);
     
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -601,10 +625,9 @@ class _AchievementsPageState extends State<AchievementsPage>
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white, 
-              
+              color: isResgatada ? AppColors.gray200 : Colors.white,
               borderRadius: BorderRadius.circular(20),
-              border: canRedeem && widget.userType == TipoUsuario.crianca
+              border: !isResgatada && canRedeem && widget.userType == TipoUsuario.crianca
                   ? Border.all(color: Colors.amber.shade200, width: 2)
                   : null,
               boxShadow: [
@@ -620,11 +643,13 @@ class _AchievementsPageState extends State<AchievementsPage>
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: canRedeem && widget.userType == TipoUsuario.crianca
-                          ? [Colors.amber.shade400, Colors.orange.shade400]
-                          : [AppColors.primary, AppColors.secondary],
-                    ),
+                    gradient: isResgatada
+                        ? LinearGradient(colors: [AppColors.gray300, AppColors.gray400])
+                        : LinearGradient(
+                            colors: canRedeem && widget.userType == TipoUsuario.crianca
+                                ? [Colors.amber.shade400, Colors.orange.shade400]
+                                : [AppColors.primary, AppColors.secondary],
+                          ),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -646,11 +671,20 @@ class _AchievementsPageState extends State<AchievementsPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        recompensa.titulo,
+                        isResgatada ? 'Resgatado' : recompensa.titulo,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: AppColors.darkText,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Disponível: ${recompensa.quantidade}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.gray400,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -678,12 +712,11 @@ class _AchievementsPageState extends State<AchievementsPage>
                             ),
                           ],
                         ),
-                        
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const Icon(
-                              Icons.emoji_events, // trocado de star para emoji_events
+                              Icons.emoji_events,
                               color: Colors.amber,
                               size: 16,
                             ),
@@ -705,17 +738,19 @@ class _AchievementsPageState extends State<AchievementsPage>
                 if (widget.userType == TipoUsuario.crianca)
                   Container(
                     decoration: BoxDecoration(
-                      gradient: canRedeem
-                          ? LinearGradient(
-                              colors: [Colors.amber.shade400, Colors.orange.shade400],
-                            )
-                          : LinearGradient(
-                              colors: [AppColors.gray200, AppColors.gray400],
-                            ),
+                      gradient: isResgatada
+                          ? LinearGradient(colors: [AppColors.gray300, AppColors.gray400])
+                          : canRedeem
+                              ? LinearGradient(
+                                  colors: [Colors.amber.shade400, Colors.orange.shade400],
+                                )
+                              : LinearGradient(
+                                  colors: [AppColors.gray200, AppColors.gray400],
+                                ),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: ElevatedButton(
-                      onPressed: canRedeem ? () => _resgatarRecompensa(recompensa) : null,
+                      onPressed: (!isResgatada && canRedeem) ? () => _resgatarRecompensa(recompensa) : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         foregroundColor: Colors.white,
@@ -726,7 +761,9 @@ class _AchievementsPageState extends State<AchievementsPage>
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
                       child: Text(
-                        canRedeem ? 'Resgatar' : 'Bloqueado',
+                        isResgatada
+                            ? 'Resgatado'
+                            : (canRedeem ? 'Resgatar' : 'Bloqueado'),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
@@ -762,7 +799,7 @@ class _AchievementsPageState extends State<AchievementsPage>
               ],
             ),
           ),
-          if (canRedeem && widget.userType == TipoUsuario.crianca)
+          if (!isResgatada && canRedeem && widget.userType == TipoUsuario.crianca)
             Positioned(
               top: 12,
               right: 12,

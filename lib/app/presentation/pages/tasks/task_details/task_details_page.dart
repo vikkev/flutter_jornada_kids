@@ -108,7 +108,8 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                     'Tarefa aprovada com sucesso!\nA criança/adolescente ganhou ${_tarefaAtual.ponto} pontos.',
                 buttonText: 'Voltar às tarefas',
                 onButtonPressed: () {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
                 },
               ),
         ),
@@ -162,7 +163,8 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                     'Tarefa reprovada.\nA criança/adolescente precisará refazer a atividade.',
                 buttonText: 'Voltar às tarefas',
                 onButtonPressed: () {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
                 },
               ),
         ),

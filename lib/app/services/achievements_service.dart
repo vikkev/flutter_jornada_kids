@@ -62,11 +62,15 @@ class AchievementsService {
     required String titulo,
     required String observacao,
     required int pontuacaoNecessaria,
+    required int quantidade,
     String? url,
   }) async {
     try {
       if (pontuacaoNecessaria <= 0) {
         throw Exception('A pontuação necessária deve ser maior que zero');
+      }
+      if (quantidade <= 0) {
+        throw Exception('A quantidade deve ser maior que zero');
       }
 
       final data = {
@@ -74,7 +78,7 @@ class AchievementsService {
         'titulo': titulo,
         'observacao': observacao,
         'pontuacaoNecessaria': pontuacaoNecessaria,
-        'quantidade': pontuacaoNecessaria,
+        'quantidade': quantidade,
         'situacao': 'D',
         'url': url,
       };
@@ -101,6 +105,7 @@ class AchievementsService {
             titulo: titulo,
             observacao: observacao,
             pontuacaoNecessaria: pontuacaoNecessaria,
+            quantidade: quantidade,
             url: url,
             situacao: 'D',
             criadoEm: DateTime.now().toIso8601String(),
@@ -252,6 +257,36 @@ class AchievementsService {
       throw Exception('Erro inesperado ao atualizar recompensa: $e');
     }
   }
+
+  // Novo método para resgatar recompensa
+  Future<void> resgatarRecompensa({
+    required int recompensaId,
+    required int idCrianca,
+  }) async {
+    try {
+      final url = '${ApiConfig.api}/recompensas/$recompensaId/resgatar';
+      final data = {
+        'idCrianca': idCrianca,
+        'quantidadeResgatada': 1,
+      };
+      final response = await _dio.post(
+        url,
+        data: data,
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+          sendTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+        ),
+      );
+      if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 204) {
+        throw Exception('Erro ao resgatar recompensa: ${response.data}');
+      }
+    } on DioException catch (e) {
+      throw Exception('Erro ao resgatar recompensa: ${e.message}');
+    } catch (e) {
+      throw Exception('Erro inesperado ao resgatar recompensa: $e');
+    }
+  }
 }
 
 class RecompensaResponse {
@@ -260,6 +295,7 @@ class RecompensaResponse {
   final String titulo;
   final String observacao;
   final int pontuacaoNecessaria;
+  final int quantidade;
   final String? url;
   final String situacao;
   final String criadoEm;
@@ -271,6 +307,7 @@ class RecompensaResponse {
     required this.titulo,
     required this.observacao,
     required this.pontuacaoNecessaria,
+    required this.quantidade,
     this.url,
     required this.situacao,
     required this.criadoEm,
@@ -284,6 +321,7 @@ class RecompensaResponse {
       titulo: json['titulo'] ?? '',
       observacao: json['observacao'] ?? '',
       pontuacaoNecessaria: json['pontuacaoNecessaria'] ?? 0,
+      quantidade: json['quantidade'] ?? 0,
       url: json['url'],
       situacao: json['situacao'] ?? '',
       criadoEm: json['criadoEm'] ?? '',
