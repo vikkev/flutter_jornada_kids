@@ -105,36 +105,60 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       const SizedBox(height: 16),
                       // Header com saudação
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _getGreeting(),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ).animate().fadeIn(duration: 500.ms),
-                              const SizedBox(height: 4),
-                              Text(
-                                    _getFirstAndLastName(
-                                      widget.usuario.nomeCompleto,
-                                    ),
-                                    style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: constants.AppColors.darkText,
-                                    ),
-                                  )
-                                  .animate()
-                                  .fadeIn(duration: 500.ms)
-                                  .slideX(begin: -0.2),
-                            ],
-                          ),
-                        ],
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(top: 16, bottom: 12), // Adiciona margin top
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.06),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 22,
+                              backgroundColor: constants.AppColors.primary.withOpacity(0.13),
+                              child: Icon(
+                                Icons.waving_hand_rounded,
+                                color: constants.AppColors.primary,
+                                size: 26,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${_getGreeting()} 👋',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: constants.AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ).animate().fadeIn(duration: 500.ms),
+                                const SizedBox(height: 2),
+                                Text(
+                                  _getFirstAndLastName(widget.usuario.nomeCompleto),
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: constants.AppColors.secondary,
+                                  ),
+                                )
+                                .animate()
+                                .fadeIn(duration: 500.ms)
+                                .slideX(begin: -0.2),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 24),
                       // Widget de criar tarefa ou pontuação
@@ -188,7 +212,16 @@ class _HomePageState extends State<HomePage> {
                               );
                             }
                             if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                              return const Text('Nenhuma criança cadastrada');
+                              // Mostra um toast/snackbar ao invés de texto fixo
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Nenhuma criança cadastrada'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              });
+                              return const SizedBox.shrink();
                             }
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,9 +231,9 @@ class _HomePageState extends State<HomePage> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: constants.AppColors.darkText,
+                                    color: constants.AppColors.secondary,
                                   ),
-                                ),
+                                ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.15),
                                 const SizedBox(height: 12),
                                 ListView.builder(
                                   shrinkWrap: true,
@@ -250,6 +283,8 @@ class _HomePageState extends State<HomePage> {
                                                   child.nome,
                                                   style: const TextStyle(
                                                     fontSize: 16,
+                                                    color: constants.AppColors
+                                                        .secondary,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
@@ -286,7 +321,10 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                         ],
                                       ),
-                                    );
+                                    )
+                                    .animate()
+                                    .fadeIn(delay: (index * 120).ms, duration: 400.ms)
+                                    .slideY(begin: 0.12, duration: 400.ms, curve: Curves.easeOutBack);
                                   },
                                 ),
                               ],

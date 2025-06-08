@@ -107,6 +107,11 @@ class _RankingWidgetState extends State<RankingWidget>
 
   @override
   void dispose() {
+    // Adicione este check para evitar scheduleFrameCallback após dispose
+    if (_shimmerController.isAnimating) {
+      _shimmerController.stop();
+    }
+    _confettiController.stop();
     _shimmerController.dispose();
     _confettiController.dispose();
     super.dispose();
@@ -145,11 +150,11 @@ class _RankingWidgetState extends State<RankingWidget>
           ),
         );
       } else {
-        // Placeholder visual para posições vazias
         podium.add(_buildPodiumPlaceholder(i + 1));
       }
     }
 
+    // Remover todas as animações e confetti para garantir compatibilidade em dispositivos físicos
     return Expanded(
       child: Container(
         width: double.infinity,
@@ -178,77 +183,60 @@ class _RankingWidgetState extends State<RankingWidget>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                      'Ranking',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.darkText,
-                      ),
-                    )
-                    .animate()
-                    .fade(duration: 500.ms)
-                    .slideX(
-                      begin: -0.2,
-                      duration: 500.ms,
-                      curve: Curves.easeOut,
-                    ),
+                  'Ranking',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkText,
+                  ),
+                ),
                 Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.primary.withAlpha(50),
+                        AppColors.primary.withAlpha(100),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withAlpha(40),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
                       ),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppColors.primary.withAlpha(50),
-                            AppColors.primary.withAlpha(100),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                    ],
+                  ),
+                  child: Row(
+                    children: const [
+                      Icon(
+                        Icons.people_alt_outlined,
+                        color: AppColors.primary,
+                        size: 16,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        'Top 10',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
                         ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withAlpha(40),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
                       ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.people_alt_outlined,
-                            color: AppColors.primary,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          const Text(
-                                'Top 10',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
-                                ),
-                              )
-                              .animate(
-                                onPlay: (controller) => controller.repeat(),
-                              )
-                              .shimmer(
-                                duration: 2000.ms,
-                                color: Colors.white.withOpacity(0.5),
-                              ),
-                        ],
-                      ),
-                    )
-                    .animate()
-                    .fade(duration: 700.ms, delay: 200.ms)
-                    .scale(begin: const Offset(0.8, 0.8)),
+                    ],
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 16),
 
-            // Top 3 em tamanho compacto
+            // Top 3 em tamanho compacto (sem confetti e sem animate)
             Stack(
               alignment: Alignment.center,
               children: [
@@ -259,28 +247,7 @@ class _RankingWidgetState extends State<RankingWidget>
                     children: podium,
                   ),
                 ),
-                // Confetti apenas se houver pelo menos um no pódio
-                if (top3.isNotEmpty)
-                  Positioned(
-                    top: -10,
-                    child: ConfettiWidget(
-                      confettiController: _confettiController,
-                      blastDirection: math.pi / 2,
-                      emissionFrequency: 0.05,
-                      numberOfParticles: 15,
-                      maxBlastForce: 15,
-                      minBlastForce: 8,
-                      gravity: 0.2,
-                      colors: const [
-                        Colors.amber,
-                        Colors.red,
-                        Colors.blue,
-                        Colors.green,
-                        Colors.purple,
-                        Colors.orange,
-                      ],
-                    ),
-                  ),
+                // Removido ConfettiWidget
               ],
             ),
 
@@ -300,41 +267,40 @@ class _RankingWidgetState extends State<RankingWidget>
                   stops: const [0.0, 0.2, 0.8, 1.0],
                 ),
               ),
-            ).animate().fadeIn(duration: 800.ms, delay: 1200.ms),
+            ),
 
             const SizedBox(height: 12),
 
             // Lista de outros competidores - ocupa o resto do espaço
             Expanded(
-              child:
-                  others.isEmpty
-                      ? Center(
-                        child: Text(
-                          ranking.length == 1
-                              ? 'Só há uma criança/adolescente vinculada ao responsável.'
-                              : 'Nenhum competidor extra no ranking.',
-                          style: TextStyle(
-                            color: Colors.grey.shade500,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          textAlign: TextAlign.center,
+              child: others.isEmpty
+                  ? Center(
+                      child: Text(
+                        ranking.length == 1
+                            ? 'Só há uma criança/adolescente vinculada ao responsável.'
+                            : 'Nenhum competidor extra no ranking.',
+                        style: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
                         ),
-                      )
-                      : ListView.separated(
-                        padding: EdgeInsets.zero,
-                        itemCount: others.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemBuilder: (context, index) {
-                          final crianca = others[index];
-                          return RankingItem(
-                            position: index + 4,
-                            name: getNomeCrianca(crianca),
-                            points: crianca.ponto ?? 0,
-                            animationDelay: 100 + index * 150,
-                          );
-                        },
+                        textAlign: TextAlign.center,
                       ),
+                    )
+                  : ListView.separated(
+                      padding: EdgeInsets.zero,
+                      itemCount: others.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      itemBuilder: (context, index) {
+                        final crianca = others[index];
+                        return RankingItem(
+                          position: index + 4,
+                          name: getNomeCrianca(crianca),
+                          points: crianca.ponto ?? 0,
+                          animationDelay: 0,
+                        );
+                      },
+                    ),
             ),
           ],
         ),
@@ -350,189 +316,144 @@ class _RankingWidgetState extends State<RankingWidget>
     bool isFirst = false,
     int animationDelay = 0,
   }) {
-    final size = isFirst ? 85.0 : 70.0; // Tamanhos menores
+    final size = isFirst ? 85.0 : 70.0;
     final fontSize = isFirst ? 14.0 : 12.0;
     final iconSize = isFirst ? 18.0 : 16.0;
 
-    // Exemplo: Defina um ícone diferente para cada posição
     IconData? customIcon;
     if (position == 1) {
-      customIcon = Icons.emoji_events; // Troféu
+      customIcon = Icons.emoji_events;
     } else if (position == 2) {
-      customIcon = Icons.star; // Estrela
+      customIcon = Icons.star;
     } else if (position == 3) {
-      customIcon = Icons.military_tech; // Medalha
+      customIcon = Icons.military_tech;
     }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Medal compacta
         Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  width: size,
-                  height: size,
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [
+                    medalColor.withAlpha(isFirst ? 80 : 60),
+                    medalColor.withAlpha(isFirst ? 120 : 90),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                border: Border.all(
+                  color: medalColor,
+                  width: isFirst ? 2.5 : 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: medalColor.withAlpha(isFirst ? 80 : 50),
+                    blurRadius: isFirst ? 8 : 5,
+                    spreadRadius: isFirst ? 1 : 0,
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Container(
+                  width: size * 0.75,
+                  height: size * 0.75,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [
-                        medalColor.withAlpha(isFirst ? 80 : 60),
-                        medalColor.withAlpha(isFirst ? 120 : 90),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    border: Border.all(
-                      color: medalColor,
-                      width: isFirst ? 2.5 : 2,
-                    ),
+                    color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: medalColor.withAlpha(isFirst ? 80 : 50),
-                        blurRadius: isFirst ? 8 : 5,
-                        spreadRadius: isFirst ? 1 : 0,
+                        color: Colors.black.withAlpha(20),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
                       ),
                     ],
                   ),
-                  child: Center(
-                    child: Container(
-                      width: size * 0.75,
-                      height: size * 0.75,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(20),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                      child: ClipOval(
-                        child: Image.asset(
-                          'assets/images/default_avatar.png',
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(Icons.person, size: size * 0.4);
-                          },
-                        ),
-                      ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/default_avatar.png',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.person, size: size * 0.4);
+                      },
                     ),
                   ),
                 ),
-                // Ícone customizado sobreposto (exemplo)
-                if (customIcon != null)
-                  Positioned(
-                    top: 6,
-                    left: 6,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: medalColor.withOpacity(0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+              ),
+            ),
+            if (customIcon != null)
+              Positioned(
+                top: 6,
+                left: 6,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: medalColor.withOpacity(0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
                       ),
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(customIcon, color: medalColor, size: 18),
-                    ),
+                    ],
                   ),
-                // Posição
-                Positioned(
-                  bottom: -5,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(customIcon, color: medalColor, size: 18),
+                ),
+              ),
+            Positioned(
+              bottom: -5,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [medalColor, medalColor.withAlpha(220)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(25),
+                      blurRadius: 3,
+                      offset: const Offset(0, 1),
                     ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [medalColor, medalColor.withAlpha(220)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(25),
-                          blurRadius: 3,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      '#$position',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 11,
-                      ),
-                    ),
+                  ],
+                ),
+                child: Text(
+                  '#$position',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
                   ),
                 ),
-                // Troféu para o primeiro lugar
-                if (isFirst)
-                  Positioned(
-                        top: 0,
-                        right: 2,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.amber.withAlpha(80),
-                                blurRadius: 6,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.emoji_events,
-                            color: Colors.amber.shade700,
-                            size: 16,
-                          ),
-                        ),
-                      )
-                      .animate(onPlay: (controller) => controller.repeat())
-                      .shimmer(
-                        duration: 2000.ms,
-                        color: Colors.white.withOpacity(0.7),
-                      ),
-              ],
-            )
-            .animate()
-            .fade(
-              duration: 600.ms,
-              delay: Duration(milliseconds: animationDelay),
-            )
-            .scale(begin: const Offset(0.7, 0.7)),
-
+              ),
+            ),
+            // Removido shimmer/troféu animado
+          ],
+        ),
         const SizedBox(height: 8),
-
-        // Nome compacto
         Text(
           getNomeCrianca(crianca),
           style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
           overflow: TextOverflow.ellipsis,
         ),
-
         const SizedBox(height: 4),
-
-        // Pontos (icone trocado para medalha e texto "pontos")
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.emoji_events, // medalha
+              Icons.emoji_events,
               color: Colors.orange.shade400,
               size: iconSize,
             ),
@@ -646,159 +567,151 @@ class RankingItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.grey.withAlpha(15), Colors.grey.withAlpha(25)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(8),
-                blurRadius: 3,
-                offset: const Offset(0, 1),
-              ),
-            ],
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.grey.withAlpha(15), Colors.grey.withAlpha(25)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(8),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
           ),
-          child: Row(
-            children: [
-              // Posição
-              Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.secondary.withAlpha(40),
-                      AppColors.secondary.withAlpha(80),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    '$position',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.secondary,
-                    ),
-                  ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Posição
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.secondary.withAlpha(40),
+                  AppColors.secondary.withAlpha(80),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Center(
+              child: Text(
+                '$position',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.secondary,
                 ),
               ),
+            ),
+          ),
 
-              const SizedBox(width: 12),
+          const SizedBox(width: 12),
 
-              // Avatar
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AppColors.grey.withAlpha(100),
-                    width: 1.5,
-                  ),
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    'assets/images/default_avatar.png',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(Icons.person, size: 20);
-                    },
-                  ),
-                ),
+          // Avatar
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.grey.withAlpha(100),
+                width: 1.5,
               ),
-
-              const SizedBox(width: 12),
-
-              // Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.star,
-                          color: Colors.amber.shade400,
-                          size: 14,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '$points pontos',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.darkText.withAlpha(150),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+            ),
+            child: ClipOval(
+              child: Image.asset(
+                'assets/images/default_avatar.png',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(Icons.person, size: 20);
+                },
               ),
+            ),
+          ),
 
-              // Pontuação destacada
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.primary.withAlpha(40),
-                      AppColors.primary.withAlpha(80),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+          const SizedBox(width: 12),
+
+          // Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                   ),
-                  borderRadius: BorderRadius.circular(16),
+                  overflow: TextOverflow.ellipsis,
                 ),
-                child: Row(
+                const SizedBox(height: 2),
+                Row(
                   children: [
                     Icon(
-                      Icons.emoji_events,
-                      color: Colors.orange.shade400,
-                      size: 16,
+                      Icons.star,
+                      color: Colors.amber.shade400,
+                      size: 14,
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${_formatPoints(points)} pontos',
-                      style: const TextStyle(
+                      '$points pontos',
+                      style: TextStyle(
                         fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
+                        color: AppColors.darkText.withAlpha(150),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        )
-        .animate()
-        .fadeIn(delay: Duration(milliseconds: animationDelay))
-        .slideX(
-          begin: 0.2,
-          end: 0,
-          curve: Curves.easeOutQuad,
-          duration: 500.ms,
-        );
+
+          // Pontuação destacada
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 6,
+            ),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.primary.withAlpha(40),
+                  AppColors.primary.withAlpha(80),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.emoji_events,
+                  color: Colors.orange.shade400,
+                  size: 16,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '${_formatPoints(points)} pontos',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   String _formatPoints(int points) {

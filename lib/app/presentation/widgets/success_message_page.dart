@@ -127,45 +127,48 @@ class _SuccessMessagePageState extends State<SuccessMessagePage>
                           // Ícone abaixo da mensagem
 
                           const Spacer(),
-                          Align(
-                            alignment: Alignment.center,
-                            child: SizedBox(
-                              width: 250, // menor largura
-                              child: ElevatedButton(
-                                onPressed: widget.onButtonPressed,
-                                style: ElevatedButton.styleFrom(
-                                  minimumSize: const Size(0, 56),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(32), // mais arredondado
-                                  ),
-                                  elevation: 0,
-                                  shadowColor: Colors.transparent,
-                                  foregroundColor: Colors.white,
-                                  disabledBackgroundColor: AppColors.gray200,
-                                  disabledForegroundColor: Colors.white.withAlpha(204),
-                                  padding: const EdgeInsets.symmetric(vertical: 0),
-                                ),
-                                child: Ink(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        AppColors.darkBlue,
-                                        AppColors.secondary,
-                                      ],
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 32),
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: SizedBox(
+                                width: 250,
+                                child: ElevatedButton(
+                                  onPressed: widget.onButtonPressed,
+                                  style: ElevatedButton.styleFrom(
+                                    minimumSize: const Size(0, 56),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(32),
                                     ),
-                                    borderRadius: BorderRadius.circular(32),
+                                    elevation: 0,
+                                    shadowColor: Colors.transparent,
+                                    foregroundColor: Colors.white,
+                                    disabledBackgroundColor: AppColors.gray200,
+                                    disabledForegroundColor: Colors.white.withAlpha(204),
+                                    padding: const EdgeInsets.symmetric(vertical: 0),
                                   ),
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    height: 56,
-                                    child: Text(
-                                      widget.buttonText,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
+                                  child: Ink(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          AppColors.darkBlue,
+                                          AppColors.secondary,
+                                        ],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(32),
+                                    ),
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      height: 56,
+                                      child: Text(
+                                        widget.buttonText,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -176,24 +179,29 @@ class _SuccessMessagePageState extends State<SuccessMessagePage>
                               .animate()
                               .fadeIn(duration: 600.ms)
                               .slideY(begin: 0.3, curve: Curves.easeOut),
-
                           if (widget.secondaryButtonText != null && widget.onSecondaryButtonPressed != null) ...[
-                            const SizedBox(height: 16),
-                            OutlinedButton(
-                              onPressed: widget.onSecondaryButtonPressed,
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.darkBlue,
-                                minimumSize: const Size(double.infinity, 48),
-                                side: const BorderSide(color: AppColors.darkBlue),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: Text(
-                                widget.secondaryButtonText!,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 48), // aumenta ainda mais o espaço inferior
+                              child: SizedBox(
+                                width: 250,
+                                child: OutlinedButton(
+                                  onPressed: widget.onSecondaryButtonPressed,
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: AppColors.darkBlue,
+                                    minimumSize: const Size(0, 56),
+                                    side: const BorderSide(color: AppColors.darkBlue),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(32),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(vertical: 0),
+                                  ),
+                                  child: Text(
+                                    widget.secondaryButtonText!,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),

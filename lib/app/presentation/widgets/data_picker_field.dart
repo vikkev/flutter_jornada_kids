@@ -52,7 +52,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
             colorScheme: const ColorScheme.light(
               primary: AppColors.primary,
               onPrimary: Colors.white,
-              onSurface: AppColors.darkText,
+              onSurface: AppColors.secondary,
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(foregroundColor: AppColors.primary),

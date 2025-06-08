@@ -152,7 +152,7 @@ class _AchievementsPageState extends State<AchievementsPage>
                 const SizedBox(height: 16),
                 _buildTextField(pontosController, 'Pontos necessários', Icons.emoji_events, isNumber: true),
                 const SizedBox(height: 16),
-                _buildTextField(quantidadeController, 'Quantidade disponível', Icons.confirmation_num, isNumber: true),
+                _buildTextField(quantidadeController, 'Quantidade de resgate', Icons.confirmation_num, isNumber: true),
                 const SizedBox(height: 24),
                 Row(
                   children: [
@@ -602,7 +602,7 @@ class _AchievementsPageState extends State<AchievementsPage>
                         borderRadius: BorderRadius.circular(15),
                       ),
                       elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       textStyle: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),

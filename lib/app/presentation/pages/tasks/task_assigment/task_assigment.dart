@@ -49,7 +49,7 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
                   const Text(
                     'Designar tarefa para',
                     style: TextStyle(
-                      color: AppColors.darkText,
+                      color: AppColors.secondary,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -92,43 +92,60 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed:
-                    selectedUser != null
-                        ? () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => TaskDescriptionPage(
-                                    idResponsavel:
-                                        widget.usuarioResponsavel.idExterno ??
-                                        widget
-                                            .usuarioResponsavel
-                                            .id, // <-- use idExterno
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24), // Adiciona espaço abaixo do botão
+                child: ElevatedButton(
+                  onPressed:
+                      selectedUser != null
+                          ? () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => TaskDescriptionPage(
+                                    idResponsavel: widget.usuarioResponsavel.idExterno ??
+                                        widget.usuarioResponsavel.id,
                                     idCrianca: selectedUser!.id,
-                                    usuarioResponsavel:
-                                        widget.usuarioResponsavel,
+                                    usuarioResponsavel: widget.usuarioResponsavel,
                                   ),
-                            ),
-                          );
-                        }
-                        : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.darkBlue,
-                  disabledBackgroundColor: AppColors.grey.withOpacity(1),
-                  minimumSize: const Size(double.infinity, 56),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                                ),
+                              );
+                            }
+                          : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    minimumSize: const Size(double.infinity, 56),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                    padding: EdgeInsets.zero,
                   ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Criar',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.primary,
+                          AppColors.secondary,
+                          AppColors.darkText,
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Container(
+                      alignment: Alignment.center,
+                      height: 56,
+                      child: const Text(
+                        'Criar',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -176,7 +193,7 @@ class _TaskAssignmentScreenState extends State<TaskAssignmentScreen> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkText,
+                    color: AppColors.secondary,
                   ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,

@@ -72,161 +72,176 @@ class _LoginTypePageState extends State<LoginTypePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.topRight,
-            colors: [
-              AppColors.darkBlue,
-              AppColors.secondary,
-              AppColors.primary,
-            ],
-            stops: const [0.0, 0.3, 1.0],
-          ),
-        ),
-        child: Column(
-          children: [
-            const Spacer(flex: 2),
-            FadeTransition(
-              opacity: _fadeAnimation,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 50),
-                child: Hero(
-                  tag: 'app_logo',
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Image.asset(
-                      'assets/images/app_logo.png',
-                      height: 280,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.topRight,
+                  colors: [
+                    AppColors.darkBlue,
+                    AppColors.secondary,
+                    AppColors.primary,
+                  ],
+                  stops: const [0.0, 0.3, 1.0],
+                ),
+              ),
+              child: SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        const Spacer(flex: 2),
+                        FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 50),
+                            child: Hero(
+                              tag: 'app_logo',
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Image.asset(
+                                  'assets/images/app_logo.png',
+                                  height: 280,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Spacer(),
+                        SlideTransition(
+                          position: _slideAnimation,
+                          child: ScaleTransition(
+                            scale: _scaleAnimation,
+                            child: Container(
+                              margin: const EdgeInsets.only(top: 20),
+                              padding: const EdgeInsets.only(
+                                top: 40,
+                                left: 40,
+                                right: 40,
+                                bottom: 100,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(35),
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.15),
+                                    blurRadius: 30,
+                                    offset: const Offset(0, -10),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Center(
+                                    child: Container(
+                                      width: 50,
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.gray200,
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 30),
+                                  ShaderMask(
+                                    shaderCallback: (bounds) => LinearGradient(
+                                      colors: [AppColors.primary, AppColors.secondary],
+                                    ).createShader(bounds),
+                                    child: const Text(
+                                      'Bem-Vindo!',
+                                      style: TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Escolha seu perfil para continuar',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: AppColors.gray400,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 32),
+                                  _buildAnimatedButton(
+                                    context: context,
+                                    text: 'Responsável',
+                                    icon: Icons.person,
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        PageRouteBuilder(
+                                          pageBuilder: (context, animation, secondaryAnimation) =>
+                                              const LoginPage(userType: TipoUsuario.responsavel),
+                                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                            return SlideTransition(
+                                              position: Tween<Offset>(
+                                                begin: const Offset(1.0, 0.0),
+                                                end: Offset.zero,
+                                              ).animate(animation),
+                                              child: child,
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    },
+                                    delay: 100,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildAnimatedButton(
+                                    context: context,
+                                    text: 'Criança / Adolescente',
+                                    icon: Icons.child_care,
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        PageRouteBuilder(
+                                          pageBuilder: (context, animation, secondaryAnimation) =>
+                                              const LoginPage(userType: TipoUsuario.crianca),
+                                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                            return SlideTransition(
+                                              position: Tween<Offset>(
+                                                begin: const Offset(1.0, 0.0),
+                                                end: Offset.zero,
+                                              ).animate(animation),
+                                              child: child,
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    },
+                                    delay: 200,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            const Spacer(),
-            SlideTransition(
-              position: _slideAnimation,
-              child: ScaleTransition(
-                scale: _scaleAnimation,
-                child: Container(
-                  margin: const EdgeInsets.only(top: 20),
-                  padding: const EdgeInsets.only(
-                    top: 40,
-                    left: 40,
-                    right: 40,
-                    bottom: 100,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(35),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 30,
-                        offset: const Offset(0, -10),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Center(
-                        child: Container(
-                          width: 50,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: AppColors.gray200,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      ShaderMask(
-                        shaderCallback: (bounds) => LinearGradient(
-                          colors: [AppColors.primary, AppColors.secondary],
-                        ).createShader(bounds),
-                        child: const Text(
-                          'Bem-Vindo!',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 0.5,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Escolha seu perfil para continuar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: AppColors.gray400,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 32),
-                      _buildAnimatedButton(
-                        context: context,
-                        text: 'Responsável',
-                        icon: Icons.person,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder: (context, animation, secondaryAnimation) =>
-                                  const LoginPage(userType: TipoUsuario.responsavel),
-                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                return SlideTransition(
-                                  position: Tween<Offset>(
-                                    begin: const Offset(1.0, 0.0),
-                                    end: Offset.zero,
-                                  ).animate(animation),
-                                  child: child,
-                                );
-                              },
-                            ),
-                          );
-                        },
-                        delay: 100,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildAnimatedButton(
-                        context: context,
-                        text: 'Criança / Adolescente',
-                        icon: Icons.child_care,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder: (context, animation, secondaryAnimation) =>
-                                  const LoginPage(userType: TipoUsuario.crianca),
-                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                return SlideTransition(
-                                  position: Tween<Offset>(
-                                    begin: const Offset(1.0, 0.0),
-                                    end: Offset.zero,
-                                  ).animate(animation),
-                                  child: child,
-                                );
-                              },
-                            ),
-                          );
-                        },
-                        delay: 200,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -356,9 +371,9 @@ class _LoginTypePageState extends State<LoginTypePage>
                 ),
               ),
             ),
-          ),
-        );
-      },
-    );
+          )
+          );
+        }
+      );
   }
 }

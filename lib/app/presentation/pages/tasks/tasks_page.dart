@@ -686,7 +686,7 @@ class _TaskCardState extends State<TaskCard>
                               widget.tarefa.descricao,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey.shade600,
+                                color: AppColors.secondary,
                                 decoration:
                                     isCompleted && !widget.showDetails
                                         ? TextDecoration.lineThrough

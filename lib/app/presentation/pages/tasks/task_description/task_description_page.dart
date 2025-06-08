@@ -99,7 +99,7 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
                   (route) => false,
                 );
               },
-              secondaryButtonText: 'Criar outra tarefa para esta criança/adolescente',
+              secondaryButtonText: 'Criar outra tarefa',
               onSecondaryButtonPressed: () {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
@@ -153,7 +153,7 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.darkBlue,
+                      color: AppColors.secondary,
                     ),
                   ),
                 ],
@@ -167,26 +167,10 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
                     style: const TextStyle(color: Colors.red),
                   ),
                 ),
-              const Text(
-                'Nome da Tarefa',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkText,
-                ),
-              ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.2),
-              const SizedBox(height: 6),
+              // Nome da Tarefa
               _buildTextField(taskNameController, 'Nome da Tarefa'),
               const SizedBox(height: 12),
-              const Text(
-                'Descrição da Tarefa',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkText,
-                ),
-              ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.2, delay: 50.ms),
-              const SizedBox(height: 6),
+              // Descrição da Tarefa
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
@@ -199,8 +183,13 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
                   style: const TextStyle(fontSize: 14, color: Colors.black87),
                   maxLines: 3,
                   decoration: InputDecoration(
-                    hintText: 'Descrição da Tarefa',
-                    hintStyle: TextStyle(color: Colors.grey.shade600),
+                    labelText: 'Descrição da Tarefa',
+                    labelStyle: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    floatingLabelBehavior: FloatingLabelBehavior.auto,
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -208,15 +197,7 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Prazo da Tarefa',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkText,
-                ),
-              ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.2, delay: 100.ms),
-              const SizedBox(height: 6),
+              // Prazo da Tarefa
               DatePickerField(
                 initialDate: null,
                 firstDate: DateTime.now().add(const Duration(days: 1)),
@@ -228,26 +209,10 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
                 },
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Pontuação da Tarefa',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkText,
-                ),
-              ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.2, delay: 200.ms),
-              const SizedBox(height: 6),
+              // Pontuação da Tarefa
               _buildTextField(scoreController, 'Pontuação da Tarefa'),
               const SizedBox(height: 12),
-              const Text(
-                'Prioridade',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkText,
-                ),
-              ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.2, delay: 150.ms),
-              const SizedBox(height: 6),
+              // Prioridade
               Select<PrioridadeTarefa>(
                 selectedValue: _prioridadeSelecionada,
                 options: PrioridadeTarefa.values,
@@ -261,53 +226,56 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
                 hintText: 'Selecione a prioridade',
               ),
               const SizedBox(height: 24),
-              // const Text(
-              //   'Finalizando a tarefa, precisa comprovar com alguma foto?',
-              //   style: TextStyle(
-              //     fontSize: 14,
-              //     fontWeight: FontWeight.bold,
-              //     color: AppColors.darkText,
-              //   ),
-              // ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.2, delay: 300.ms),
-              // const SizedBox(height: 12),
-              // Row(
-              //   children: [
-              //     _buildRadioOption(true, 'Sim'),
-              //     const SizedBox(width: 16),
-              //     _buildRadioOption(false, 'Não'),
-              //   ],
-              // ),
-              const Spacer(),
-              ElevatedButton(
-                onPressed: _isFormValid && !_isLoading ? _onCreatePressed : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _isFormValid ? AppColors.darkBlue : AppColors.primary,
-                  disabledBackgroundColor: AppColors.gray300,
-                  foregroundColor: Colors.white,
-                  disabledForegroundColor: Colors.white.withAlpha(204),
-                  minimumSize: const Size(double.infinity, 56),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24), // Adiciona espaço abaixo do botão
+                child: ElevatedButton(
+                  onPressed: _isFormValid && !_isLoading ? _onCreatePressed : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    minimumSize: const Size(double.infinity, 56),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                    padding: EdgeInsets.zero,
                   ),
-                  elevation: 0,
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2.5,
-                        ),
-                      )
-                    : const Text(
-                        'Criar',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.primary,
+                          AppColors.secondary,
+                          AppColors.darkText,
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
                       ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Container(
+                      alignment: Alignment.center,
+                      height: 56,
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : const Text(
+                              'Criar',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -318,7 +286,7 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
 
   Widget _buildTextField(TextEditingController controller, String hint) {
     return Container(
-      height: 50,
+      height: 60, // aumenta a altura do input
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -328,13 +296,18 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
       child: Center(
         child: TextField(
           controller: controller,
-          style: const TextStyle(fontSize: 14, color: Colors.black87),
+          style: const TextStyle(fontSize: 16, color: Colors.black87), // aumenta o fontSize
           decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(color: Colors.grey.shade600),
+            labelText: hint,
+            labelStyle: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 15, // aumenta o fontSize do label
+              fontWeight: FontWeight.w500,
+            ),
+            floatingLabelBehavior: FloatingLabelBehavior.auto,
             border: InputBorder.none,
-            isDense: true,
-            contentPadding: EdgeInsets.zero,
+            isDense: false, // deixa o input mais espaçado
+            contentPadding: const EdgeInsets.only(top: 18), // mais espaço para o label
           ),
         ),
       ),
