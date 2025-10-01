@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_jornadakids/app/models/recompensa.dart';
 import 'package:flutter_jornadakids/app/models/enums.dart';
 import 'package:flutter_jornadakids/app/core/utils/constants.dart';
 import 'package:flutter_jornadakids/app/services/achievements_service.dart';
@@ -614,6 +613,152 @@ class _AchievementsPageState extends State<AchievementsPage>
     ).animate().fadeIn(duration: 800.ms).slideY(begin: -0.3);
   }
 
+  Widget _buildMinecraftCard() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Stack(
+        children: [
+          Container(
+            height: 120,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Stack(
+                children: [
+                  // Minecraft background image
+                  Positioned.fill(
+                    child: Image.asset(
+                      'images/minecraft-background.jpg',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  // Dark overlay for better text readability
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.3),
+                            Colors.black.withOpacity(0.6),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Content
+                  Positioned.fill(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.games,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  widget.userType == TipoUsuario.responsavel
+                                      ? 'Adicionar Jogos'
+                                      : 'Desbloquear Jogos',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    shadows: [
+                                      Shadow(
+                                        offset: Offset(1, 1),
+                                        blurRadius: 3,
+                                        color: Colors.black54,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  widget.userType == TipoUsuario.responsavel
+                                      ? 'Adicione novos jogos para as crianças'
+                                      : 'Desbloqueie jogos com suas estrelas',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontWeight: FontWeight.w500,
+                                    shadows: const [
+                                      Shadow(
+                                        offset: Offset(1, 1),
+                                        blurRadius: 2,
+                                        color: Colors.black54,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.arrow_forward_ios,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    )
+        .animate()
+        .fadeIn(duration: 600.ms)
+        .slideX(begin: 0.2)
+        .shimmer(
+          delay: 200.ms,
+          duration: 1000.ms,
+          color: Colors.white.withOpacity(0.3),
+        );
+  }
+
   Widget _buildRecompensaCard(RecompensaResponse recompensa, int index) {
     final canRedeem = widget.pontosDisponiveis >= recompensa.pontuacaoNecessaria;
     final isResgatada = recompensasResgatadas.contains(recompensa.id);
@@ -876,54 +1021,61 @@ class _AchievementsPageState extends State<AchievementsPage>
                         valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
                       ),
                     )
-                  : recompensas.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(24),
-                                decoration: BoxDecoration(
-                                  color: AppColors.gray100,
-                                  borderRadius: BorderRadius.circular(50),
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: recompensas.isEmpty ? 2 : recompensas.length + 1, // +1 for Minecraft card, +1 for empty state
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          // Minecraft card always at the top
+                          return _buildMinecraftCard();
+                        } else if (recompensas.isEmpty) {
+                          // Empty state when no rewards
+                          return Container(
+                            margin: const EdgeInsets.only(top: 20),
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(24),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.gray100,
+                                    borderRadius: BorderRadius.circular(50),
+                                  ),
+                                  child: Icon(
+                                    Icons.emoji_events_outlined,
+                                    size: 48,
+                                    color: AppColors.gray300,
+                                  ),
                                 ),
-                                child: Icon(
-                                  Icons.emoji_events_outlined,
-                                  size: 48,
-                                  color: AppColors.gray300,
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Nenhuma recompensa disponível',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: AppColors.gray400,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Nenhuma recompensa disponível',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: AppColors.gray400,
-                                  fontWeight: FontWeight.w600,
+                                const SizedBox(height: 8),
+                                Text(
+                                  widget.userType == TipoUsuario.responsavel
+                                      ? 'Adicione recompensas para motivar as crianças/adolescentes!'
+                                      : 'Aguarde novas recompensas serem adicionadas',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: AppColors.gray300,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                widget.userType == TipoUsuario.responsavel
-                                    ? 'Adicione recompensas para motivar as crianças/adolescentes!'
-                                    : 'Aguarde novas recompensas serem adicionadas',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.gray300,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ).animate().fadeIn(duration: 800.ms).scale(begin: const Offset(0.8, 0.8))
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          itemCount: recompensas.length,
-                          itemBuilder: (context, index) {
-                            final recompensa = recompensas[index];
-                            return _buildRecompensaCard(recompensa, index);
-                          },
-                        ),
+                              ],
+                            ),
+                          ).animate().fadeIn(duration: 800.ms).scale(begin: const Offset(0.8, 0.8));
+                        } else {
+                          // Regular reward cards
+                          final recompensa = recompensas[index - 1];
+                          return _buildRecompensaCard(recompensa, index - 1);
+                        }
+                      },
+                    ),
             ),
           ],
         ),

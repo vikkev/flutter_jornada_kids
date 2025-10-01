@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_jornadakids/app/core/utils/constants.dart';
-import 'dart:math' as math;
 import 'package:confetti/confetti.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_jornadakids/app/services/api_config.dart';
 import 'package:flutter_jornadakids/app/services/responsible_service.dart';
 import 'package:dio/dio.dart';

@@ -333,7 +333,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       const SizedBox(height: 20),
                       // Ranking
-                      Container(
+                      SizedBox(
                         height: MediaQuery.of(context).size.height * 0.6,
                         child: RankingWidget(usuario: widget.usuario)
                             .animate()
@@ -396,6 +396,6 @@ class _HomePageState extends State<HomePage> {
   String _getFirstAndLastName(String nomeCompleto) {
     final parts = nomeCompleto.trim().split(RegExp(r'\s+'));
     if (parts.length == 1) return parts[0];
-    return parts.first + ' ' + parts.last;
+    return '${parts.first} ${parts.last}';
   }
 }

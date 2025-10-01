@@ -389,7 +389,7 @@ class _RegisterPageChildState extends State<RegisterPageChild> with TickerProvid
                           
                           const SizedBox(height: 50),
                          
-                          Container(
+                          SizedBox(
                             height: 56,
                             // Remova o gradient e boxShadow daqui, deixe só no Ink
                             child: Align(

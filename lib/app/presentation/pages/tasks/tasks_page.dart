@@ -334,7 +334,7 @@ class _TasksPageState extends State<TasksPage> {
                   border: Border.all(color: Colors.grey.shade300),
                 ),
                 child: DropdownButtonFormField<String>(
-                  value: selectedChild,
+                  initialValue: selectedChild,
                   decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 16,
@@ -365,7 +365,7 @@ class _TasksPageState extends State<TasksPage> {
                           style: const TextStyle(fontSize: 14),
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                   onChanged: (String? newValue) {
                     setState(() {

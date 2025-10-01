@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_jornadakids/app/presentation/pages/home/home_page.dart';
 import 'package:flutter_jornadakids/app/models/enums.dart';
 import 'package:flutter_jornadakids/app/models/usuario.dart';
@@ -7,7 +8,6 @@ import 'package:flutter_jornadakids/app/presentation/widgets/data_picker_field.d
 import 'package:flutter_jornadakids/app/presentation/widgets/select_field.dart';
 import 'package:flutter_jornadakids/app/presentation/widgets/success_message_page.dart';
 import 'package:flutter_jornadakids/app/services/task_service.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 class TaskDescriptionPage extends StatefulWidget {
   final int idResponsavel;
@@ -24,6 +24,7 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController deadlineController = TextEditingController();
   final TextEditingController scoreController = TextEditingController();
+  final TextEditingController quantityController = TextEditingController();
 
   DateTime? selectedDeadline;
   bool requiresPhoto = false;
@@ -39,6 +40,7 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
     descriptionController.addListener(_validateForm);
     deadlineController.addListener(_validateForm);
     scoreController.addListener(_validateForm);
+    quantityController.addListener(_validateForm);
   }
 
   @override
@@ -47,10 +49,12 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
     descriptionController.removeListener(_validateForm);
     deadlineController.removeListener(_validateForm);
     scoreController.removeListener(_validateForm);
+    quantityController.removeListener(_validateForm);
     taskNameController.dispose();
     descriptionController.dispose();
     deadlineController.dispose();
     scoreController.dispose();
+    quantityController.dispose();
     super.dispose();
   }
 
@@ -59,6 +63,7 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
         descriptionController.text.isNotEmpty &&
         deadlineController.text.isNotEmpty &&
         scoreController.text.isNotEmpty &&
+        quantityController.text.isNotEmpty &&
         selectedDeadline != null &&
         _prioridadeSelecionada != null;
     if (isValid != _isFormValid) {
@@ -70,6 +75,18 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
 
   Future<void> _onCreatePressed() async {
     if (!_isFormValid) return;
+    
+    // Verificar se a quantidade é maior que 30 e pedir confirmação
+    final quantidade = int.tryParse(quantityController.text) ?? 1;
+    print('Quantidade inserida: $quantidade'); // Debug
+    
+    if (quantidade > 30) {
+      print('Quantidade maior que 30, mostrando diálogo'); // Debug
+      final confirmed = await _showQuantityConfirmationDialog(quantidade);
+      print('Usuário confirmou: $confirmed'); // Debug
+      if (!confirmed) return;
+    }
+    
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -83,6 +100,7 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
         pontuacaoTotal: int.tryParse(scoreController.text) ?? 0,
         prioridade: _prioridadeSelecionada.code,
         dataHoraLimite: selectedDeadline!,
+        quantidade: int.tryParse(quantityController.text) ?? 1,
       );
       if (mounted) {
         Navigator.push(
@@ -212,6 +230,9 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
               // Pontuação da Tarefa
               _buildTextField(scoreController, 'Pontuação da Tarefa'),
               const SizedBox(height: 12),
+              // Quantidade
+              _buildQuantityField(),
+              const SizedBox(height: 12),
               // Prioridade
               Select<PrioridadeTarefa>(
                 selectedValue: _prioridadeSelecionada,
@@ -312,6 +333,76 @@ class _TaskDescriptionPageState extends State<TaskDescriptionPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildQuantityField() {
+    return Container(
+      height: 60,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade400),
+      ),
+      child: Center(
+        child: TextField(
+          controller: quantityController,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+          ],
+          style: const TextStyle(fontSize: 16, color: Colors.black87),
+          decoration: InputDecoration(
+            labelText: 'Quantidade',
+            labelStyle: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
+            floatingLabelBehavior: FloatingLabelBehavior.auto,
+            border: InputBorder.none,
+            isDense: false,
+            contentPadding: const EdgeInsets.only(top: 18),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _showQuantityConfirmationDialog(int quantidade) async {
+    return await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Confirmação',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Você tem certeza? Vai criar $quantidade tarefas?',
+            style: const TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Confirmar'),
+            ),
+          ],
+        );
+      },
+    ) ?? false;
   }
 
   Widget _buildRadioOption(bool value, String label) {

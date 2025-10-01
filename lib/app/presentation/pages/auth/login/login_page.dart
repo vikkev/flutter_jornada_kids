@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       // Se for erro de tipo de usuário, mostrar dialog especial
       if (result.message != null &&
-          result.message!.contains('Tipo de usuário incorreto')) {
+          result.message.contains('Tipo de usuário incorreto')) {
         showDialog(
           context: context,
           builder:

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_jornadakids/app/models/enums.dart';
 import 'package:flutter_jornadakids/app/models/usuario.dart';
-import 'package:flutter_jornadakids/app/models/responsavel.dart';
 import 'package:flutter_jornadakids/app/core/utils/constants.dart';
 import 'package:flutter_jornadakids/app/services/responsible_service.dart';
 

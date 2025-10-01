@@ -119,8 +119,8 @@ class CreateTaskWidget extends StatelessWidget {
                   shadowColor: Colors.transparent,
                   padding: const EdgeInsets.symmetric(vertical: 0),
                 ).copyWith(
-                  backgroundColor: MaterialStateProperty.all(Colors.transparent),
-                  overlayColor: MaterialStateProperty.all(Colors.transparent),
+                  backgroundColor: WidgetStateProperty.all(Colors.transparent),
+                  overlayColor: WidgetStateProperty.all(Colors.transparent),
                 ),
                 child: Ink(
                   decoration: BoxDecoration(

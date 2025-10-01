@@ -15,10 +15,10 @@ class AuthService {
     String password,
     TipoUsuario tipoUsuario,
   ) async {
-    final Dio _dio = Dio();
+    final Dio dio = Dio();
     try {
       final url = '${ApiConfig.api}/usuarios/autenticar';
-      final response = await _dio.post(
+      final response = await dio.post(
         url,
         data: {'nomeUsuario': username, 'senha': password},
         options: Options(

@@ -12,8 +12,9 @@ class TaskService {
     required int pontuacaoTotal,
     required String prioridade,
     required DateTime dataHoraLimite,
+    required int quantidade,
   }) async {
-    final url = '${ApiConfig.api}/tarefas';
+    final url = '${ApiConfig.api}/tarefas?qtde=$quantidade';
     final response = await _dio.post(
       url,
       data: {
