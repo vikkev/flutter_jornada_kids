@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_jornadakids/app/models/usuario.dart';
 import 'package:flutter_jornadakids/app/models/enums.dart';
 import 'package:flutter_jornadakids/app/core/utils/constants.dart';
+import 'package:flutter_jornadakids/app/presentation/pages/app_blocker/app_blocker_page.dart';
 import 'package:flutter_jornadakids/app/presentation/pages/settings/profile_page.dart';
 import 'package:flutter_jornadakids/app/presentation/pages/settings/children_list_page.dart';
 import 'package:flutter_jornadakids/app/presentation/pages/settings/pin_code_page.dart';
@@ -170,6 +171,21 @@ class SettingsPage extends StatelessWidget {
                       },
                       delay: 350,
                     ),
+                  if (usuario.tipoUsuario == TipoUsuario.responsavel)
+                    _buildOption(
+                      icon: Icons.lock_clock,
+                      title: 'Bloqueio de Apps',
+                      subtitle: 'Definir limites de uso e bloquear aplicativos',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AppBlockerPage(),
+                          ),
+                        );
+                      },
+                      delay: 380,
+                    ),
                   _buildOption(
                     icon: Icons.logout,
                     title: 'Sair',
@@ -215,3 +231,4 @@ class SettingsPage extends StatelessWidget {
     ).animate().fadeIn(duration: 500.ms, delay: delay.ms).slideX(begin: 0.2);
   }
 }
+
