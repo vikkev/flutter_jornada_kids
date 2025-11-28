@@ -33,6 +33,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _confirmPasswordController = TextEditingController();
   DateTime? _birthDate;
   bool _isFormValid = false;
+  bool _showPassword = false;
+  bool _showConfirmPassword = false;
 
   // Para responsável
   String? _selectedTipoResponsavel;
@@ -182,9 +184,19 @@ class _RegisterPageState extends State<RegisterPage> {
                         hintText: widget.isResponsible ? 'Selecione a data de nascimento' : 'Data de nascimento',
                       ),
                       const SizedBox(height: 12),
-                      _buildTextField(_passwordController, 'Senha', isPassword: true),
+                      _buildTextField(
+                        _passwordController,
+                        'Senha',
+                        isPassword: true,
+                        isConfirmPassword: false,
+                      ),
                       const SizedBox(height: 12),
-                      _buildTextField(_confirmPasswordController, 'Confirme a senha', isPassword: true),
+                      _buildTextField(
+                        _confirmPasswordController,
+                        'Confirme a senha',
+                        isPassword: true,
+                        isConfirmPassword: true,
+                      ),
 
                       if (widget.isResponsible) ...[
                         const SizedBox(height: 20),
@@ -343,7 +355,12 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint, {bool isPassword = false}) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String hint, {
+    bool isPassword = false,
+    bool isConfirmPassword = false,
+  }) {
     // Adiciona máscara apenas para o campo de telefone
     List<TextInputFormatter>? inputFormatters;
     TextInputType? keyboardType;
@@ -365,13 +382,33 @@ class _RegisterPageState extends State<RegisterPage> {
       child: Center(
         child: TextField(
           controller: controller,
-          obscureText: isPassword,
+          obscureText: isPassword
+              ? !(isConfirmPassword ? _showConfirmPassword : _showPassword)
+              : false,
           style: const TextStyle(fontSize: 14, color: Colors.black),
           decoration: InputDecoration(
             labelText: hint, // labelText faz o placeholder flutuar
             labelStyle: TextStyle(color:Colors.grey.shade600,fontSize: 13,),
             floatingLabelBehavior: FloatingLabelBehavior.auto,
             border: InputBorder.none,
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(
+                      (isConfirmPassword ? _showConfirmPassword : _showPassword)
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        if (isConfirmPassword) {
+                          _showConfirmPassword = !_showConfirmPassword;
+                        } else {
+                          _showPassword = !_showPassword;
+                        }
+                      });
+                    },
+                  )
+                : null,
           ),
           inputFormatters: inputFormatters,
           keyboardType: keyboardType,

@@ -23,38 +23,38 @@ import 'package:flutter_jornadakids/app/services/responsible_service.dart';
 const MethodChannel _appBlockerChannel = MethodChannel('app_blocker_channel');
 
 // =====================
-// Verificar e solicitar permissÃƒÆ’Ã‚Â£o
+// Verificar e solicitar permissão
 // =====================
 Future<bool> checkUsagePermission() async {
   if (Platform.isAndroid) {
     try {
-      // Tenta obter dados de uso para verificar se a permissÃƒÆ’Ã‚Â£o foi concedida
+      // Tenta obter dados de uso para verificar se a permissão foi concedida
       DateTime endDate = DateTime.now();
       DateTime startDate = endDate.subtract(const Duration(hours: 1));
       await AppUsage().getAppUsage(startDate, endDate);
-      return true; // Se conseguiu obter dados, a permissÃƒÆ’Ã‚Â£o estÃƒÆ’Ã‚Â¡ concedida
+      return true; // Se conseguiu obter dados, a permissão está¡ concedida
     } catch (e) {
-      debugPrint('PermissÃƒÆ’Ã‚Â£o de uso nÃƒÆ’Ã‚Â£o concedida: $e');
-      return false; // Se deu erro, a permissÃƒÆ’Ã‚Â£o nÃƒÆ’Ã‚Â£o foi concedida
+      debugPrint('Permissão de uso não concedida: $e');
+      return false; // Se deu erro, a permissão não foi concedida
     }
   }
-  return true; // Para outras plataformas, assume que estÃƒÆ’Ã‚Â¡ OK
+  return true; // Para outras plataformas, assume que está OK
 }
 
 Future<void> requestUsagePermission() async {
   if (Platform.isAndroid) {
-    // Verifica se a permissÃƒÆ’Ã‚Â£o jÃƒÆ’Ã‚Â¡ foi concedida
+    // Verifica se a permissão já foi concedida
     bool hasPermission = await checkUsagePermission();
 
     if (!hasPermission) {
-      // SÃƒÆ’Ã‚Â³ redireciona se a permissÃƒÆ’Ã‚Â£o nÃƒÆ’Ã‚Â£o foi concedida
+      // Só redireciona se a permissão não foi concedida
       final intent = AndroidIntent(
         action: 'android.settings.USAGE_ACCESS_SETTINGS',
         flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
       );
       await intent.launch();
     } else {
-      debugPrint('PermissÃƒÆ’Ã‚Â£o de uso jÃƒÆ’Ã‚Â¡ concedida');
+      debugPrint('{Permissão} de uso já concedida');
     }
   }
 }
@@ -67,7 +67,7 @@ Future<bool> checkAccessibilityPermission() async {
     );
     return granted ?? false;
   } catch (e) {
-    debugPrint('Erro ao verificar permissÃƒÆ’Ã‚Â£o de acessibilidade: $e');
+    debugPrint('Erro ao verificar permissão de acessibilidade: $e');
     return false;
   }
 }
@@ -77,7 +77,7 @@ Future<void> requestAccessibilityPermission() async {
   try {
     await _appBlockerChannel.invokeMethod('requestAccessibilityPermission');
   } catch (e) {
-    debugPrint('Erro ao solicitar permissÃƒÆ’Ã‚Â£o de acessibilidade: $e');
+    debugPrint('Erro ao solicitar permissão de acessibilidade: $e');
   }
 }
 
@@ -349,14 +349,14 @@ class _AppBlockerPageState extends State<AppBlockerPage>
         endDate,
       );
 
-      // Descobre o packageName deste aplicativo para nunca listÃƒÆ’Ã‚Â¡-lo/bloqueÃƒÆ’Ã‚Â¡-lo
+      // Descobre o packageName deste aplicativo para nunca listá-lo/bloqueá-lo
       String myPackage = '';
       try {
         final info = await PackageInfo.fromPlatform();
         myPackage = info.packageName;
       } catch (_) {}
 
-      // Remove entradas sem uso e o prÃƒÆ’Ã‚Â³prio app
+      // Remove entradas sem uso e o próprio app
       usage.removeWhere(
         (app) => app.usage.inSeconds <= 0 || app.packageName == myPackage,
       );
@@ -369,12 +369,12 @@ class _AppBlockerPageState extends State<AppBlockerPage>
 
       // -------------------------------
       // Enviar APENAS os apps que atingiram o limite
-      // (o serviÃƒÆ’Ã‚Â§o nativo agora lÃƒÆ’Ã‚Âª os limites diretamente, mas mantemos
+      // (o serviço nativo agora lê os limites diretamente, mas mantemos
       //  esse envio para compatibilidade e possibilidade de UI futura)
       // -------------------------------
       final List<String> blockedApps = [];
       appLimits.forEach((pkg, limit) {
-        if (pkg == myPackage) return; // nunca bloquear o prÃƒÆ’Ã‚Â³prio app
+        if (pkg == myPackage) return; // nunca bloquear o próprio app
         final used = appUsageToday[pkg] ?? Duration.zero;
         if (used >= limit) blockedApps.add(pkg);
       });
@@ -383,13 +383,13 @@ class _AppBlockerPageState extends State<AppBlockerPage>
           'apps': blockedApps,
         });
         debugPrint(
-          'Apps bloqueados enviados para o serviÃƒÆ’Ã‚Â§o nativo: $blockedApps',
+          'Apps bloqueados enviados para o serviço nativo: $blockedApps',
         );
       } catch (e) {
         debugPrint('Erro ao enviar apps bloqueados para o Android: $e');
       }
     } catch (exception) {
-      debugPrint('Erro ao obter estatÃƒÆ’Ã‚Â­sticas de uso: $exception');
+      debugPrint('Erro ao obter estatísticas de uso: $exception');
       setState(() {
         infos = [];
         appUsageToday = {};
@@ -397,7 +397,7 @@ class _AppBlockerPageState extends State<AppBlockerPage>
     }
   }
 
-  // FunÃƒÂ§ÃƒÂ£o para obter ÃƒÂ­cone padrÃƒÂ£o baseado no nome do app
+  // Função para obter í­cone padrão baseado no nome do app
   IconData _getDefaultIconForApp(String appName, String packageName) {
     final name = appName.toLowerCase();
     final package = packageName.toLowerCase();
@@ -425,7 +425,7 @@ class _AppBlockerPageState extends State<AppBlockerPage>
       return Icons.camera;
     }
 
-    // Apps de comunicaÃƒÂ§ÃƒÂ£o
+    // Apps de comunicação
     if (name.contains('telegram') || package.contains('telegram')) {
       return Icons.send;
     }
@@ -467,7 +467,7 @@ class _AppBlockerPageState extends State<AppBlockerPage>
       return Icons.slideshow;
     }
 
-    // Apps de mÃƒÂºsica e mÃƒÂ­dia
+    // Apps de música e mídia
     if (name.contains('music') || package.contains('music')) {
       return Icons.music_note;
     }
@@ -536,7 +536,7 @@ class _AppBlockerPageState extends State<AppBlockerPage>
       return Icons.directions_car;
     }
 
-    // PadrÃƒÂ£o para apps nÃƒÂ£o identificados
+    // Padrão para apps não identificados
     return Icons.apps;
   }
 
@@ -544,9 +544,9 @@ class _AppBlockerPageState extends State<AppBlockerPage>
     try {
       Map<String, Uint8List?> icons = {};
 
-      // Primeira tentativa: usar installed_apps com configuraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes otimizadas
+      // Primeira tentativa: usar installed_apps com configurações otimizadas
       try {
-        // Busca apenas apps nÃƒÆ’Ã‚Â£o-sistema para melhor performance
+        // Busca apenas apps não-sistema para melhor performance
         List<AppInfo> apps = await InstalledApps.getInstalledApps(false, true);
         Map<String, AppInfo> appsMap = {
           for (var app in apps) app.packageName: app,
@@ -559,16 +559,16 @@ class _AppBlockerPageState extends State<AppBlockerPage>
             AppInfo appInfo = appsMap[info.packageName]!;
             if (appInfo.icon != null) {
               icons[info.packageName] = appInfo.icon;
-              debugPrint('ÃƒÆ’Ã‚Âcone encontrado para ${info.appName}');
+              debugPrint('ícone encontrado para ${info.appName}');
             } else {
               debugPrint(
-                'ÃƒÆ’Ã‚Âcone nÃƒÆ’Ã‚Â£o encontrado para ${info.appName}',
+                'ícone não encontrado para ${info.appName}',
               );
             }
           }
         }
       } catch (e) {
-        debugPrint('Erro ao obter ÃƒÆ’Ã‚Â­cones via installed_apps: $e');
+        debugPrint('Erro ao obter ícones via installed_apps: $e');
       }
 
       // Segunda tentativa: buscar todos os apps se a primeira falhou
@@ -593,12 +593,12 @@ class _AppBlockerPageState extends State<AppBlockerPage>
         }
       }
 
-      debugPrint('Total de ÃƒÆ’Ã‚Â­cones carregados: ${icons.length}');
+      debugPrint('Total de ícones carregados: ${icons.length}');
       setState(() {
         appIcons = icons;
       });
     } catch (e) {
-      debugPrint('Erro geral ao carregar ÃƒÆ’Ã‚Â­cones dos apps: $e');
+      debugPrint('Erro geral ao carregar ícones dos apps: $e');
       setState(() {
         appIcons = {};
       });
@@ -652,7 +652,7 @@ class _AppBlockerPageState extends State<AppBlockerPage>
         );
       });
 
-      // Garante que nÃƒÆ’Ã‚Â£o exista limite salvo para o prÃƒÆ’Ã‚Â³prio app
+      // Garante que não exista limite salvo para o próprio app
       try {
         final info = await PackageInfo.fromPlatform();
         final myPackage = info.packageName;
@@ -660,7 +660,7 @@ class _AppBlockerPageState extends State<AppBlockerPage>
           setState(() {
             appLimits.remove(myPackage);
           });
-          // Persiste a remoÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
+          // Persiste a remoção
           unawaited(_saveLimits());
         }
       } catch (_) {}
@@ -672,7 +672,7 @@ class _AppBlockerPageState extends State<AppBlockerPage>
       appLimits[packageName] = limit;
       _saveLimits();
     });
-    // Recalcula estatÃƒÆ’Ã‚Â­sticas e reenvia bloqueios ao serviÃƒÆ’Ã‚Â§o nativo
+    // Recalcula estatí­sticas e reenvia bloqueios ao serviço nativo
     // para refletir o novo limite imediatamente
     unawaited(getUsageStats());
   }
@@ -952,7 +952,7 @@ class _AppBlockerPageState extends State<AppBlockerPage>
                   appLimits.remove(info.packageName);
                   _saveLimits();
                 });
-                // Atualiza status de bloqueio apÃƒÆ’Ã‚Â³s remover limite
+                // Atualiza status de bloqueio após remover limite
                 unawaited(getUsageStats());
                 Navigator.of(context).pop();
               },
@@ -1659,10 +1659,14 @@ class _AppBlockerPageState extends State<AppBlockerPage>
               onPressed: () async {
                 Navigator.of(context).pop();
                 try {
+                  final currentLimit =
+                      _remoteAppsByPackage[app.identificador]?.tempoLimite ??
+                          app.tempoLimite;
+                  final delta = currentLimit > 0 ? -currentLimit : 0;
                   await _applicationsService.atualizarBloqueio(
                     id: app.id,
                     bloqueado: false,
-                    tempoLimite: 0,
+                    tempoLimite: delta,
                   );
                   setState(() {
                     final index =
@@ -1709,17 +1713,14 @@ class _AppBlockerPageState extends State<AppBlockerPage>
                 }
                 Navigator.of(context).pop();
                 try {
-                  // Garante que o backend fique exatamente com o novo limite:
-                  // zera primeiro e depois aplica o valor final.
-                  await _applicationsService.atualizarBloqueio(
-                    id: app.id,
-                    bloqueado: false,
-                    tempoLimite: 0,
-                  );
+                  final currentLimit =
+                      _remoteAppsByPackage[app.identificador]?.tempoLimite ??
+                          app.tempoLimite;
+                  final delta = minutes - currentLimit;
                   await _applicationsService.atualizarBloqueio(
                     id: app.id,
                     bloqueado: true,
-                    tempoLimite: minutes,
+                    tempoLimite: delta,
                   );
                   setState(() {
                     final index =
@@ -1820,18 +1821,15 @@ class _AppBlockerPageState extends State<AppBlockerPage>
         return;
       }
 
-      final novoLimite = (app.tempoLimite) + 1;
+      final currentLimit =
+          _remoteAppsByPackage[app.identificador]?.tempoLimite ??
+              app.tempoLimite;
+      final novoLimite = currentLimit + 1;
 
-      // Força valor absoluto: zera e seta o novo limite calculado
-      await _applicationsService.atualizarBloqueio(
-        id: app.id,
-        bloqueado: false,
-        tempoLimite: 0,
-      );
       await _applicationsService.atualizarBloqueio(
         id: app.id,
         bloqueado: true,
-        tempoLimite: novoLimite,
+        tempoLimite: 1,
       );
 
       setState(() {
