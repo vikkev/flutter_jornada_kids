@@ -88,7 +88,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       try {
         final dio = Dio();
         final url = '${ApiConfig.api}/tarefas/${_tarefaAtual.id}/avaliar';
-        await dio.post(url, data: {"estrela": estrelas});
+        await dio.put(url, data: {"estrela": estrelas});
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -143,7 +143,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
       try {
         final dio = Dio();
         final url = '${ApiConfig.api}/tarefas/${_tarefaAtual.id}/avaliar';
-        await dio.post(url, data: {"estrela": 0});
+        await dio.put(url, data: {"estrela": 0});
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

@@ -544,13 +544,18 @@ class _TaskCardState extends State<TaskCard>
     );
 
     if (shouldComplete == true) {
-      // Se for criança, faz o post para concluir tarefa
+      // Se for criança, faz o put para concluir tarefa
       final isCrianca = widget.responsavel.tipoUsuario == TipoUsuario.crianca;
       if (isCrianca) {
         try {
           final dio = Dio();
           final url = '${ApiConfig.api}/tarefas/${widget.tarefa.id}/concluir';
-          await dio.post(url);
+          await dio.put(
+            url,
+            options: Options(
+              headers: {'Content-Type': 'application/json'},
+            ),
+          );
         } catch (e) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
