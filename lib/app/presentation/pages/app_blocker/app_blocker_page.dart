@@ -111,7 +111,7 @@ class _AppBlockerPageState extends State<AppBlockerPage>
   static const String _plusOneRewardTitle = 'Mais 1 min de app';
   static const String _plusOneRewardDescription =
       'Use seus pontos para adicionar 1 minuto extra de uso em um aplicativo bloqueado.';
-  static const int _plusOneRewardCost = 1;
+  static const int _plusOneRewardCost = 10;
   static const int _plusOneRewardQuantidade = 9999;
   List<AplicativoResponse> _remoteApps = [];
   Map<String, AplicativoResponse> _remoteAppsByPackage = {};
@@ -743,6 +743,19 @@ class _AppBlockerPageState extends State<AppBlockerPage>
         final matchChild =
             criancaId == null || criancaId == 0 || app.idCrianca == criancaId;
         return matchResp && matchChild;
+      }).map((app) {
+        final normalizedLimit = app.bloqueado ? app.tempoLimite : 0;
+        return AplicativoResponse(
+          id: app.id,
+          idResponsavel: app.idResponsavel,
+          idCrianca: app.idCrianca,
+          plataforma: app.plataforma,
+          identificador: app.identificador,
+          nome: app.nome,
+          bloqueado: app.bloqueado,
+          tempoUsado: app.tempoUsado,
+          tempoLimite: normalizedLimit,
+        );
       }).toList();
       debugPrint('Filtrados por IDs (criança): ${filtrados.length}');
 
@@ -849,6 +862,19 @@ class _AppBlockerPageState extends State<AppBlockerPage>
         final matchChild =
             criancaId == null || criancaId == 0 ? true : app.idCrianca == criancaId;
         return matchResp && matchChild;
+      }).map((app) {
+        final normalizedLimit = app.bloqueado ? app.tempoLimite : 0;
+        return AplicativoResponse(
+          id: app.id,
+          idResponsavel: app.idResponsavel,
+          idCrianca: app.idCrianca,
+          plataforma: app.plataforma,
+          identificador: app.identificador,
+          nome: app.nome,
+          bloqueado: app.bloqueado,
+          tempoUsado: app.tempoUsado,
+          tempoLimite: normalizedLimit,
+        );
       }).toList()
         // Mantém apenas apps que têm uso registrado ou limite definido,
         // para refletir a lista vista na criança e evitar apps de sistema sem uso.
@@ -1683,6 +1709,13 @@ class _AppBlockerPageState extends State<AppBlockerPage>
                 }
                 Navigator.of(context).pop();
                 try {
+                  // Garante que o backend fique exatamente com o novo limite:
+                  // zera primeiro e depois aplica o valor final.
+                  await _applicationsService.atualizarBloqueio(
+                    id: app.id,
+                    bloqueado: false,
+                    tempoLimite: 0,
+                  );
                   await _applicationsService.atualizarBloqueio(
                     id: app.id,
                     bloqueado: true,
@@ -1733,15 +1766,24 @@ class _AppBlockerPageState extends State<AppBlockerPage>
   }
 
   Future<void> _addOneMinute(AplicativoResponse app) async {
-    if (widget.idCrianca == null || widget.idCrianca == 0) {
+    await _ensureIdsResolved();
+    final int? responsavelId = _resolvedResponsavelId ?? widget.idResponsavel;
+    final int? criancaId = _resolvedCriancaId ?? widget.idCrianca;
+    if (criancaId == null || criancaId == 0 || responsavelId == null || responsavelId == 0) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Responsável ou criança não identificado para adicionar tempo.'),
+        ),
+      );
       return;
     }
 
     try {
       // Buscar recompensa fixa para +1 min
       final recompensas = await _achievementsService.fetchRecompensas(
-        responsavelId: widget.idResponsavel,
-        criancaId: widget.idCrianca,
+        responsavelId: responsavelId,
+        criancaId: criancaId,
       );
 
       RecompensaResponse? recompensaExtraMinuto;
@@ -1755,7 +1797,7 @@ class _AppBlockerPageState extends State<AppBlockerPage>
       // Se não existir, cria a recompensa fixa automaticamente
       recompensaExtraMinuto ??=
           await _achievementsService.createRecompensa(
-        responsavelId: widget.idResponsavel,
+        responsavelId: responsavelId,
         titulo: _plusOneRewardTitle,
         observacao: _plusOneRewardDescription,
         pontuacaoNecessaria: _plusOneRewardCost,
@@ -1766,7 +1808,7 @@ class _AppBlockerPageState extends State<AppBlockerPage>
       try {
         await _achievementsService.resgatarRecompensa(
           recompensaId: recompensaExtraMinuto.id,
-          idCrianca: widget.idCrianca!,
+          idCrianca: criancaId,
         );
       } catch (e) {
         if (!mounted) return;
@@ -1780,6 +1822,12 @@ class _AppBlockerPageState extends State<AppBlockerPage>
 
       final novoLimite = (app.tempoLimite) + 1;
 
+      // Força valor absoluto: zera e seta o novo limite calculado
+      await _applicationsService.atualizarBloqueio(
+        id: app.id,
+        bloqueado: false,
+        tempoLimite: 0,
+      );
       await _applicationsService.atualizarBloqueio(
         id: app.id,
         bloqueado: true,
