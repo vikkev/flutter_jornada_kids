@@ -121,8 +121,6 @@ class _AppBlockerPageState extends State<AppBlockerPage>
   int? _resolvedResponsavelId;
   int? _resolvedCriancaId;
   bool _idsResolved = false;
-  static const String _usageLastSentKey = 'app_usage_last_sent';
-  static const String _usageLastSentDateKey = 'app_usage_last_sent_date';
 
   @override
   void initState() {
@@ -732,20 +730,6 @@ class _AppBlockerPageState extends State<AppBlockerPage>
       return;
     }
 
-    // Controle para não somar uso repetidamente: guarda último envio em minutos por app
-    final prefs = await SharedPreferences.getInstance();
-    final todayKey = DateTime.now().toIso8601String().substring(0, 10);
-    final lastDate = prefs.getString(_usageLastSentDateKey);
-    Map<String, dynamic> lastSentRaw =
-        json.decode(prefs.getString(_usageLastSentKey) ?? '{}');
-    Map<String, int> lastSent = {
-      for (final entry in lastSentRaw.entries)
-        entry.key: _toInt(entry.value) ?? 0,
-    };
-    if (lastDate != todayKey) {
-      lastSent = {};
-    }
-
     try {
       debugPrint(
         'Sync child apps -> respId=$responsavelId, criancaId=$criancaId, total a sincronizar=${appsParaSincronizar.length}',
@@ -780,7 +764,6 @@ class _AppBlockerPageState extends State<AppBlockerPage>
               tempoUsado: entry.minutesUsed,
             );
             byPackage[pkg] = created;
-            lastSent[pkg] = entry.minutesUsed;
             debugPrint('Criado app remoto $pkg para resp $responsavelId');
           } catch (e) {
             debugPrint('Erro ao criar aplicativo remoto para $pkg: $e');
@@ -790,24 +773,30 @@ class _AppBlockerPageState extends State<AppBlockerPage>
         final app = byPackage[pkg];
         if (app != null) {
           final minutesUsed = entry.minutesUsed;
-          final last = lastSent[pkg] ?? 0;
-          int toSend = minutesUsed - last;
-          if (toSend < 0) {
-            toSend = minutesUsed;
-          }
-          if (toSend == 0) {
-            continue;
-          }
-          try {
-            await _applicationsService.atualizarTempoUsado(
-              id: app.id,
-              tempoUsado: toSend,
-            );
-            lastSent[pkg] = minutesUsed;
-          } catch (e) {
-            debugPrint(
-              'Erro ao atualizar tempo usado para ${app.nome}: $e',
-            );
+          final current = app.tempoUsado;
+          final delta = minutesUsed - current;
+          if (delta != 0) {
+            try {
+              await _applicationsService.atualizarTempoUsado(
+                id: app.id,
+                tempoUsado: delta,
+              );
+              byPackage[pkg] = AplicativoResponse(
+                id: app.id,
+                idResponsavel: app.idResponsavel,
+                idCrianca: app.idCrianca,
+                plataforma: app.plataforma,
+                identificador: app.identificador,
+                nome: app.nome,
+                bloqueado: app.bloqueado,
+                tempoUsado: minutesUsed,
+                tempoLimite: app.tempoLimite,
+              );
+            } catch (e) {
+              debugPrint(
+                'Erro ao atualizar tempo usado para ${app.nome}: $e',
+              );
+            }
           }
         }
       }
@@ -833,9 +822,6 @@ class _AppBlockerPageState extends State<AppBlockerPage>
       });
 
       unawaited(_saveLimits());
-      // Persiste últimos valores enviados no dia
-      await prefs.setString(_usageLastSentKey, json.encode(lastSent));
-      await prefs.setString(_usageLastSentDateKey, todayKey);
     } catch (e) {
       debugPrint('Erro ao sincronizar aplicativos com backend: $e');
     }
