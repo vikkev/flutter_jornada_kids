@@ -1688,6 +1688,7 @@ class _AppBlockerPageState extends State<AppBlockerPage>
                     }
                     appLimits.remove(app.identificador);
                   });
+                  await _saveLimits();
                   await _updateNativeBlockedApps();
                 } catch (e) {
                   if (!mounted) return;
@@ -1742,6 +1743,7 @@ class _AppBlockerPageState extends State<AppBlockerPage>
                     }
                     appLimits[app.identificador] = Duration(minutes: minutes);
                   });
+                  await _saveLimits();
                   await _updateNativeBlockedApps();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -1851,6 +1853,10 @@ class _AppBlockerPageState extends State<AppBlockerPage>
         }
         appLimits[app.identificador] = Duration(minutes: novoLimite);
       });
+
+      // Persiste o novo limite para que o serviço nativo (AppBlockerService)
+      // passe a considerar o tempo extra imediatamente.
+      await _saveLimits();
 
       await _updateNativeBlockedApps();
 

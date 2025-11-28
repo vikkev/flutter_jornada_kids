@@ -651,7 +651,7 @@ class _AchievementsPageState extends State<AchievementsPage>
                     // Minecraft background image
                     Positioned.fill(
                       child: Image.asset(
-                        'images/minecraft-background.jpg',
+                        'assets/images/minecraft-background.jpg',
                         fit: BoxFit.cover,
                       ),
                     ),
